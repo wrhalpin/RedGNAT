@@ -1,0 +1,106 @@
+# RedGNAT Configuration Template
+# Copy to ~/.redgnat/config.ini or set REDGNAT_CONFIG=/path/to/config.ini
+# NEVER commit real credentials — this file is for structure only.
+
+[redgnat]
+# PostgreSQL connection URL
+db_url = postgresql://redgnat:changeme@localhost:5432/redgnat
+# Redis URL for Celery broker + backend
+redis_url = redis://localhost:6379/0
+# Global dry-run: true = log what would happen, never touch targets
+dry_run = false
+# Log level: DEBUG, INFO, WARNING, ERROR
+log_level = INFO
+
+[gnat]
+# Path to existing GNAT config file (gnat.ini)
+config_path = ~/.gnat/config.ini
+# How often to poll GNAT for new campaigns/TTPs (seconds)
+poll_interval_seconds = 300
+# Minimum GNAT confidence score to consider intel actionable (0.0–1.0)
+min_confidence = 0.6
+
+[sandgnat]
+# SandGNAT export API base URL
+base_url = http://sandgnat.internal:5000
+# SandGNAT INTAKE_API_KEY
+api_key = CHANGE_ME
+# How often to poll SandGNAT for new analyses (seconds)
+poll_interval_seconds = 120
+# Only ingest analyses with severity >= this (low, medium, high, critical)
+min_severity = medium
+
+[gophish]
+# GoPhish API base URL (include port)
+base_url = https://gophish.redteam.internal:3333
+# GoPhish API key
+api_key = CHANGE_ME
+# Default sending profile ID to use for campaigns
+sending_profile_id = 1
+# Base URL where landing pages are served (must be reachable by targets)
+landing_page_base_url = https://click.redteam.internal
+# Default campaign duration in hours
+default_campaign_hours = 72
+
+# ---------------------------------------------------------------------------
+# SAFE HARBOR SCOPE
+# ALL techniques validate against this before touching any target.
+# Misconfigurations here are the most common source of incidents.
+# ---------------------------------------------------------------------------
+[scope]
+# CIDR ranges permitted for network techniques (comma-separated)
+target_ranges = 10.0.0.0/8,172.16.0.0/12
+
+# CIDR ranges NEVER touched regardless of target_ranges
+excluded_ranges = 10.0.0.1/32
+
+# DNS domains in scope for phishing and web techniques
+target_domains = example.com,corp.example.com
+
+# DNS domains explicitly excluded
+excluded_domains =
+
+# UPNs / email addresses of dedicated test accounts for credential techniques.
+# ONLY these accounts will be targeted by password spray, MFA fatigue, etc.
+target_accounts = redteam-test@example.com
+
+# Maximum requests per minute (all techniques combined, per target)
+max_rate_per_minute = 30
+
+# ---------------------------------------------------------------------------
+# IDENTITY PROVIDERS
+# ---------------------------------------------------------------------------
+[entra]
+# Azure AD / Entra ID tenant
+tenant_id = 00000000-0000-0000-0000-000000000000
+# App registration with appropriate read + test permissions
+client_id = 00000000-0000-0000-0000-000000000000
+client_secret = CHANGE_ME
+# OAuth2 token endpoint (usually login.microsoftonline.com)
+authority = https://login.microsoftonline.com
+
+[okta]
+# Okta org URL
+base_url = https://example.okta.com
+# Okta API token (SSWS or OAuth2 bearer)
+api_token = CHANGE_ME
+
+[ldap]
+# Domain controller address
+server = ldap://dc.example.com
+# Service account DN for read-only LDAP enumeration
+bind_dn = CN=redgnat-svc,OU=ServiceAccounts,DC=example,DC=com
+bind_password = CHANGE_ME
+# Search base
+base_dn = DC=example,DC=com
+# Use LDAPS (TLS)
+use_ssl = false
+port = 389
+
+[aws]
+# AWS credentials for cloud enumeration (read-only IAM role recommended)
+aws_access_key_id = CHANGE_ME
+aws_secret_access_key = CHANGE_ME
+aws_default_region = us-east-1
+# Assume role ARN for enumeration (optional; leave blank to use key directly)
+assume_role_arn =

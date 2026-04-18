@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: redgnat
+      POSTGRES_USER: redgnat
+      POSTGRES_PASSWORD: redgnat
+    ports:
+      - "5432:5432"
+    volumes:
+      - redgnat_pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U redgnat"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    build: .
+    command: celery -A redgnat.emulation.tasks worker --loglevel=info -Q redgnat
+    environment:
+      REDGNAT_CONFIG: /app/config/redgnat.ini
+      REDGNAT_REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+  beat:
+    build: .
+    command: celery -A redgnat.emulation.tasks beat --loglevel=info
+    environment:
+      REDGNAT_CONFIG: /app/config/redgnat.ini
+      REDGNAT_REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - worker
+    volumes:
+      - .:/app
+
+  api:
+    build: .
+    command: uvicorn redgnat.api.app:create_app --factory --host 0.0.0.0 --port 8000
+    environment:
+      REDGNAT_CONFIG: /app/config/redgnat.ini
+      REDGNAT_API_KEY: changeme
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+volumes:
+  redgnat_pgdata:
