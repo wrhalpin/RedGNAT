@@ -1,0 +1,92 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "redgnat"
+version = "0.1.0"
+description = "Continuous Automated Red Teaming module for GNAT"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [{ name = "RedGNAT Contributors" }]
+keywords = ["red-team", "adversary-emulation", "threat-intelligence", "MITRE-ATT&CK", "CART"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+
+dependencies = [
+    "gnat>=1.5.0",           # Core GNAT library (connectors, ORM, agents)
+    "psycopg[binary]>=3.1",  # PostgreSQL driver (matches SandGNAT convention)
+    "celery[redis]>=5.3",    # Async task queue
+    "fastapi>=0.111",        # REST management API
+    "uvicorn[standard]>=0.29", # ASGI server
+    "urllib3>=2.2",          # HTTP client (no requests — matches GNAT)
+    "stix2>=3.0",            # STIX 2.1 objects for result export
+]
+
+[project.optional-dependencies]
+discovery = [
+    "python-nmap>=0.7",      # nmap subprocess wrapper (T1046, T1595.001)
+    "ldap3>=2.9",            # LDAP enumeration (T1087, T1069, T1482)
+    "boto3>=1.34",           # AWS enumeration (T1087.004, T1069.003)
+    "msal>=1.28",            # Microsoft identity (Entra/Azure AD)
+]
+phishing = [
+    "python-docx>=1.1",      # Phishing template rendering
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "types-urllib3",
+    "httpx>=0.27",           # Test async client
+]
+all = ["redgnat[discovery,phishing]"]
+
+[project.scripts]
+redgnat = "redgnat.cli:main"
+
+[project.entry-points."gnat.connectors"]
+redgnat = "redgnat.plugins.gnat_plugin:RedGNATConnector"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["redgnat*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--tb=short"
+markers = [
+    "integration: requires live credentials and network access",
+    "slow: tests taking >5s",
+]
+
+[tool.coverage.run]
+source = ["redgnat"]
+omit = ["tests/*", "redgnat/cli.py"]
+
+[tool.coverage.report]
+fail_under = 70
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+warn_unused_ignores = true
