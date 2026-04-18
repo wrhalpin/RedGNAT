@@ -15,8 +15,17 @@ scenarios against the enterprise environment.
 1. GNAT detects a new campaign / IOC cluster / emerging TTP → RedGNAT ingests it
 2. SandGNAT detonates a related sample → RedGNAT ingests the behavioral STIX bundle
 3. RedGNAT builds an `EmulationScenario` (ATT&CK-mapped techniques, targets, scope)
-4. RedGNAT executes the scenario (emulation only — no exploitation)
+4. RedGNAT executes the scenario (Phase 1: emulation and probing; Phase 2+: controlled offensive testing)
 5. Results (detections, gaps, coverage) flow back to GNAT as STIX Course-of-Action objects
+6. **Feedback loop:** GNAT's AI agents analyze gaps → generate ProbeRequests → RedGNAT executes refined follow-on probes
+
+**Design phases:**
+- **Phase 1 (current):** Emulation and probing — observe, enumerate, phish, spray, but never exploit.
+  The `emulation_only = True` class attribute is the Phase 1 default, not a permanent hard constraint.
+- **Phase 2 (planned):** Controlled offensive testing — exploitation techniques with explicit opt-in,
+  additional safety controls (kill-switch, break-glass approval), and separate technique category.
+  Phase 2 techniques will live in `redgnat/techniques/exploitation/` and require `emulation_only = False`
+  to be set deliberately on a per-technique basis after design review.
 
 **Package name (PyPI):** `redgnat`
 **Import root:** `redgnat`
@@ -30,28 +39,35 @@ scenarios against the enterprise environment.
 ## Dependency Relationship
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                          GNAT (gnat)                            │
-│  158+ connectors · STIX ORM · agents · ingest · reports        │
-│  gnat.connectors.sandgnat ─────────────────────────────────┐   │
-└───────────┬─────────────────────────────────────────────────┼───┘
-            │ GNATClient                                       │
-            │ (intel feed: campaigns, IOCs, TTPs)              │ SandGNAT export API
-            ▼                                                  ▼
-┌───────────────────────────────────────────────────────────────────┐
-│                        RedGNAT (this repo)                       │
-│                                                                   │
-│  intake/ ──► scenarios/ ──► emulation/ ──► techniques/           │
-│                                              ├── discovery/       │
-│                                              ├── phishing/        │
-│                                              └── identity/        │
-│                                                                   │
-│  reports/ ◄── results                                            │
-│  plugins/gnat_plugin.py ──► GNAT (push results back)             │
-│  api/ ──► REST management interface                               │
-└───────────────────────────────────────────────────────────────────┘
-            │
-            ▼ SandGNAT export_api (HTTP)
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                              GNAT (gnat)                                     │
+│  158+ connectors · STIX ORM · agents · ingest · reports                     │
+│  gnat.connectors.sandgnat ─────────────────────────────────────────────┐    │
+│  LLMClient (Claude/GPT) ────────────────────────────────────────────┐  │    │
+└──────────┬──────────────────────────────────────────────────────────┼──┼────┘
+           │ GNATClient                       ▲                        │  │
+           │ (intel feed: campaigns,          │ STIX CoA/Sighting      │  │
+           │  IOCs, TTPs)                     │ gap reports             │  │
+           │                                  │ enrichment requests     │  │
+           │ ProbeRequests ◄──────────────────┘                        │  │
+           │ (AI-generated follow-on probes)   AI probe generation ◄───┘  │
+           ▼                                                               │ SandGNAT
+┌──────────────────────────────────────────────────────────────────────┐  │ export API
+│                         RedGNAT (this repo)                          │  │
+│                                                                      │  │
+│  intake/ ──► scenarios/ ──► emulation/ ──► techniques/              │  │
+│    ▲                                         ├── discovery/          │  │
+│    │ probe_requests                          ├── phishing/           │  │
+│    │ from GNAT agents                        ├── identity/           │  │
+│    │                                         └── [exploitation/ P2]  │  │
+│  feedback/ ◄── results                                               │  │
+│    │  gap_reporter.py  → gap STIX Notes ──────────────────────────►  │  │
+│    │  probe_generator.py → new ProbeRequests via GNAT LLMClient      │  │
+│    │                                                                  │  │
+│  api/ ──► REST management + ProbeRequest intake                      │  │
+└──────────────────────────────────────────────────────────────────────┘  │
+           │                                                               │
+           ▼ SandGNAT export_api (HTTP) ◄─────────────────────────────────┘
 ┌─────────────────────────────────────────────────────────────────┐
 │                      SandGNAT                                   │
 │  Detonation sandbox · STIX 2.1 behavioral profiles             │
@@ -97,23 +113,29 @@ redgnat/                          # Main Python package
 │   │   ├── spearphishing_link.py # T1566.002 — link-based campaign via GoPhish
 │   │   ├── spearphishing_attachment.py  # T1566.001 — attachment campaign
 │   │   └── mfa_phishing.py       # T1566 + adversary-in-the-middle MFA capture
-│   └── identity/                 # TA0006 Credential Access + TA0001 Valid Accounts
-│       ├── base.py               # Identity provider client base (Entra, Okta, AD)
-│       ├── password_spray.py     # T1110.003 — controlled spray against test accounts
-│       ├── credential_stuffing.py # T1110.004 — test credential list replay
-│       ├── mfa_fatigue.py        # T1621 — MFA push bombing simulation
-│       ├── oauth_abuse.py        # T1528 — OAuth consent phishing via GoPhish
-│       └── token_theft.py        # T1539 — session token pattern detection
+│   ├── identity/                 # TA0006 Credential Access + TA0001 Valid Accounts
+│   │   ├── base.py               # Identity provider client base (Entra, Okta, AD)
+│   │   ├── password_spray.py     # T1110.003 — controlled spray against test accounts
+│   │   ├── credential_stuffing.py # T1110.004 — test credential list replay
+│   │   ├── mfa_fatigue.py        # T1621 — MFA push bombing simulation
+│   │   ├── oauth_abuse.py        # T1528 — OAuth consent phishing via GoPhish
+│   │   └── token_theft.py        # T1539 — session token pattern detection
+│   └── exploitation/             # Phase 2 — controlled offensive techniques (planned)
+│       └── README.md             # Phase 2 design notes; no code yet
+├── feedback/                     # Closed-loop intelligence feedback
+│   ├── gap_reporter.py           # Converts gaps → STIX Notes pushed back to GNAT
+│   └── probe_generator.py        # Uses GNAT's LLMClient to suggest follow-on probes
 ├── reports/                      # Reporting (wraps gnat.reports)
 │   └── cart_report.py            # CART-specific PDF/DOCX report generator
 ├── plugins/                      # GNAT integration plugin
-│   └── gnat_plugin.py            # ConnectorMixin — lets GNAT pull emulation results
+│   └── gnat_plugin.py            # ConnectorMixin — bidirectional GNAT integration
 └── api/                          # FastAPI REST management interface
     ├── app.py                    # Application factory
     └── routes/
         ├── scenarios.py          # GET/POST /scenarios
         ├── runs.py               # GET/POST /runs, GET /runs/{id}
-        └── intel.py              # GET /intel/feeds, POST /intel/trigger
+        ├── intel.py              # GET /intel/feeds, POST /intel/trigger, POST /intel/probe-request
+        └── stix.py               # STIX export for GNAT connector pull
 
 migrations/                       # Forward-only SQL migrations (never edit applied)
 │   001_initial_schema.sql        # Core tables
@@ -253,9 +275,10 @@ Every technique module **must** enforce these before any network activity:
 2. **Dry-run mode** — when `scope.dry_run = True`, techniques log what they *would* do and return `ResultStatus.DRY_RUN`
 3. **Rate limiting** — all techniques respect `scope.max_rate_per_minute`; identity techniques add random jitter
 4. **Test-account-only** — password spray, MFA fatigue, credential stuffing ONLY target accounts explicitly listed in `scope.target_accounts`
-5. **Emulation flag** — `Technique.emulation_only = True` — techniques observe and probe but never deliver payloads or exploit
+5. **Phase flag** — `Technique.emulation_only = True` is the default for all Phase 1 techniques (observe, probe, enumerate — no exploitation). Phase 2 exploitation techniques set this to `False` only after explicit design review and with additional safety controls.
 
-Violating any of these rules is a critical bug. The scope guard lives in `redgnat/techniques/base.py:Technique._check_scope()`.
+Controls 1–4 are invariant across all phases. Control 5 relaxes in Phase 2 for designated exploitation techniques only.
+The scope guard lives in `redgnat/techniques/base.py:Technique._check_scope()`.
 
 ---
 
@@ -303,18 +326,20 @@ Violating any of these rules is a critical bug. The scope guard lives in `redgna
 
 ---
 
-## Intel → Scenario → Run Data Flow
+## Intel → Scenario → Run → Feedback Data Flow
 
 ```
-GNAT campaign STIX bundle
-       │
-       ▼
-intake/gnat_subscriber.py
-       │  polls GNATClient.list_objects("campaign")
-       │
-       ▼
-intake/normalizer.py
-       │  maps STIX Campaign + AttackPattern → IntelFeed
+GNAT campaign STIX bundle          ProbeRequest from GNAT AI agent
+       │                                     │
+       ▼                                     ▼
+intake/gnat_subscriber.py          api/routes/intel.py (POST /intel/probe-request)
+       │  polls GNATClient                   │
+       │  list_objects("campaign")           │ direct API inject
+       │                                     │
+       ▼                                     ▼
+intake/normalizer.py ◄────────── feedback/probe_generator.py
+       │  maps STIX Campaign +                  (merges AI-generated probe specs
+       │  AttackPattern → IntelFeed              with scope + technique registry)
        │
        ▼
 scenarios/builder.py
@@ -330,27 +355,54 @@ emulation/tasks.py (Celery)
 emulation/result.py
        │  RunResult (aggregates TechniqueResults)
        │
-       ▼
-scenarios/store.py  ──────►  PostgreSQL
+       ├──► scenarios/store.py ──────► PostgreSQL
        │
-       ▼
-plugins/gnat_plugin.py
-       │  converts results → STIX CourseOfAction + Sighting
-       │  available via GNAT connector pull
+       ├──► plugins/gnat_plugin.py
+       │      converts results → STIX CourseOfAction + Sighting
+       │      available via GNAT connector pull (GET /api/v1/stix/results)
        │
-       ▼
-reports/cart_report.py
-       │  ATT&CK matrix coverage map
-       │  gap analysis (fired vs. undetected)
-       └──► PDF / DOCX report
+       ├──► feedback/gap_reporter.py
+       │      identifies SUCCESS results (= undetected techniques)
+       │      pushes STIX Note objects back to GNAT as intelligence requirements
+       │      ("T1110.003 succeeded — need: lockout policy intel, Okta risk signal check")
+       │
+       └──► feedback/probe_generator.py
+              calls GNAT's LLMClient (Claude backend) with gap context
+              suggests follow-on techniques + refined parameters
+              emits ProbeRequest objects → queued for next intake cycle
+              ▼
+        reports/cart_report.py
+               ATT&CK matrix coverage map + gap analysis
+               └──► PDF / DOCX report
 ```
 
 ---
 
-## GNAT Plugin Integration
+## Bidirectional GNAT Integration
+
+### GNAT → RedGNAT (intel + probe requests)
+
+The existing `intake/gnat_subscriber.py` polls GNAT campaigns and TTPs.
+In addition, GNAT's AI agents can inject targeted **ProbeRequests** directly:
+
+```python
+# GNAT side: agent generates a probe request after analyzing a gap report
+from gnat.agents import LLMClient
+# ... agent analyzes STIX Note gap → produces ProbeRequest JSON
+# GNAT POSTs it to RedGNAT's intake API:
+POST /api/v1/intel/probe-request
+{
+  "technique_ids": ["T1621", "T1110.004"],
+  "context": "Password spray succeeded on Okta without lockout. Test MFA fatigue and stuffing.",
+  "source": "gnat_agent",
+  "priority": "high"
+}
+```
+
+### RedGNAT → GNAT (results + gap intelligence)
 
 RedGNAT registers as a thin GNAT connector via `redgnat.plugins.gnat_plugin.RedGNATConnector`.
-GNAT operators add it to their `GNATClient` to pull emulation results:
+GNAT operators add it to pull emulation results and gap intelligence:
 
 ```python
 from gnat import GNATClient
@@ -358,12 +410,29 @@ from redgnat.plugins.gnat_plugin import RedGNATConnector
 
 client = GNATClient(config_path="gnat.ini")
 connector = RedGNATConnector(base_url="http://redgnat-host:8000", api_key="...")
-results = connector.list_objects()  # returns STIX CourseOfAction objects
+results = connector.list_objects("course-of-action")  # emulation run summaries
+sightings = connector.list_objects("sighting")        # per-technique STIX sightings
+gaps = connector.list_objects("note")                 # gap intelligence requirements
 ```
 
-The plugin exposes:
-- `GET /api/v1/stix/results` — all emulation run results as STIX CoA objects
+RedGNAT exposes:
+- `GET /api/v1/stix/results` — run results as STIX CoA objects
 - `GET /api/v1/stix/results/{run_id}` — single run result
+- `GET /api/v1/stix/sightings` — technique-level STIX Sighting objects
+- `GET /api/v1/stix/gaps` — STIX Note objects (gap intelligence requirements for GNAT)
+- `POST /api/v1/intel/probe-request` — GNAT agents inject targeted probe specs
+
+### The Feedback Loop in Practice
+
+1. RedGNAT executes a password spray (T1110.003) → no lockout triggered → `ResultStatus.SUCCESS`
+2. `feedback/gap_reporter.py` creates a STIX Note: *"T1110.003 undetected. Need: Okta lockout policy,
+   smart lockout threshold, Entra ID Protection risk signal for spray patterns."*
+3. GNAT ingests the Note → enriches with Okta connector + Silverfort connector
+4. GNAT's `LLMClient` (Claude) reads the enriched Note + gap context →
+   suggests `ProbeRequest(technique_ids=["T1621"], context="No lockout on spray — test MFA fatigue")`
+5. ProbeRequest is POSTed to `POST /api/v1/intel/probe-request`
+6. RedGNAT queues the follow-on emulation → executes MFA fatigue → reports back
+7. Repeat until coverage converges
 
 ---
 
@@ -423,12 +492,13 @@ Matches GNAT conventions:
 
 - Do not add `requests` — use `urllib3` or `httpx`
 - Do not introduce Pydantic or SQLAlchemy — use the dataclass ORM pattern
-- Do not add exploitation capabilities — `emulation_only = True` is a hard constraint
-- Do not bypass `Scope` checks — every technique **must** call `_check_scope()` first
+- Do not add Phase 2 exploitation techniques without a design review and `emulation_only = False` set deliberately — the flag has meaning; don't flip it casually
+- Do not bypass `Scope` checks — every technique **must** call `_check_scope()` first, in both Phase 1 and Phase 2
 - Do not target accounts not listed in `scope.target_accounts` for credential attacks
 - Do not commit real credentials — only example values in `config/config.ini.example`
 - Do not scatter SQL — all DB access goes through `scenarios/store.py`
-- Do not modify GNAT source — integration is via the `ConnectorMixin` plugin only
+- Do not modify GNAT source — integration is via the `ConnectorMixin` plugin and the `/api/v1/intel/probe-request` intake endpoint only
+- Do not call GNAT's LLMClient in hot paths (emulation runner) — keep AI calls in `feedback/probe_generator.py` which runs post-completion
 
 ---
 

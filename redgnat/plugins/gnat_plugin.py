@@ -113,6 +113,9 @@ class RedGNATConnector:
         elif object_type == "sighting":
             sightings = self._get("/api/v1/stix/sightings")
             return sightings if isinstance(sightings, list) else []
+        elif object_type == "note":
+            notes = self._get("/api/v1/stix/gaps")
+            return notes if isinstance(notes, list) else []
         else:
             logger.debug("RedGNATConnector: unsupported object_type %s", object_type)
             return []
@@ -122,6 +125,20 @@ class RedGNATConnector:
             return self._get(f"/api/v1/stix/results/{object_id}")
         except Exception:
             return None
+
+    def push_probe_request(self, probe_dict: dict) -> dict:
+        """
+        POST a ProbeRequest to RedGNAT's intake endpoint.
+
+        GNAT AI agents call this after analysing gap notes to inject
+        follow-on probe instructions into the RedGNAT emulation queue.
+
+        Parameters
+        ----------
+        probe_dict : dict
+            ProbeRequest.to_dict() payload.
+        """
+        return self._post("/api/v1/intel/probe-request", probe_dict)
 
     def upsert_object(self, obj: dict) -> dict:
         raise NotImplementedError("RedGNAT connector is read-only from GNAT's perspective")
@@ -144,6 +161,22 @@ class RedGNATConnector:
             url,
             headers={
                 "X-API-Key": self._api_key,
+                "Accept": "application/json",
+            },
+        )
+        with urllib.request.urlopen(req, context=self._ssl_ctx, timeout=15) as resp:  # noqa: S310
+            return json.loads(resp.read())
+
+    def _post(self, path: str, payload: dict) -> Any:
+        url = f"{self._base_url}{path}"
+        data = json.dumps(payload).encode()
+        req = urllib.request.Request(
+            url,
+            data=data,
+            method="POST",
+            headers={
+                "X-API-Key": self._api_key,
+                "Content-Type": "application/json",
                 "Accept": "application/json",
             },
         )

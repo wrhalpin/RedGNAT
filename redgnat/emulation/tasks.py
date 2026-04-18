@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import os
+from typing import Any
 
 from celery import Celery
 
@@ -80,6 +81,7 @@ def run_scenario_task(self, run_id: str) -> dict:
     runner = EmulationRunner(client.config)
     try:
         results = runner.execute(run, scenario)
+        _run_feedback(client.config, run_id, run.scenario_id, results)
         return {
             "run_id": run_id,
             "scenario_id": run.scenario_id,
@@ -89,6 +91,75 @@ def run_scenario_task(self, run_id: str) -> dict:
     except Exception as exc:
         logger.exception("run_scenario_task failed for run %s: %s", run_id, exc)
         raise self.retry(exc=exc)
+
+
+def _run_feedback(config: Any, run_id: str, scenario_id: str, results: list) -> None:
+    """Build gap report, push to GNAT, and generate follow-on probes."""
+    try:
+        from redgnat.feedback.gap_reporter import GapReporter
+        from redgnat.feedback.probe_generator import ProbeGenerator
+
+        reporter = GapReporter(config)
+        report = reporter.build_report(run_id, scenario_id, results)
+        if not report.gaps:
+            return
+
+        reporter.push_to_gnat(report)
+
+        generator = ProbeGenerator(config)
+        probes = generator.generate(report)
+        if probes:
+            logger.info(
+                "_run_feedback: queuing %d probe request(s) from gap report %s",
+                len(probes),
+                report.gap_id,
+            )
+            for probe in probes:
+                run_probe_task.delay(probe.to_dict())
+    except Exception as exc:
+        logger.warning("_run_feedback: non-fatal error during feedback phase: %s", exc)
+
+
+@app.task
+def run_probe_task(probe_dict: dict) -> dict:
+    """
+    Ingest a ProbeRequest back into RedGNAT as a single-technique scenario run.
+
+    Called automatically after gap analysis; can also be triggered externally
+    via POST /api/v1/intel/probe-request.
+    """
+    from redgnat.feedback.probe_generator import ProbeRequest
+    from redgnat.client import RedGNATClient
+    from redgnat.orm.models import IntelFeed, IntelSource
+
+    probe = ProbeRequest.from_dict(probe_dict)
+    logger.info(
+        "run_probe_task: scheduling probe %s (technique=%s, priority=%s)",
+        probe.probe_id,
+        probe.technique_id,
+        probe.priority,
+    )
+
+    client = RedGNATClient()
+    # Build a minimal feed + scenario for the single probe technique
+    feed = IntelFeed(
+        source=IntelSource.GNAT,
+        source_ref_id=f"probe-{probe.probe_id}",
+        campaign_name=f"Probe: {probe.technique_id} [{probe.priority}]",
+        attack_pattern_ids=[probe.technique_id],
+        confidence=1.0,
+        stix_bundle={},
+    )
+    scenario = client._normalizer().to_scenario(feed)
+    if scenario is None:
+        logger.warning("run_probe_task: technique %s not registered, skipping", probe.technique_id)
+        return {"skipped": True, "reason": "technique not registered"}
+
+    store = client._get_store()
+    store.upsert_feed(feed)
+    store.upsert_scenario(scenario)
+    run = client.run_scenario(scenario.scenario_id, triggered_by=f"probe:{probe.probe_id}", async_=False)
+    return {"probe_id": probe.probe_id, "run_id": run.run_id if run else None}
 
 
 @app.task

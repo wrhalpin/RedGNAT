@@ -104,3 +104,18 @@ aws_secret_access_key = CHANGE_ME
 aws_default_region = us-east-1
 # Assume role ARN for enumeration (optional; leave blank to use key directly)
 assume_role_arn =
+
+# ---------------------------------------------------------------------------
+# BIDIRECTIONAL FEEDBACK (gap reporting + AI-driven probe generation)
+# ---------------------------------------------------------------------------
+[feedback]
+# Enable automatic gap reporting after each emulation run
+enabled = true
+# Push gap STIX Notes to GNAT via GNATClient after each run
+push_to_gnat = true
+# Enable AI-driven probe generation (requires gnat.agents.LLMClient)
+probe_generation_enabled = true
+# LLM model for probe generation (passed to gnat.agents.LLMClient)
+probe_model = claude-3-5-sonnet-20241022
+# Maximum follow-on probes to generate per gap report
+max_probes_per_report = 10
