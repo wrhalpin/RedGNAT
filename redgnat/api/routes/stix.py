@@ -58,6 +58,30 @@ async def list_stix_sightings() -> list[dict]:
     return sightings
 
 
+@router.get("/stix/gaps")
+async def list_stix_gaps() -> list[dict]:
+    """
+    Return gap reports as STIX 2.1 Note objects.
+
+    Consumed by the GNAT RedGNATConnector (list_objects("note")) so GNAT
+    operators and AI agents can see which techniques went undetected and
+    what intel collection GNAT should task.
+    """
+    client = _get_client()
+    store = client._get_store()
+    from redgnat.feedback.gap_reporter import GapReporter
+    from redgnat.orm.models import ResultStatus
+
+    reporter = GapReporter(client.config)
+    notes = []
+    for run in client.list_runs():
+        results = store.list_results(run.run_id)
+        report = reporter.build_report(run.run_id, run.scenario_id, results)
+        if report.gaps:
+            notes.append(report.to_stix_note())
+    return notes
+
+
 def _run_to_stix_coa(run: Any, scenario: Any, results: list[Any]) -> dict:
     from datetime import datetime, timezone
 

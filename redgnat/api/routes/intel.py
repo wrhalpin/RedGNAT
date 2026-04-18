@@ -21,6 +21,27 @@ async def trigger_ingest() -> dict:
     return {"feeds_ingested": len(feeds), "feed_ids": [f.feed_id for f in feeds]}
 
 
+@router.post("/intel/probe-request")
+async def submit_probe_request(body: dict) -> dict:
+    """
+    Accept a ProbeRequest from GNAT AI agents and enqueue it as a Celery task.
+
+    This is the inbound half of the bidirectional feedback loop: GNAT's LLM
+    agents analyse gap notes pulled from GET /stix/gaps and POST new probe
+    instructions back here to drive follow-on emulation runs.
+
+    Expected body: ProbeRequest.to_dict() output.
+    """
+    from redgnat.emulation.tasks import run_probe_task
+
+    if not body.get("technique_id"):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=422, detail="technique_id is required")
+
+    task = run_probe_task.delay(body)
+    return {"queued": True, "task_id": task.id, "technique_id": body["technique_id"]}
+
+
 @router.get("/intel/techniques")
 async def list_registered_techniques() -> list[dict]:
     """List all registered ATT&CK technique IDs and their metadata."""
