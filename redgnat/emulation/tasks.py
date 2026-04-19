@@ -172,6 +172,72 @@ def run_probe_task(probe_dict: dict) -> dict:
     return {"probe_id": probe.probe_id, "run_id": run.run_id if run else None}
 
 
+@app.task(bind=True, max_retries=0)
+def run_engagement_task(self, run_id: str) -> dict:
+    """
+    Execute a Phase 2 engagement run — never retried automatically.
+
+    All three engagement gates are checked before dispatching:
+      Gate 1 — config.phase2_enabled must be True
+      Gate 2 — REDGNAT_PHASE2_UNLOCK env var must be set
+      Gate 3 — a valid, unexpired EngagementToken must exist in Redis
+
+    If any gate fails the run is immediately set to FAILED and no
+    techniques are dispatched.  Uses EngagementRunner (not EmulationRunner)
+    so the token is also re-checked between every technique step.
+
+    Parameters
+    ----------
+    run_id : str
+        ID of the EmulationRun to execute.
+
+    Returns
+    -------
+    dict
+        Summary including gate check result and run outcome.
+    """
+    from redgnat.client import RedGNATClient
+    from redgnat.engagement.gate import EngagementGate
+    from redgnat.emulation.runner import EngagementRunner
+    from redgnat.orm.models import RunStatus
+
+    client = RedGNATClient()
+    store = client._get_store()
+
+    run = store.get_run(run_id)
+    if run is None:
+        logger.error("run_engagement_task: run %s not found", run_id)
+        return {"error": f"run {run_id} not found"}
+
+    scenario = store.get_scenario(run.scenario_id)
+    if scenario is None:
+        logger.error("run_engagement_task: scenario %s not found", run.scenario_id)
+        return {"error": f"scenario {run.scenario_id} not found"}
+
+    # Gate check — all three must pass before a single technique fires
+    gate = EngagementGate(client.config)
+    authorized, reason = gate.check()
+    if not authorized:
+        logger.warning(
+            "run_engagement_task: gate denied run=%s reason=%s", run_id, reason
+        )
+        run.status = RunStatus.FAILED
+        store.upsert_run(run)
+        store.close()
+        return {"run_id": run_id, "authorized": False, "reason": reason}
+
+    runner = EngagementRunner(client.config)
+    results = runner.execute(run, scenario)
+    _run_feedback(client.config, run_id, run.scenario_id, results)
+    return {
+        "run_id": run_id,
+        "authorized": True,
+        "scenario_id": run.scenario_id,
+        "techniques_executed": len(results),
+        "status": run.status.value,
+    }
+
+
 @app.task
 def ingest_intel_task() -> dict:
     """
