@@ -210,6 +210,29 @@ class RedGNATConfig:
         return self._get("aws", "assume_role_arn", "")
 
     # ------------------------------------------------------------------
+    # [feedback]
+    # ------------------------------------------------------------------
+    @property
+    def feedback_enabled(self) -> bool:
+        return self._cfg.getboolean("feedback", "enabled", fallback=True)
+
+    @property
+    def feedback_push_to_gnat(self) -> bool:
+        return self._cfg.getboolean("feedback", "push_to_gnat", fallback=True)
+
+    @property
+    def feedback_probe_generation_enabled(self) -> bool:
+        return self._cfg.getboolean("feedback", "probe_generation_enabled", fallback=True)
+
+    @property
+    def feedback_probe_model(self) -> str:
+        return self._get("feedback", "probe_model", "claude-3-5-sonnet-20241022")
+
+    @property
+    def feedback_max_probes(self) -> int:
+        return int(self._get("feedback", "max_probes_per_report", "10"))
+
+    # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
     def _get(self, section: str, key: str, default: str) -> str:

@@ -96,6 +96,10 @@ def run_scenario_task(self, run_id: str) -> dict:
 def _run_feedback(config: Any, run_id: str, scenario_id: str, results: list) -> None:
     """Build gap report, push to GNAT, and generate follow-on probes."""
     try:
+        if not config.feedback_enabled:
+            logger.debug("_run_feedback: disabled via config, skipping")
+            return
+
         from redgnat.feedback.gap_reporter import GapReporter
         from redgnat.feedback.probe_generator import ProbeGenerator
 
@@ -104,18 +108,24 @@ def _run_feedback(config: Any, run_id: str, scenario_id: str, results: list) -> 
         if not report.gaps:
             return
 
-        reporter.push_to_gnat(report)
+        if config.feedback_push_to_gnat:
+            reporter.push_to_gnat(report)
 
-        generator = ProbeGenerator(config)
-        probes = generator.generate(report)
-        if probes:
-            logger.info(
-                "_run_feedback: queuing %d probe request(s) from gap report %s",
-                len(probes),
-                report.gap_id,
+        if config.feedback_probe_generation_enabled:
+            generator = ProbeGenerator(
+                config,
+                model=config.feedback_probe_model,
+                max_probes=config.feedback_max_probes,
             )
-            for probe in probes:
-                run_probe_task.delay(probe.to_dict())
+            probes = generator.generate(report)
+            if probes:
+                logger.info(
+                    "_run_feedback: queuing %d probe request(s) from gap report %s",
+                    len(probes),
+                    report.gap_id,
+                )
+                for probe in probes:
+                    run_probe_task.delay(probe.to_dict())
     except Exception as exc:
         logger.warning("_run_feedback: non-fatal error during feedback phase: %s", exc)
 

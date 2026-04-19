@@ -36,13 +36,15 @@ python -c "import redgnat; print(redgnat.__version__)"
 
 ## Step 2 — Start backing services
 
-RedGNAT needs Postgres (scenario + result storage) and Redis (Celery broker):
+RedGNAT needs Postgres (scenario + result storage) and Redis (Celery broker). For local development, start only those two services so you can run the worker and API directly on your machine with live code reloading:
 
 ```bash
-make docker-up
+docker compose up -d postgres redis
 ```
 
-This starts the pre-configured `postgres:16-alpine` and `redis:7-alpine` containers and waits for health checks to pass. Both are only accessible on `localhost` by default.
+> **Full Docker path:** If you prefer to run everything in containers (no local worker or API processes), use `make docker-up` instead — it starts all five services (postgres, redis, worker, beat, api). In that case skip Steps 5 and 6; the worker and API are already running inside Docker.
+
+The `postgres:16-alpine` and `redis:7-alpine` containers expose their ports on `localhost` only by default.
 
 ---
 

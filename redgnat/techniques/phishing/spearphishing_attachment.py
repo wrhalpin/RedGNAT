@@ -81,9 +81,6 @@ class SpearphishingAttachmentTechnique(Technique):
         from redgnat.config import RedGNATConfig
         cfg = RedGNATConfig()
 
-        if not cfg.gophish_base_url or not cfg.gophish_api_key:
-            return self._blocked_result(ctx, "GoPhish not configured")
-
         targets_raw: list[dict] = ctx.params.get("targets", [])
         attachment_name = ctx.params.get("attachment_name", "Q4_Report.html")
         wait_minutes = int(ctx.params.get("wait_minutes", 10))
@@ -93,6 +90,9 @@ class SpearphishingAttachmentTechnique(Technique):
                 ctx,
                 f"Would send attachment '{attachment_name}' to {len(targets_raw)} targets",
             )
+
+        if not cfg.gophish_base_url or not cfg.gophish_api_key:
+            return self._blocked_result(ctx, "GoPhish not configured")
 
         # Scope-check all targets
         validated_targets = []

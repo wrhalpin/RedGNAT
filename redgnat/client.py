@@ -29,8 +29,8 @@ class RedGNATClient:
 
     def __init__(self, config_path: str | None = None) -> None:
         self.config = RedGNATConfig(config_path)
-        self._store: Any = None   # lazy: scenarios.store.ScenarioStore
-        self._runner: Any = None  # lazy: emulation.runner.EmulationRunner
+        self._store: Any = None       # lazy: scenarios.store.ScenarioStore
+        self._normalizer_inst: Any = None  # lazy: intake.normalizer.IntelNormalizer
 
     # ------------------------------------------------------------------
     # Intel ingestion
@@ -143,3 +143,10 @@ class RedGNATClient:
 
             self._store = ScenarioStore(self.config)
         return self._store
+
+    def _normalizer(self) -> Any:
+        if self._normalizer_inst is None:
+            from redgnat.intake.normalizer import IntelNormalizer
+
+            self._normalizer_inst = IntelNormalizer(self.config)
+        return self._normalizer_inst

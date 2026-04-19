@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Body, HTTPException
 
 router = APIRouter(tags=["scenarios"])
 
@@ -29,7 +29,7 @@ async def get_scenario(scenario_id: str) -> dict:
 
 
 @router.post("/scenarios/{scenario_id}/run")
-async def trigger_run(scenario_id: str, body: dict = {}) -> dict:
+async def trigger_run(scenario_id: str, body: dict = Body(default={})) -> dict:
     client = _get_client()
     triggered_by = body.get("triggered_by", "manual")
     async_ = body.get("async", True)
