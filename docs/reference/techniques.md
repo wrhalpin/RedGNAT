@@ -234,6 +234,8 @@ Simulates MFA push-bombing (fatigue attack) against enrolled test users. Require
 | `confirm_mfa_fatigue_test` | bool | Must be `true` to proceed |
 | `max_pushes` | int | Max pushes per account (capped at 10) |
 
+> **Important:** The normal scenario pipeline (`ScenarioBuilder`) sets `params={}` for all steps, so T1621 will return `BLOCKED` if triggered through an `EmulationScenario` without explicit params. To run MFA fatigue, submit it as a probe request via `POST /api/v1/intel/probe-request` with `suggested_params: {"confirm_mfa_fatigue_test": true, "max_pushes": 3}`, or call `run_probe_task` directly. This behaviour is intentional — the confirmation gate prevents the technique from running silently in bulk scenario sweeps.
+
 **GNAT intel ask when undetected:** Verify FIDO2/phishing-resistant MFA enrollment rate via Entra ID / Okta connectors. Check MFA fatigue detection in Silverfort / Entra ID Protection.
 
 ---

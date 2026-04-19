@@ -34,11 +34,18 @@ def create_app() -> "Any":
         redoc_url="/api/redoc",
     )
 
+    # Explicitly configured origins only — default to none (same-origin).
+    # Set REDGNAT_CORS_ORIGINS=https://dash.example.com to enable a UI origin.
+    _cors_origins = [
+        o.strip()
+        for o in os.environ.get("REDGNAT_CORS_ORIGINS", "").split(",")
+        if o.strip()
+    ]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_methods=["GET", "POST", "DELETE"],
-        allow_headers=["*"],
+        allow_origins=_cors_origins,
+        allow_methods=["GET", "POST"],
+        allow_headers=[_API_KEY_HEADER, "Content-Type"],
     )
 
     # ------------------------------------------------------------------

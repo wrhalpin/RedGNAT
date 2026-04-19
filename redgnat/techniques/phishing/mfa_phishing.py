@@ -108,9 +108,6 @@ class MFAPhishingTechnique(Technique):
         from redgnat.config import RedGNATConfig
         cfg = RedGNATConfig()
 
-        if not cfg.gophish_base_url or not cfg.gophish_api_key:
-            return self._blocked_result(ctx, "GoPhish not configured")
-
         targets_raw: list[dict] = ctx.params.get("targets", [])
         wait_minutes = int(ctx.params.get("wait_minutes", 15))
 
@@ -120,6 +117,9 @@ class MFAPhishingTechnique(Technique):
                 f"Would run AiTM phishing campaign against {len(targets_raw)} targets, "
                 "measuring credential + OTP submission rates",
             )
+
+        if not cfg.gophish_base_url or not cfg.gophish_api_key:
+            return self._blocked_result(ctx, "GoPhish not configured")
 
         validated_targets = []
         for t in targets_raw:

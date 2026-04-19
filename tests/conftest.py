@@ -60,6 +60,13 @@ bind_password = test-pass
 base_dn = DC=test,DC=example,DC=com
 use_ssl = false
 port = 389
+
+[feedback]
+enabled = true
+push_to_gnat = false
+probe_generation_enabled = true
+probe_model = claude-3-5-sonnet-20241022
+max_probes_per_report = 5
 """
     config_file = tmp_path / "redgnat.ini"
     config_file.write_text(config_content)

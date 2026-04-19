@@ -114,9 +114,6 @@ class OAuthAbuseTechnique(Technique):
         from redgnat.config import RedGNATConfig
         cfg = RedGNATConfig()
 
-        if not cfg.gophish_base_url or not cfg.gophish_api_key:
-            return self._blocked_result(ctx, "GoPhish not configured")
-
         targets_raw: list[dict] = ctx.params.get("targets", [])
         wait_minutes = int(ctx.params.get("wait_minutes", 15))
         real_consent_url: str | None = ctx.params.get("consent_url")
@@ -126,6 +123,9 @@ class OAuthAbuseTechnique(Technique):
                 ctx,
                 f"Would send OAuth consent phishing campaign to {len(targets_raw)} targets",
             )
+
+        if not cfg.gophish_base_url or not cfg.gophish_api_key:
+            return self._blocked_result(ctx, "GoPhish not configured")
 
         validated_targets = [
             t for t in targets_raw

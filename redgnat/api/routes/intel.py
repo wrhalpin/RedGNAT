@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body, HTTPException
 
 router = APIRouter(tags=["intel"])
 
@@ -22,7 +22,7 @@ async def trigger_ingest() -> dict:
 
 
 @router.post("/intel/probe-request")
-async def submit_probe_request(body: dict) -> dict:
+async def submit_probe_request(body: dict = Body(...)) -> dict:
     """
     Accept a ProbeRequest from GNAT AI agents and enqueue it as a Celery task.
 
@@ -35,7 +35,6 @@ async def submit_probe_request(body: dict) -> dict:
     from redgnat.emulation.tasks import run_probe_task
 
     if not body.get("technique_id"):
-        from fastapi import HTTPException
         raise HTTPException(status_code=422, detail="technique_id is required")
 
     task = run_probe_task.delay(body)

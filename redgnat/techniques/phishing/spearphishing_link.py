@@ -87,9 +87,6 @@ class SpearphishingLinkTechnique(Technique):
         from redgnat.config import RedGNATConfig
         cfg = RedGNATConfig()
 
-        if not cfg.gophish_base_url or not cfg.gophish_api_key:
-            return self._blocked_result(ctx, "GoPhish not configured (gophish.base_url / gophish.api_key)")
-
         targets_raw: list[dict] = ctx.params.get("targets", [])
 
         if ctx.scope.dry_run:
@@ -98,6 +95,9 @@ class SpearphishingLinkTechnique(Technique):
                 f"Would create GoPhish link campaign targeting {len(targets_raw)} accounts "
                 f"in domains: {ctx.scope.target_domains}",
             )
+
+        if not cfg.gophish_base_url or not cfg.gophish_api_key:
+            return self._blocked_result(ctx, "GoPhish not configured (gophish.base_url / gophish.api_key)")
 
         # Validate all target email domains are in scope
         validated_targets = []

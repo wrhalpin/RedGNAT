@@ -66,6 +66,12 @@ class CredentialStuffingTechnique(Technique):
         providers: list[str] = ctx.params.get("providers", ["entra", "okta", "ldap"])
         shuffle: bool = ctx.params.get("shuffle", True)
 
+        if ctx.scope.dry_run:
+            return self._dry_run_result(
+                ctx,
+                f"Would test {len(credential_pairs)} credential pair(s) against {providers}",
+            )
+
         if not credential_pairs:
             return self._blocked_result(ctx, "No credential_pairs provided in ctx.params")
 
@@ -80,12 +86,6 @@ class CredentialStuffingTechnique(Technique):
                 ctx,
                 f"None of the {len(credential_pairs)} credential pairs match "
                 f"scope.target_accounts — aborting"
-            )
-
-        if ctx.scope.dry_run:
-            return self._dry_run_result(
-                ctx,
-                f"Would test {len(scoped_pairs)} in-scope credential pairs against {providers}",
             )
 
         if shuffle:
