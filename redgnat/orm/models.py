@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """Core ORM models for RedGNAT."""
 from __future__ import annotations
 
@@ -10,17 +12,23 @@ from redgnat.orm.base import RedGNATBase, _utcnow, new_uuid
 
 
 class IntelSource(str, Enum):
+    """Origin system for an IntelFeed record."""
+
     GNAT = "gnat"
     SANDGNAT = "sandgnat"
 
 
 class ScenarioStatus(str, Enum):
+    """Lifecycle state of an EmulationScenario."""
+
     PENDING = "pending"
     ACTIVE = "active"
     ARCHIVED = "archived"
 
 
 class RunStatus(str, Enum):
+    """Execution state of an EmulationRun."""
+
     QUEUED = "queued"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -30,6 +38,8 @@ class RunStatus(str, Enum):
 
 
 class ResultStatus(str, Enum):
+    """Outcome of a single technique execution within a run."""
+
     SUCCESS = "success"
     PARTIAL = "partial"
     BLOCKED = "blocked"    # Scope check prevented execution

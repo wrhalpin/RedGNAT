@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """
 Technique ABC — base class and safe-harbor scope enforcement for all CART techniques.
 

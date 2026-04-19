@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: Apache-2.0
+-- Copyright 2026 Bill Halpin
 -- RedGNAT Initial Schema
 -- Migration 001 — forward-only, never edit after deployment
 -- Apply with: psql $REDGNAT_DB_URL -f migrations/001_initial_schema.sql

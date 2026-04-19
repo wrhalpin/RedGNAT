@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """
 Active Directory Enumeration — T1087.002, T1069.002, T1482
 

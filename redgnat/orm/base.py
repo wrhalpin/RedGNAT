@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """RedGNAT base ORM class — dataclass-style models with STIX export."""
 from __future__ import annotations
 
@@ -11,6 +13,7 @@ def _utcnow() -> datetime:
 
 
 def new_uuid() -> str:
+    """Return a new random UUIDv4 string."""
     return str(uuid.uuid4())
 
 
@@ -23,10 +26,12 @@ class RedGNATBase:
     """
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize the model to a JSON-compatible dict."""
         raise NotImplementedError
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "RedGNATBase":
+        """Reconstruct a model instance from a serialized dict."""
         raise NotImplementedError
 
     def __repr__(self) -> str:

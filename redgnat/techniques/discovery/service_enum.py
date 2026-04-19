@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """
 Service Enumeration / Banner Grabbing — T1046 (service fingerprinting variant)
 

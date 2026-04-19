@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """
 ProbeGenerator — uses GNAT's LLMClient to analyse gap reports and synthesise
 follow-on ProbeRequests that are fed back into RedGNAT's intake pipeline.

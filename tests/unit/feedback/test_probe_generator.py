@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """Unit tests for ProbeGenerator (rule-based path only — no LLM required)."""
 from __future__ import annotations
 

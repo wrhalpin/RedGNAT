@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """Intel feed routes — GET /intel/feeds, POST /intel/ingest."""
 from __future__ import annotations
 
