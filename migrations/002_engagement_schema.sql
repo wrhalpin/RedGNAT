@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: Apache-2.0
+-- Copyright 2026 Bill Halpin
 -- Migration 002: Engagement schema
 -- Adds durable storage for kill switch events and engagement authorisations.
 -- These tables are the Postgres half of the two-layer persistence model;

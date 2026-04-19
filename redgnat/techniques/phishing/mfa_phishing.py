@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """
 MFA / Adversary-in-the-Middle Phishing — T1566 + T1621
 

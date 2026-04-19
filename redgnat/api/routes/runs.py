@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """Run query routes — GET /runs, GET /runs/{run_id}."""
 from __future__ import annotations
 
@@ -15,12 +17,14 @@ def _get_client() -> Any:
 
 @router.get("/runs")
 async def list_runs(scenario_id: str | None = Query(None)) -> list[dict]:
+    """List all emulation runs, optionally filtered by scenario_id."""
     client = _get_client()
     return [r.to_dict() for r in client.list_runs(scenario_id=scenario_id)]
 
 
 @router.get("/runs/{run_id}")
 async def get_run(run_id: str) -> dict:
+    """Return a single EmulationRun by ID."""
     client = _get_client()
     run = client.get_run(run_id)
     if run is None:
@@ -30,6 +34,7 @@ async def get_run(run_id: str) -> dict:
 
 @router.get("/runs/{run_id}/results")
 async def get_run_results(run_id: str) -> list[dict]:
+    """Return all TechniqueResults for a run."""
     client = _get_client()
     store = client._get_store()
     results = store.list_results(run_id)
@@ -38,6 +43,7 @@ async def get_run_results(run_id: str) -> list[dict]:
 
 @router.get("/runs/{run_id}/report")
 async def get_run_report(run_id: str) -> dict:
+    """Return a full CART report dict for a completed run."""
     from redgnat.reports.cart_report import CARTReport
 
     client = _get_client()

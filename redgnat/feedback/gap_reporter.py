@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """
 Gap Reporter — converts emulation gaps into STIX intelligence requirements for GNAT.
 
@@ -52,6 +54,7 @@ class GapReport:
 
     @property
     def undetected_technique_ids(self) -> list[str]:
+        """ATT&CK technique IDs for all undetected techniques in this report."""
         return [r.technique_id for r in self.gaps]
 
     @property

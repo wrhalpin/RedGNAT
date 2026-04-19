@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
+"""ORM models for RedGNAT — dataclass-based, STIX-aligned."""
 from redgnat.orm.models import (
     EmulationRun,
     EmulationScenario,

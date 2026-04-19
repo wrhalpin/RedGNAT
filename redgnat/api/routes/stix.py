@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """STIX export routes — consumed by the GNAT RedGNATConnector plugin."""
 from __future__ import annotations
 

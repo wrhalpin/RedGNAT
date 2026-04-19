@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """Shared test fixtures for RedGNAT unit tests."""
 from __future__ import annotations
 

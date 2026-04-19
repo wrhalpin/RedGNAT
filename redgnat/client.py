@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """RedGNATClient — top-level facade for all RedGNAT operations."""
 from __future__ import annotations
 

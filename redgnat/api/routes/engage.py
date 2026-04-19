@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """Engagement management routes — Phase 2 gate, kill switch, and status."""
 from __future__ import annotations
 

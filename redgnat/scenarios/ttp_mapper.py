@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """
 TTP Mapper — maps ATT&CK technique IDs to tactics and metadata.
 
@@ -163,6 +165,7 @@ class TTPMapper:
     """
 
     def get(self, technique_id: str) -> TechniqueInfo | None:
+        """Return TechniqueInfo for a technique ID, or None if not in the static map."""
         return _TECHNIQUE_MAP.get(technique_id)
 
     def technique_tactic(self, technique_id: str) -> str:
@@ -176,8 +179,10 @@ class TTPMapper:
         return info.tactic if info else "unknown"
 
     def technique_name(self, technique_id: str) -> str:
+        """Return the human-readable name for a technique ID, or the ID itself."""
         info = _TECHNIQUE_MAP.get(technique_id)
         return info.name if info else technique_id
 
     def all_technique_ids(self) -> list[str]:
+        """Return all technique IDs in the static map."""
         return list(_TECHNIQUE_MAP.keys())

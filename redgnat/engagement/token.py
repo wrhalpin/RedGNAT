@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """
 EngagementToken — time-bounded Phase 2 authorisation stored in Redis.
 
@@ -50,10 +52,12 @@ class EngagementToken:
 
     @property
     def is_valid(self) -> bool:
+        """True if the token has not yet expired."""
         return datetime.now(timezone.utc) < self.expires_at
 
     @property
     def remaining_seconds(self) -> float:
+        """Seconds until the token expires; 0.0 if already expired."""
         delta = (self.expires_at - datetime.now(timezone.utc)).total_seconds()
         return max(delta, 0.0)
 
@@ -67,6 +71,7 @@ class EngagementToken:
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "EngagementToken":
+        """Reconstruct a token from a serialized dict."""
         return cls(
             token_id=d["token_id"],
             operator=d.get("operator", ""),

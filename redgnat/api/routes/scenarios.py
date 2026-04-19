@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Bill Halpin
 """Scenario management routes — GET/POST /scenarios."""
 from __future__ import annotations
 
@@ -15,12 +17,14 @@ def _get_client() -> Any:
 
 @router.get("/scenarios")
 async def list_scenarios() -> list[dict]:
+    """List all emulation scenarios."""
     client = _get_client()
     return [s.to_dict() for s in client.list_scenarios()]
 
 
 @router.get("/scenarios/{scenario_id}")
 async def get_scenario(scenario_id: str) -> dict:
+    """Return a single EmulationScenario by ID."""
     client = _get_client()
     scenario = client.get_scenario(scenario_id)
     if scenario is None:
@@ -30,6 +34,7 @@ async def get_scenario(scenario_id: str) -> dict:
 
 @router.post("/scenarios/{scenario_id}/run")
 async def trigger_run(scenario_id: str, body: dict = Body(default={})) -> dict:
+    """Enqueue or synchronously execute a scenario run."""
     client = _get_client()
     triggered_by = body.get("triggered_by", "manual")
     async_ = body.get("async", True)
