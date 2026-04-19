@@ -26,6 +26,7 @@ class RunStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
     CANCELLED = "cancelled"
+    KILLED = "killed"       # stopped by kill switch mid-run
 
 
 class ResultStatus(str, Enum):
@@ -35,6 +36,8 @@ class ResultStatus(str, Enum):
     DETECTED = "detected"  # Triggered defensive telemetry
     ERROR = "error"
     DRY_RUN = "dry_run"
+    KILLED = "killed"      # Kill switch activated mid-run; technique did not start
+    EXPIRED = "expired"    # Phase 2 engagement token expired; technique did not start
 
 
 @dataclass

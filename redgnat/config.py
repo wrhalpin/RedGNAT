@@ -45,6 +45,11 @@ class RedGNATConfig:
         return self._cfg.getboolean("redgnat", "dry_run", fallback=False)
 
     @property
+    def phase2_enabled(self) -> bool:
+        """Gate 1 of the Phase 2 impasse — must be true in config."""
+        return self._cfg.getboolean("redgnat", "phase2_enabled", fallback=False)
+
+    @property
     def log_level(self) -> str:
         return self._get("redgnat", "log_level", "INFO").upper()
 

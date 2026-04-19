@@ -75,10 +75,12 @@ def create_app() -> "Any":
     from redgnat.api.routes.runs import router as runs_router
     from redgnat.api.routes.intel import router as intel_router
     from redgnat.api.routes.stix import router as stix_router
+    from redgnat.api.routes.engage import router as engage_router
 
     app.include_router(scenarios_router, prefix="/api/v1", dependencies=[Depends(verify_api_key)])
     app.include_router(runs_router, prefix="/api/v1", dependencies=[Depends(verify_api_key)])
     app.include_router(intel_router, prefix="/api/v1", dependencies=[Depends(verify_api_key)])
     app.include_router(stix_router, prefix="/api/v1", dependencies=[Depends(verify_api_key)])
+    app.include_router(engage_router, prefix="/api/v1", dependencies=[Depends(verify_api_key)])
 
     return app
