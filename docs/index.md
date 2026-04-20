@@ -1,67 +1,41 @@
 # RedGNAT
 
-![RedGNAT logo](assets/RedGNAT-logo.png)
+![RedGNAT logo](RedGNAT-logo.png)
 
 **CART Addon for GNAT**  
 **Safe Red Teaming Made Simple**
 
-RedGNAT is the **continuous automated red teaming** module in the GNAT-o-sphere. It ingests intelligence from GNAT and SandGNAT, turns that intelligence into ATT&CK-mapped scenarios, executes those scenarios inside explicit scope and safety controls, and pushes the resulting gaps back into the wider platform.
+RedGNAT is the controlled adversary-emulation arm of the **GNAT-o-sphere**. It ingests intelligence from GNAT and SandGNAT, turns that intelligence into scoped emulation scenarios, executes them under explicit safety controls, and feeds the resulting gaps back into GNAT as follow-up work.
 
 ## Why RedGNAT exists
 
-A lot of red-team tooling is either too manual to sustain continuously, too detached from current intelligence to stay relevant, or too loosely controlled to fit a safer operating model.
+A lot of red-team tooling is either:
+- too manual to sustain continuously,
+- too detached from current intelligence to stay relevant,
+- or too loosely controlled to fit a safer operating model.
 
-RedGNAT is intended to be:
-- **intelligence-led**
-- **automation-friendly**
-- **scope-aware**
-- **phase-gated**
-- **feedback-oriented**
+RedGNAT is intended to sit in the middle:
+- intelligence-led
+- automation-friendly
+- scope-aware
+- phase-gated
+- feedback-oriented
 
-## Documentation map
+## Documentation
 
-This documentation follows the **DiÃ¡taxis** framework.
+RedGNAT documentation is organized using **DiÃ¡taxis**:
 
-| | **Action (doing)** | **Study (reading)** |
-|—|—|—|
-| **Learning** | [Tutorials](tutorials/) | [Explanation](explanation/) |
-| **Working** | [How-to guides](how-to/) | [Reference](reference/) |
+- **Tutorials** â€” get running safely
+- **How-to guides** â€” perform concrete operating tasks
+- **Reference** â€” exact configuration and API behavior
+- **Explanation** â€” safety model, phase model, and architecture
 
-### Start here if you areâ€¦
+## In the GNAT-o-sphere
 
-- **new to RedGNAT** â†’ [Getting started](tutorials/getting-started.md)
-- **adding or tuning techniques** â†’ [How-to guides](how-to/)
-- **looking up config or API details** â†’ [Reference](reference/)
-- **trying to understand the safety model** â†’ [Explanation](explanation/)
+- **GNAT** supplies core intelligence and integration patterns
+- **SandGNAT** supplies malware-analysis output
+- **RedGNAT** turns those inputs into scoped adversary-emulation workflows
 
-## Safety model
+## License
 
-### Phase 1
-Observation, enumeration, validation, phishing simulation, scoped probing, and other controlled techniques that do **not** cross into uncontrolled exploitation.
-
-### Phase 2
-Controlled exploitation paths that remain disabled until the explicit activation model is satisfied.
-
-### Operational guards
-- dry-run mode
-- scope checks before target interaction
-- rate limiting
-- kill-switch capability
-- design review before enabling new classes of technique
-
-## System flow
-
-1. GNAT and SandGNAT provide current intelligence.
-2. RedGNAT builds scenarios from that intelligence.
-3. Techniques run inside policy and scope boundaries.
-4. Results are normalized into structured outputs.
-5. Gaps flow back into GNAT as actionable follow-up work.
-
-## Quick links
-
-- [Getting started](tutorials/getting-started.md)
-- [Add a new technique](how-to/add-technique.md)
-- [Configure GNAT integration](how-to/configure-gnat-integration.md)
-- [Configuration reference](reference/configuration.md)
-- [API reference](reference/api.md)
-- [Phase 2 activation](explanation/phase2-activation.md)
+Apache 2.0.
