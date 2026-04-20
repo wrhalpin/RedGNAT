@@ -10,28 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/how-to/add-technique/">
+        <link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/explanation/engagement/safe-harbor/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../../architecture/architecture/">
       
       
-        <link rel="next" href="../configure-gnat-integration/">
+        <link rel="next" href="../phase2-activation/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/logo/RedGNAT-logo.png">
+      <link rel="icon" href="../../../assets/logo/RedGNAT-logo.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Add a technique - RedGNAT</title>
+        <title>Safe-harbor model - RedGNAT</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -50,9 +50,9 @@
       
     
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#how-to-add-a-new-emulation-technique" class="md-skip">
+        <a href="#safe-harbor-design" class="md-skip">
           Skip to content
         </a>
       
@@ -86,9 +86,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="RedGNAT" class="md-header__button md-logo" aria-label="RedGNAT" data-md-component="logo">
+    <a href="../../.." title="RedGNAT" class="md-header__button md-logo" aria-label="RedGNAT" data-md-component="logo">
       
-  <img src="../../assets/logo/RedGNAT-logo.png" alt="logo">
+  <img src="../../../assets/logo/RedGNAT-logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Add a technique
+              Safe-harbor model
             
           </span>
         </div>
@@ -195,9 +195,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="RedGNAT" class="md-nav__button md-logo" aria-label="RedGNAT" data-md-component="logo">
+    <a href="../../.." title="RedGNAT" class="md-nav__button md-logo" aria-label="RedGNAT" data-md-component="logo">
       
-  <img src="../../assets/logo/RedGNAT-logo.png" alt="logo">
+  <img src="../../../assets/logo/RedGNAT-logo.png" alt="logo">
 
     </a>
     RedGNAT
@@ -224,7 +224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -305,7 +305,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/" class="md-nav__link">
+      <a href="../../../tutorials/" class="md-nav__link">
         
   
   
@@ -333,7 +333,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/getting-started/" class="md-nav__link">
+      <a href="../../../tutorials/getting-started/" class="md-nav__link">
         
   
   
@@ -365,8 +365,6 @@
       
   
   
-    
-  
   
   
     
@@ -379,11 +377,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
@@ -404,7 +404,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -422,7 +422,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../../how-to/" class="md-nav__link">
         
   
   
@@ -447,37 +447,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Add a technique
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../how-to/add-technique/" class="md-nav__link">
         
   
   
@@ -493,131 +466,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-create-the-module-file" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1 — Create the module file
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-implement-the-technique-class" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2 — Implement the Technique class
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2 — Implement the Technique class">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#rules-you-must-follow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rules you must follow
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-register-the-technique" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3 — Register the technique
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-add-attck-metadata-to-the-ttp-mapper" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4 — Add ATT&amp;CK metadata to the TTP mapper
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-add-a-gnat-intel-ask-optional-but-recommended" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5 — Add a GNAT intel ask (optional but recommended)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-write-unit-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6 — Write unit tests
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-verify-end-to-end-in-dry-run-mode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7 — Verify end-to-end in dry-run mode
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -630,7 +478,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure-gnat-integration/" class="md-nav__link">
+      <a href="../../../how-to/configure-gnat-integration/" class="md-nav__link">
         
   
   
@@ -658,7 +506,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deploy-docker/" class="md-nav__link">
+      <a href="../../../how-to/deploy-docker/" class="md-nav__link">
         
   
   
@@ -747,7 +595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/" class="md-nav__link">
+      <a href="../../../reference/" class="md-nav__link">
         
   
   
@@ -775,7 +623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/configuration/" class="md-nav__link">
+      <a href="../../../reference/configuration/" class="md-nav__link">
         
   
   
@@ -803,7 +651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/api/" class="md-nav__link">
+      <a href="../../../reference/api/" class="md-nav__link">
         
   
   
@@ -831,7 +679,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/techniques/" class="md-nav__link">
+      <a href="../../../reference/techniques/" class="md-nav__link">
         
   
   
@@ -863,8 +711,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -875,13 +725,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -902,7 +750,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -920,7 +768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../explanation/architecture/architecture/" class="md-nav__link">
+      <a href="../../architecture/architecture/" class="md-nav__link">
         
   
   
@@ -945,6 +793,8 @@
                 
   
   
+    
+  
   
   
     
@@ -954,13 +804,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
         
           
           <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
@@ -981,7 +829,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -996,10 +844,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../explanation/engagement/safe-harbor/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Safe-harbor model
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1015,6 +890,153 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-scope-object-is-the-single-source-of-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The scope object is the single source of truth
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-five-safe-harbor-controls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The five safe-harbor controls
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The five safe-harbor controls">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-scope-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Scope checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-dry-run-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dry-run mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-rate-limiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Rate limiting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-test-account-only-for-credential-techniques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test-account-only for credential techniques
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-the-phase-flag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The phase flag
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-happens-when-a-scope-check-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What happens when a scope check fails
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-excluded_ranges-takes-precedence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why excluded_ranges takes precedence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-probe-generated-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope and probe-generated runs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-safe-harbor-does-not-protect-against" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What safe-harbor does not protect against
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1027,7 +1049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../explanation/engagement/phase2-activation/" class="md-nav__link">
+      <a href="../phase2-activation/" class="md-nav__link">
         
   
   
@@ -1114,7 +1136,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../explanation/automation/feedback-loop/" class="md-nav__link">
+      <a href="../../automation/feedback-loop/" class="md-nav__link">
         
   
   
@@ -1211,7 +1233,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v0.1.0/" class="md-nav__link">
+      <a href="../../../releases/v0.1.0/" class="md-nav__link">
         
   
   
@@ -1266,10 +1288,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-create-the-module-file" class="md-nav__link">
+  <a href="#the-scope-object-is-the-single-source-of-truth" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1 — Create the module file
+        The scope object is the single source of truth
       
     </span>
   </a>
@@ -1277,22 +1299,66 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-implement-the-technique-class" class="md-nav__link">
+  <a href="#the-five-safe-harbor-controls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2 — Implement the Technique class
+        The five safe-harbor controls
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2 — Implement the Technique class">
+    <nav class="md-nav" aria-label="The five safe-harbor controls">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#rules-you-must-follow" class="md-nav__link">
+  <a href="#1-scope-checks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rules you must follow
+        1. Scope checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-dry-run-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dry-run mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-rate-limiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Rate limiting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-test-account-only-for-credential-techniques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test-account-only for credential techniques
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-the-phase-flag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The phase flag
       
     </span>
   </a>
@@ -1305,10 +1371,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-register-the-technique" class="md-nav__link">
+  <a href="#what-happens-when-a-scope-check-fails" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3 — Register the technique
+        What happens when a scope check fails
       
     </span>
   </a>
@@ -1316,10 +1382,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-add-attck-metadata-to-the-ttp-mapper" class="md-nav__link">
+  <a href="#why-excluded_ranges-takes-precedence" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4 — Add ATT&amp;CK metadata to the TTP mapper
+        Why excluded_ranges takes precedence
       
     </span>
   </a>
@@ -1327,10 +1393,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-add-a-gnat-intel-ask-optional-but-recommended" class="md-nav__link">
+  <a href="#scope-and-probe-generated-runs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5 — Add a GNAT intel ask (optional but recommended)
+        Scope and probe-generated runs
       
     </span>
   </a>
@@ -1338,32 +1404,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-write-unit-tests" class="md-nav__link">
+  <a href="#what-safe-harbor-does-not-protect-against" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6 — Write unit tests
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#7-verify-end-to-end-in-dry-run-mode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7 — Verify end-to-end in dry-run mode
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Summary
+        What safe-harbor does not protect against
       
     </span>
   </a>
@@ -1390,239 +1434,74 @@
   
 
 
-<h1 id="how-to-add-a-new-emulation-technique">How to add a new emulation technique<a class="headerlink" href="#how-to-add-a-new-emulation-technique" title="Permanent link">&para;</a></h1>
-<p>This guide walks through adding a new ATT&amp;CK-mapped technique to RedGNAT's library. After completing it the technique will be discovered, scoped, executed, and reported automatically alongside existing ones.</p>
-<p><strong>You'll need:</strong> Python 3.11+, a development install of RedGNAT (<code>pip install -e ".[dev]"</code>).</p>
+<h1 id="safe-harbor-design">Safe-harbor design<a class="headerlink" href="#safe-harbor-design" title="Permanent link">&para;</a></h1>
+<p>RedGNAT is built around a core principle: automated offensive tooling must be harder to misfire than to operate safely. This article explains the layered controls that enforce this, and the philosophy behind them.</p>
 <hr />
-<h2 id="1-create-the-module-file">1 — Create the module file<a class="headerlink" href="#1-create-the-module-file" title="Permanent link">&para;</a></h2>
-<p>Technique modules live under <code>redgnat/techniques/&lt;tactic&gt;/</code>. Choose the right tactic directory or create one:</p>
-<table>
-<thead>
-<tr>
-<th>ATT&amp;CK Tactic</th>
-<th>Directory</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Discovery / Reconnaissance</td>
-<td><code>redgnat/techniques/discovery/</code></td>
-</tr>
-<tr>
-<td>Initial Access (phishing)</td>
-<td><code>redgnat/techniques/phishing/</code></td>
-</tr>
-<tr>
-<td>Credential Access / Identity</td>
-<td><code>redgnat/techniques/identity/</code></td>
-</tr>
-<tr>
-<td>Exploitation (Phase 2 only)</td>
-<td><code>redgnat/techniques/exploitation/</code></td>
-</tr>
-</tbody>
-</table>
-<p>Create your file. Example: implementing T1135 (Network Share Discovery):</p>
-<pre><code class="language-bash">touch redgnat/techniques/discovery/network_shares.py
+<h2 id="the-scope-object-is-the-single-source-of-truth">The scope object is the single source of truth<a class="headerlink" href="#the-scope-object-is-the-single-source-of-truth" title="Permanent link">&para;</a></h2>
+<p>Every technique in RedGNAT receives a <code>Scope</code> object in its <code>TechniqueContext</code>. The <code>Scope</code> is constructed from the <code>[scope]</code> config section at startup and is <strong>immutable during a run</strong>. There is no mechanism for a technique to widen its own scope.</p>
+<pre><code class="language-mermaid">flowchart TD
+    Config[&quot;config.ini [scope] section&quot;] --&gt; Scope[&quot;Scope object\n(immutable per run)&quot;]
+    Scope --&gt; TechCtx[&quot;TechniqueContext\n(passed to every technique)&quot;]
+    TechCtx --&gt; T1[&quot;Technique A\n_check_scope_ip()&quot;]
+    TechCtx --&gt; T2[&quot;Technique B\n_check_scope_domain()&quot;]
+    TechCtx --&gt; T3[&quot;Technique C\n_check_scope_account()&quot;]
+    T1 --&gt; |&quot;out of scope&quot;| Block[&quot;OutOfScopeError\n→ BLOCKED result&quot;]
+    T2 --&gt; |&quot;out of scope&quot;| Block
+    T3 --&gt; |&quot;out of scope&quot;| Block
+    T1 --&gt; |&quot;in scope&quot;| Execute[&quot;Execute technique&quot;]
+    T2 --&gt; |&quot;in scope&quot;| Execute
+    T3 --&gt; |&quot;in scope&quot;| Execute
 </code></pre>
+<p>The scope gate is not optional. The <code>Technique</code> base class provides three guard methods — <code>_check_scope_ip()</code>, <code>_check_scope_domain()</code>, <code>_check_scope_account()</code> — that raise <code>OutOfScopeError</code> if a target is not in scope. Techniques that don't call these methods before acting are non-conforming.</p>
+<p>The parametrized dry-run test in <code>tests/unit/techniques/test_dry_run.py</code> covers every registered technique automatically, but scope validation is a code review concern — automated tests check dry-run compliance, not scope-gate placement.</p>
 <hr />
-<h2 id="2-implement-the-technique-class">2 — Implement the Technique class<a class="headerlink" href="#2-implement-the-technique-class" title="Permanent link">&para;</a></h2>
-<p>Every technique follows the same pattern:</p>
-<pre><code class="language-python">&quot;&quot;&quot;T1135 — Network Share Discovery via SMB enumeration.&quot;&quot;&quot;
-from __future__ import annotations
-
-from redgnat.techniques.base import Technique, TechniqueContext
-from redgnat.orm.models import ResultStatus, TechniqueResult
-
-
-class NetworkSharesTechnique(Technique):
-    technique_id = &quot;T1135&quot;
-    tactic = &quot;discovery&quot;
-    name = &quot;Network Share Discovery&quot;
-    emulation_only = True  # Phase 1 default — observe, do not exploit
-
-    def execute(self, ctx: TechniqueContext) -&gt; TechniqueResult:
-        # 1. Dry-run guard — MUST be first
-        if ctx.scope.dry_run:
-            return self._dry_run_result(
-                ctx,
-                f&quot;Would enumerate SMB shares on {ctx.scope.target_ranges}&quot;,
-            )
-
-        findings = []
-        errors = []
-
-        for cidr in ctx.scope.target_ranges:
-            # 2. Scope check — validates BEFORE any network activity
-            if not ctx.scope.allows_cidr(cidr):
-                continue
-
-            try:
-                self._rate_sleep(ctx.scope)
-                shares = self._enumerate_shares(cidr, ctx.params)
-                if shares:
-                    findings.append({&quot;cidr&quot;: cidr, &quot;shares&quot;: shares})
-            except Exception as exc:
-                errors.append(str(exc))
-
-        status = ResultStatus.SUCCESS if findings else ResultStatus.PARTIAL
-        return self._make_result(
-            ctx,
-            status=status,
-            findings=findings,
-            error=&quot;; &quot;.join(errors) if errors else None,
-        )
-
-    def _enumerate_shares(self, cidr: str, params: dict) -&gt; list[dict]:
-        # Your enumeration logic here.
-        # Use stdlib or an approved library (no `requests`).
-        # Keep all calls read-only.
-        return []
+<h2 id="the-five-safe-harbor-controls">The five safe-harbor controls<a class="headerlink" href="#the-five-safe-harbor-controls" title="Permanent link">&para;</a></h2>
+<h3 id="1-scope-checks">1. Scope checks<a class="headerlink" href="#1-scope-checks" title="Permanent link">&para;</a></h3>
+<p><code>Scope.allows_ip(ip)</code> returns <code>True</code> only if the IP is within a <code>target_ranges</code> CIDR <strong>and</strong> not within any <code>excluded_ranges</code> CIDR.</p>
+<p><code>Scope.allows_domain(domain)</code> checks the domain and all its parent zones against <code>target_domains</code> and <code>excluded_domains</code>.</p>
+<p><code>Scope.allows_account(upn)</code> does an exact match against <code>target_accounts</code>. There is no wildcard or domain match — only explicitly listed UPNs are permitted for credential techniques.</p>
+<h3 id="2-dry-run-mode">2. Dry-run mode<a class="headerlink" href="#2-dry-run-mode" title="Permanent link">&para;</a></h3>
+<p>When <code>scope.dry_run = True</code>, every technique must return <code>_dry_run_result()</code> immediately, before any socket is opened or any API call is made. The result describes what the technique <em>would</em> have done in plain English.</p>
+<p>This is the first check inside <code>execute()</code>, before scope validation. A technique in dry-run mode never touches the network, even if the target is in scope.</p>
+<p>Dry-run is designed to be the default for new deployments. The getting-started tutorial starts with <code>dry_run = true</code>.</p>
+<h3 id="3-rate-limiting">3. Rate limiting<a class="headerlink" href="#3-rate-limiting" title="Permanent link">&para;</a></h3>
+<p><code>_rate_sleep(scope, n_requests=1)</code> sleeps the appropriate fraction of a minute before each network request based on <code>scope.max_rate_per_minute</code>. This applies uniformly across all techniques.</p>
+<p>Identity techniques (password spray, MFA fatigue, credential stuffing) add random jitter on top of the base rate limit to avoid producing detectable patterns from the regularity of the requests themselves.</p>
+<h3 id="4-test-account-only-for-credential-techniques">4. Test-account-only for credential techniques<a class="headerlink" href="#4-test-account-only-for-credential-techniques" title="Permanent link">&para;</a></h3>
+<p>Credential techniques (T1110.003, T1110.004, T1621) operate exclusively on accounts listed in <code>scope.target_accounts</code>. This is enforced before any authentication attempt:</p>
+<pre><code class="language-python">self._check_scope_account(ctx.scope, upn)
 </code></pre>
-<h3 id="rules-you-must-follow">Rules you must follow<a class="headerlink" href="#rules-you-must-follow" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Rule</th>
-<th>Why</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Check <code>ctx.scope.dry_run</code> first, return <code>_dry_run_result()</code></td>
-<td>Enables safe testing without any network activity</td>
-</tr>
-<tr>
-<td>Call <code>_check_scope_ip/domain/account()</code> or <code>allows_*()</code> before touching each target</td>
-<td>Every target is validated; out-of-scope targets raise <code>OutOfScopeError</code> or are silently skipped</td>
-</tr>
-<tr>
-<td>Call <code>_rate_sleep(ctx.scope)</code> before each network request</td>
-<td>Respects <code>max_rate_per_minute</code></td>
-</tr>
-<tr>
-<td>Keep <code>emulation_only = True</code> (Phase 1)</td>
-<td>Techniques in Phase 1 observe and enumerate; they do not deliver payloads or modify state</td>
-</tr>
-<tr>
-<td>Return a <code>TechniqueResult</code> from <code>_make_result()</code> always</td>
-<td>Structured results feed the gap reporter and STIX export</td>
-</tr>
-<tr>
-<td>Mock all external calls in unit tests</td>
-<td>Technique tests must run offline</td>
-</tr>
-</tbody>
-</table>
+<p>There is no "spray everything in the domain" mode. The test account list must be explicitly populated. An empty <code>target_accounts</code> means credential techniques produce zero attempts.</p>
+<h3 id="5-the-phase-flag">5. The phase flag<a class="headerlink" href="#5-the-phase-flag" title="Permanent link">&para;</a></h3>
+<p><code>Technique.emulation_only = True</code> is the Phase 1 default. Phase 1 techniques observe, enumerate, and probe — they do not deliver payloads, modify state, or exploit vulnerabilities.</p>
+<p>This flag is a <strong>design checkpoint</strong>, not a runtime access control. It communicates intent to developers and reviewers. Phase 2 exploitation techniques set <code>emulation_only = False</code> only after explicit design review; they require <code>EngagementRunner</code> (three-factor gate + kill switch), scope guard, operator confirmation, and a structured evidence record — see <code>redgnat/techniques/exploitation/README.md</code>.</p>
 <hr />
-<h2 id="3-register-the-technique">3 — Register the technique<a class="headerlink" href="#3-register-the-technique" title="Permanent link">&para;</a></h2>
-<p>Open <code>redgnat/techniques/registry.py</code> and add your class:</p>
-<pre><code class="language-python">from redgnat.techniques.discovery.network_shares import NetworkSharesTechnique
-
-TECHNIQUE_REGISTRY: dict[str, Type[Technique]] = {
-    # ... existing entries ...
-    &quot;T1135&quot;: NetworkSharesTechnique,
-}
+<h2 id="what-happens-when-a-scope-check-fails">What happens when a scope check fails<a class="headerlink" href="#what-happens-when-a-scope-check-fails" title="Permanent link">&para;</a></h2>
+<p>An out-of-scope target produces a <code>BLOCKED</code> result, not an error. The emulation run continues with the next technique. Nothing is logged to the target — there is no network activity.</p>
+<pre><code>[INFO] Technique T1046: target 203.0.113.5 is out of scope — blocked
+[DEBUG] TechniqueResult(technique_id='T1046', status=ResultStatus.BLOCKED, ...)
 </code></pre>
+<p><code>BLOCKED</code> results appear in the run's results list and in the CART report so operators can see that a technique was skipped due to scope rather than succeed silently.</p>
 <hr />
-<h2 id="4-add-attck-metadata-to-the-ttp-mapper">4 — Add ATT&amp;CK metadata to the TTP mapper<a class="headerlink" href="#4-add-attck-metadata-to-the-ttp-mapper" title="Permanent link">&para;</a></h2>
-<p>Open <code>redgnat/scenarios/ttp_mapper.py</code> and add an entry to <code>_TECHNIQUE_MAP</code>:</p>
-<pre><code class="language-python">&quot;T1135&quot;: TechniqueInfo(
-    technique_id=&quot;T1135&quot;,
-    name=&quot;Network Share Discovery&quot;,
-    tactic=&quot;discovery&quot;,
-    description=&quot;Enumerate network shares accessible from the current context.&quot;,
-),
+<h2 id="why-excluded_ranges-takes-precedence">Why excluded_ranges takes precedence<a class="headerlink" href="#why-excluded_ranges-takes-precedence" title="Permanent link">&para;</a></h2>
+<p>The <code>excluded_ranges</code> list always wins over <code>target_ranges</code>, even if a CIDR in <code>target_ranges</code> overlaps with one in <code>excluded_ranges</code>. This means you can safely add broad ranges to <code>target_ranges</code> (e.g. <code>10.0.0.0/8</code>) and then carve out specific subnets:</p>
+<pre><code class="language-ini">[scope]
+target_ranges = 10.0.0.0/8
+excluded_ranges = 10.0.0.1/32,10.1.0.0/24
 </code></pre>
-<p>This entry is used by the normalizer (to include the technique in scenarios built from intel), the gap reporter (to name techniques in STIX Notes), and the CART report (for the ATT&amp;CK coverage matrix).</p>
+<p>Any technique that targets <code>10.0.0.1</code> or anything in <code>10.1.0.0/24</code> will be blocked. Ordering in the config file does not matter.</p>
 <hr />
-<h2 id="5-add-a-gnat-intel-ask-optional-but-recommended">5 — Add a GNAT intel ask (optional but recommended)<a class="headerlink" href="#5-add-a-gnat-intel-ask-optional-but-recommended" title="Permanent link">&para;</a></h2>
-<p>If a defender should know what GNAT intel to collect when this technique goes undetected, add it to <code>redgnat/feedback/gap_reporter.py</code>:</p>
-<pre><code class="language-python">_INTEL_ASKS: dict[str, str] = {
-    # ... existing entries ...
-    &quot;T1135&quot;: (
-        &quot;Check SMB share audit events in Sentinel/Splunk. &quot;
-        &quot;Review DFS namespace access logs. &quot;
-        &quot;Verify net share enumeration detection rule in SIEM.&quot;
-    ),
-}
-</code></pre>
+<h2 id="scope-and-probe-generated-runs">Scope and probe-generated runs<a class="headerlink" href="#scope-and-probe-generated-runs" title="Permanent link">&para;</a></h2>
+<p>When <code>ProbeGenerator</code> creates follow-on <code>ProbeRequest</code> objects and <code>run_probe_task</code> builds new emulation runs, those runs go through the same scope validation path as intel-driven runs. The probe mechanism cannot be used to expand scope — a probe targeting out-of-scope IPs will produce <code>BLOCKED</code> results just like any other technique.</p>
 <hr />
-<h2 id="6-write-unit-tests">6 — Write unit tests<a class="headerlink" href="#6-write-unit-tests" title="Permanent link">&para;</a></h2>
-<p>Create <code>tests/unit/techniques/test_network_shares.py</code>. All external calls must be mocked:</p>
-<pre><code class="language-python">&quot;&quot;&quot;Unit tests for NetworkSharesTechnique (offline — all network calls mocked).&quot;&quot;&quot;
-from unittest.mock import patch
-
-import pytest
-
-from redgnat.techniques.discovery.network_shares import NetworkSharesTechnique
-from redgnat.orm.models import ResultStatus
-
-
-def test_dry_run_returns_dry_run_status(mock_ctx):
-    mock_ctx.scope.dry_run = True
-    result = NetworkSharesTechnique().execute(mock_ctx)
-    assert result.status == ResultStatus.DRY_RUN
-
-
-def test_out_of_scope_cidr_skipped(mock_ctx):
-    mock_ctx.scope.target_ranges = [&quot;192.168.0.0/24&quot;]
-    mock_ctx.scope.dry_run = False
-    with patch.object(NetworkSharesTechnique, &quot;_enumerate_shares&quot;, return_value=[]):
-        result = NetworkSharesTechnique().execute(mock_ctx)
-    # No findings but no error — silently skipped out-of-scope target
-    assert result.status in {ResultStatus.PARTIAL, ResultStatus.SUCCESS}
-
-
-def test_findings_on_success(mock_ctx):
-    mock_ctx.scope.dry_run = False
-    fake_shares = [{&quot;host&quot;: &quot;10.0.0.5&quot;, &quot;share&quot;: &quot;SYSVOL&quot;}]
-    with patch.object(NetworkSharesTechnique, &quot;_enumerate_shares&quot;, return_value=fake_shares):
-        result = NetworkSharesTechnique().execute(mock_ctx)
-    assert result.status == ResultStatus.SUCCESS
-    assert len(result.findings) &gt; 0
-</code></pre>
-<p>The <code>mock_ctx</code> fixture is provided by <code>tests/conftest.py</code> — it returns a <code>TechniqueContext</code> with a pre-configured <code>Scope</code> that includes <code>10.0.0.0/8</code> in scope.</p>
-<p>Run the tests:</p>
-<pre><code class="language-bash">pytest tests/unit/techniques/test_network_shares.py -v
-</code></pre>
-<hr />
-<h2 id="7-verify-end-to-end-in-dry-run-mode">7 — Verify end-to-end in dry-run mode<a class="headerlink" href="#7-verify-end-to-end-in-dry-run-mode" title="Permanent link">&para;</a></h2>
-<p>The parametrized dry-run safety test in <code>tests/unit/techniques/test_dry_run.py</code> automatically picks up every technique in <code>TECHNIQUE_REGISTRY</code> and asserts it returns <code>DRY_RUN</code> status when <code>scope.dry_run = True</code>. Run it to confirm your technique is wired correctly:</p>
-<pre><code class="language-bash">pytest tests/unit/techniques/test_dry_run.py -v -k T1135
-</code></pre>
-<hr />
-<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Step</th>
-<th>File touched</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Create technique module</td>
-<td><code>redgnat/techniques/&lt;tactic&gt;/&lt;name&gt;.py</code></td>
-</tr>
-<tr>
-<td>Register technique</td>
-<td><code>redgnat/techniques/registry.py</code></td>
-</tr>
-<tr>
-<td>Add TTP metadata</td>
-<td><code>redgnat/scenarios/ttp_mapper.py</code></td>
-</tr>
-<tr>
-<td>Add GNAT intel ask</td>
-<td><code>redgnat/feedback/gap_reporter.py</code></td>
-</tr>
-<tr>
-<td>Write unit tests</td>
-<td><code>tests/unit/techniques/test_&lt;name&gt;.py</code></td>
-</tr>
-</tbody>
-</table>
+<h2 id="what-safe-harbor-does-not-protect-against">What safe-harbor does not protect against<a class="headerlink" href="#what-safe-harbor-does-not-protect-against" title="Permanent link">&para;</a></h2>
+<p>Safe-harbor controls protect against <strong>accidental</strong> out-of-scope activity. They do not protect against:</p>
+<ul>
+<li><strong>Misconfigured scope</strong> — if <code>target_ranges</code> includes production systems that should be excluded, techniques will target them. Scope configuration is a human responsibility.</li>
+<li><strong>Compromised config</strong> — if an attacker can modify <code>config.ini</code>, they can modify scope. Protect the config file accordingly.</li>
+<li><strong>Bugs in technique implementations</strong> — a technique that skips scope checks will not be caught at runtime. Code review and the dry-run test suite are the mitigations.</li>
+<li><strong>Phase 2 exploitation</strong> — Phase 2 techniques can cause real impact. The three-factor gate (config flag + env var + engagement token) and kill switch are designed to compensate, but they require operator discipline. Review <code>redgnat/techniques/exploitation/README.md</code> before adding any exploitation technique.</li>
+</ul>
 
 
 
@@ -1672,10 +1551,10 @@ def test_findings_on_success(mock_ctx):
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
