@@ -1,0 +1,18 @@
+:root {
+  --md-primary-fg-color: #9e1b1b;
+  --md-primary-fg-color--light: #b22929;
+  --md-primary-fg-color--dark: #5f0f13;
+  --md-accent-fg-color: #9e1b1b;
+}
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  letter-spacing: -.01em;
+}
+.md-typeset table:not([class]) th {
+  background: #f7e6e6;
+}
+.md-typeset .admonition,
+.md-typeset details {
+  border-color: #d5b1b1;
+}

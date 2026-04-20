@@ -1,16 +1,41 @@
-<div align="center">
-  <img src="assets/logo-horizontal.png" alt="RedGNAT — CART Addon for GNAT" width="480" />
-</div>
-
-<div align="center">
-
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://python.org)
-[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
-[![MITRE ATT&CK](https://img.shields.io/badge/MITRE-ATT%26CK-red)](https://attack.mitre.org)
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue?logo=readthedocs)](https://wrhalpin.github.io/RedGNAT/)
-
-</div>
-
 # RedGNAT
 
-A Continuous Automated Red Teaming module for GNAT
+![RedGNAT logo](RedGNAT-logo.png)
+
+**CART Addon for GNAT**  
+**Safe Red Teaming Made Simple**
+
+RedGNAT is the controlled adversary-emulation arm of the **GNAT-o-sphere**. It ingests intelligence from GNAT and SandGNAT, turns that intelligence into scoped emulation scenarios, executes them under explicit safety controls, and feeds the resulting gaps back into GNAT as follow-up work.
+
+## Why RedGNAT exists
+
+A lot of red-team tooling is either:
+- too manual to sustain continuously,
+- too detached from current intelligence to stay relevant,
+- or too loosely controlled to fit a safer operating model.
+
+RedGNAT is intended to sit in the middle:
+- intelligence-led
+- automation-friendly
+- scope-aware
+- phase-gated
+- feedback-oriented
+
+## Documentation
+
+RedGNAT documentation is organized using **DiÃ¡taxis**:
+
+- **Tutorials** â€” get running safely
+- **How-to guides** â€” perform concrete operating tasks
+- **Reference** â€” exact configuration and API behavior
+- **Explanation** â€” safety model, phase model, and architecture
+
+## In the GNAT-o-sphere
+
+- **GNAT** supplies core intelligence and integration patterns
+- **SandGNAT** supplies malware-analysis output
+- **RedGNAT** turns those inputs into scoped adversary-emulation workflows
+
+## License
+
+Apache 2.0.
