@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Continuous Automated Red Teaming — CART Addon for GNAT">
+        <meta name="description" content="CART addon for GNAT. Safe red teaming made simple.">
       
       
       
@@ -16,25 +16,22 @@
         <link rel="prev" href="../configuration/">
       
       
-        <link rel="next" href="../techniques/">
+        <link rel="next" href="../../explanation/architecture/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/favicon.png">
+      <link rel="icon" href="../../assets/logo/RedGNAT-logo.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>REST API - RedGNAT</title>
+        <title>API - RedGNAT</title>
       
     
     
       <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,7 +50,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -64,14 +61,7 @@
   </head>
   
   
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-orange">
+    <body dir="ltr">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -94,11 +84,11 @@
 
   
 
-<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="RedGNAT" class="md-header__button md-logo" aria-label="RedGNAT" data-md-component="logo">
       
-  <img src="../../assets/logo.png" alt="logo">
+  <img src="../../assets/logo/RedGNAT-logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,38 +105,12 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              REST API
+              API
             
           </span>
         </div>
       </div>
     </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-</form>
-      
     
     
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
@@ -178,8 +142,6 @@
         </button>
       </nav>
       
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
@@ -210,123 +172,13 @@
     
   </nav>
   
-    
-      
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
-        
-  
-  
-    
-  
-  Home
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../tutorials/getting-started/" class="md-tabs__link">
-          
-  
-  
-  Tutorials
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../how-to/add-technique/" class="md-tabs__link">
-          
-  
-  
-  How-to Guides
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-    
-  
-  
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../configuration/" class="md-tabs__link">
-          
-  
-  
-  Reference
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../explanation/architecture/" class="md-tabs__link">
-          
-  
-  
-  Explanation
-
-        </a>
-      </li>
-    
-  
-
-      
-    </ul>
-  </div>
-</nav>
-    
-  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
+        
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -340,14 +192,12 @@
                     
 
 
-  
 
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="RedGNAT" class="md-nav__button md-logo" aria-label="RedGNAT" data-md-component="logo">
       
-  <img src="../../assets/logo.png" alt="logo">
+  <img src="../../assets/logo/RedGNAT-logo.png" alt="logo">
 
     </a>
     RedGNAT
@@ -405,12 +255,12 @@
     
     
       
-      
+        
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -419,7 +269,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -462,7 +312,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Getting started
   
 
     
@@ -494,12 +344,12 @@
     
     
       
-      
+        
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -508,14 +358,14 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    How-to Guides
+    How-to guides
   
 
     
@@ -531,7 +381,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    How-to Guides
+    How-to guides
   
 
           </label>
@@ -551,7 +401,7 @@
   <span class="md-ellipsis">
     
   
-    Add a Technique
+    Add a technique
   
 
     
@@ -579,7 +429,7 @@
   <span class="md-ellipsis">
     
   
-    Configure GNAT Integration
+    Configure GNAT integration
   
 
     
@@ -642,9 +492,6 @@
     
       
         
-        
-      
-      
         
       
     
@@ -736,7 +583,7 @@
   <span class="md-ellipsis">
     
   
-    REST API
+    API
   
 
     
@@ -754,7 +601,7 @@
   <span class="md-ellipsis">
     
   
-    REST API
+    API
   
 
     
@@ -1121,34 +968,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../techniques/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Technique Library
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1167,12 +986,12 @@
     
     
       
-      
+        
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1181,7 +1000,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1245,34 +1064,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../explanation/feedback-loop/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Feedback Loop
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../explanation/safe-harbor/" class="md-nav__link">
         
   
@@ -1280,7 +1071,7 @@
   <span class="md-ellipsis">
     
   
-    Safe-Harbor Design
+    Safe-harbor model
   
 
     
@@ -1308,7 +1099,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 2 Activation
+    Phase 2 activation
   
 
     
@@ -1712,44 +1503,44 @@
 <p>The RedGNAT API is a FastAPI application served on port <code>8000</code> by default. All endpoints are under the <code>/api/v1</code> prefix.</p>
 <h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
 <p>Every request must include an <code>X-API-Key</code> header matching the <code>REDGNAT_API_KEY</code> environment variable set on the server.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;X-API-Key: </span><span class="nv">$REDGNAT_API_KEY</span><span class="s2">&quot;</span><span class="w"> </span>http://localhost:8000/api/v1/health
-</span></code></pre></div>
+<pre><code class="language-bash">curl -H &quot;X-API-Key: $REDGNAT_API_KEY&quot; http://localhost:8000/api/v1/health
+</code></pre>
 <p>A missing or incorrect key returns <code>403 Forbidden</code>.</p>
 <hr />
 <h2 id="health">Health<a class="headerlink" href="#health" title="Permanent link">&para;</a></h2>
 <h3 id="get-apiv1health"><code>GET /api/v1/health</code><a class="headerlink" href="#get-apiv1health" title="Permanent link">&para;</a></h3>
 <p>Returns service status. Used by load balancers and the GNAT connector's <code>health_check()</code>.</p>
-<p><strong>Response</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;redgnat&quot;</span><span class="p">}</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong></p>
+<pre><code class="language-json">{&quot;status&quot;: &quot;ok&quot;, &quot;service&quot;: &quot;redgnat&quot;}
+</code></pre>
 <hr />
 <h2 id="scenarios">Scenarios<a class="headerlink" href="#scenarios" title="Permanent link">&para;</a></h2>
 <h3 id="get-apiv1scenarios"><code>GET /api/v1/scenarios</code><a class="headerlink" href="#get-apiv1scenarios" title="Permanent link">&para;</a></h3>
 <p>List all emulation scenarios.</p>
-<p><strong>Response</strong> — array of scenario objects:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">[</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">&quot;scenario_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;APT29 Phishing Campaign&quot;</span><span class="p">,</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="nt">&quot;feed_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">&quot;technique_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;T1566.002&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;T1110.003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;T1621&quot;</span><span class="p">],</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-18T09:00:00+00:00&quot;</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">]</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong> — array of scenario objects:</p>
+<pre><code class="language-json">[
+  {
+    &quot;scenario_id&quot;: &quot;uuid&quot;,
+    &quot;name&quot;: &quot;APT29 Phishing Campaign&quot;,
+    &quot;description&quot;: &quot;...&quot;,
+    &quot;feed_id&quot;: &quot;uuid&quot;,
+    &quot;technique_ids&quot;: [&quot;T1566.002&quot;, &quot;T1110.003&quot;, &quot;T1621&quot;],
+    &quot;status&quot;: &quot;active&quot;,
+    &quot;created_at&quot;: &quot;2026-04-18T09:00:00+00:00&quot;
+  }
+]
+</code></pre>
 <h3 id="get-apiv1scenariosscenario_id"><code>GET /api/v1/scenarios/{scenario_id}</code><a class="headerlink" href="#get-apiv1scenariosscenario_id" title="Permanent link">&para;</a></h3>
 <p>Get one scenario by ID.</p>
 <p><strong>Response</strong> — single scenario object (same shape as list item). Returns <code>404</code> if not found.</p>
 <h3 id="post-apiv1scenariosscenario_idrun"><code>POST /api/v1/scenarios/{scenario_id}/run</code><a class="headerlink" href="#post-apiv1scenariosscenario_idrun" title="Permanent link">&para;</a></h3>
 <p>Trigger an emulation run for a scenario.</p>
-<p><strong>Request body</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;triggered_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;manual&quot;</span><span class="p">,</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;async&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span>
-</span></code></pre></div></p>
+<p><strong>Request body</strong></p>
+<pre><code class="language-json">{
+  &quot;triggered_by&quot;: &quot;manual&quot;,
+  &quot;async&quot;: true
+}
+</code></pre>
 <table>
 <thead>
 <tr>
@@ -1774,14 +1565,14 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Response</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;scenario_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;queued&quot;</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">&quot;triggered_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;manual&quot;</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">}</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong></p>
+<pre><code class="language-json">{
+  &quot;run_id&quot;: &quot;uuid&quot;,
+  &quot;scenario_id&quot;: &quot;uuid&quot;,
+  &quot;status&quot;: &quot;queued&quot;,
+  &quot;triggered_by&quot;: &quot;manual&quot;
+}
+</code></pre>
 <hr />
 <h2 id="runs">Runs<a class="headerlink" href="#runs" title="Permanent link">&para;</a></h2>
 <h3 id="get-apiv1runs"><code>GET /api/v1/runs</code><a class="headerlink" href="#get-apiv1runs" title="Permanent link">&para;</a></h3>
@@ -1803,38 +1594,38 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Response</strong> — array of run objects:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">[</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;scenario_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;completed&quot;</span><span class="p">,</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">&quot;triggered_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;intel_event&quot;</span><span class="p">,</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">&quot;started_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-18T09:00:00+00:00&quot;</span><span class="p">,</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nt">&quot;completed_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-18T09:05:23+00:00&quot;</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">]</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong> — array of run objects:</p>
+<pre><code class="language-json">[
+  {
+    &quot;run_id&quot;: &quot;uuid&quot;,
+    &quot;scenario_id&quot;: &quot;uuid&quot;,
+    &quot;status&quot;: &quot;completed&quot;,
+    &quot;triggered_by&quot;: &quot;intel_event&quot;,
+    &quot;started_at&quot;: &quot;2026-04-18T09:00:00+00:00&quot;,
+    &quot;completed_at&quot;: &quot;2026-04-18T09:05:23+00:00&quot;
+  }
+]
+</code></pre>
 <h3 id="get-apiv1runsrun_id"><code>GET /api/v1/runs/{run_id}</code><a class="headerlink" href="#get-apiv1runsrun_id" title="Permanent link">&para;</a></h3>
 <p>Get one run by ID. Returns <code>404</code> if not found.</p>
 <h3 id="get-apiv1runsrun_idresults"><code>GET /api/v1/runs/{run_id}/results</code><a class="headerlink" href="#get-apiv1runsrun_idresults" title="Permanent link">&para;</a></h3>
 <p>Get all <code>TechniqueResult</code> objects for a run.</p>
-<p><strong>Response</strong> — array of result objects:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">[</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">&quot;result_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">&quot;scenario_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">&quot;technique_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;T1046&quot;</span><span class="p">,</span>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">&quot;tactic&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;discovery&quot;</span><span class="p">,</span>
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="p">,</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">&quot;findings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10.0.0.5&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;open_ports&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;port&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">22</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ssh&quot;</span><span class="p">}]}],</span>
-</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">&quot;evidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">&quot;executed_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-18T09:01:15+00:00&quot;</span>
-</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="p">]</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong> — array of result objects:</p>
+<pre><code class="language-json">[
+  {
+    &quot;result_id&quot;: &quot;uuid&quot;,
+    &quot;run_id&quot;: &quot;uuid&quot;,
+    &quot;scenario_id&quot;: &quot;uuid&quot;,
+    &quot;technique_id&quot;: &quot;T1046&quot;,
+    &quot;tactic&quot;: &quot;discovery&quot;,
+    &quot;status&quot;: &quot;success&quot;,
+    &quot;findings&quot;: [{&quot;host&quot;: &quot;10.0.0.5&quot;, &quot;open_ports&quot;: [{&quot;port&quot;: 22, &quot;service&quot;: &quot;ssh&quot;}]}],
+    &quot;evidence&quot;: [],
+    &quot;error&quot;: null,
+    &quot;executed_at&quot;: &quot;2026-04-18T09:01:15+00:00&quot;
+  }
+]
+</code></pre>
 <p><code>status</code> values: <code>success</code>, <code>partial</code>, <code>blocked</code>, <code>detected</code>, <code>error</code>, <code>dry_run</code></p>
 <h3 id="get-apiv1runsrun_idreport"><code>GET /api/v1/runs/{run_id}/report</code><a class="headerlink" href="#get-apiv1runsrun_idreport" title="Permanent link">&para;</a></h3>
 <p>Get the full CART report for a run as a structured dict.</p>
@@ -1843,21 +1634,21 @@
 <h2 id="intel">Intel<a class="headerlink" href="#intel" title="Permanent link">&para;</a></h2>
 <h3 id="post-apiv1intelingest"><code>POST /api/v1/intel/ingest</code><a class="headerlink" href="#post-apiv1intelingest" title="Permanent link">&para;</a></h3>
 <p>Manually trigger intel ingestion from GNAT and SandGNAT. Equivalent to what <code>ingest_intel_task</code> does on a schedule.</p>
-<p><strong>Response</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span><span class="nt">&quot;feeds_ingested&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;feed_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uuid-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uuid-2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uuid-3&quot;</span><span class="p">]}</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong></p>
+<pre><code class="language-json">{&quot;feeds_ingested&quot;: 3, &quot;feed_ids&quot;: [&quot;uuid-1&quot;, &quot;uuid-2&quot;, &quot;uuid-3&quot;]}
+</code></pre>
 <h3 id="post-apiv1intelprobe-request"><code>POST /api/v1/intel/probe-request</code><a class="headerlink" href="#post-apiv1intelprobe-request" title="Permanent link">&para;</a></h3>
 <p>Submit a <code>ProbeRequest</code> from a GNAT AI agent or external system. Enqueues <code>run_probe_task</code> on the Celery queue.</p>
-<p><strong>Request body</strong> — <code>ProbeRequest.to_dict()</code> shape:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;technique_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;T1621&quot;</span><span class="p">,</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;critical&quot;</span><span class="p">,</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&quot;rationale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Password spray succeeded without lockout — test MFA fatigue.&quot;</span><span class="p">,</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">&quot;suggested_params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">&quot;source_gap_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid-of-gap-report&quot;</span><span class="p">,</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">  </span><span class="nt">&quot;source_run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid-of-source-run&quot;</span>
-</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="p">}</span>
-</span></code></pre></div></p>
+<p><strong>Request body</strong> — <code>ProbeRequest.to_dict()</code> shape:</p>
+<pre><code class="language-json">{
+  &quot;technique_id&quot;: &quot;T1621&quot;,
+  &quot;priority&quot;: &quot;critical&quot;,
+  &quot;rationale&quot;: &quot;Password spray succeeded without lockout — test MFA fatigue.&quot;,
+  &quot;suggested_params&quot;: {},
+  &quot;source_gap_id&quot;: &quot;uuid-of-gap-report&quot;,
+  &quot;source_run_id&quot;: &quot;uuid-of-source-run&quot;
+}
+</code></pre>
 <table>
 <thead>
 <tr>
@@ -1906,114 +1697,114 @@
 </tr>
 </tbody>
 </table>
-<p><strong>Response</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span><span class="nt">&quot;queued&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;celery-task-uuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;technique_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;T1621&quot;</span><span class="p">}</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong></p>
+<pre><code class="language-json">{&quot;queued&quot;: true, &quot;task_id&quot;: &quot;celery-task-uuid&quot;, &quot;technique_id&quot;: &quot;T1621&quot;}
+</code></pre>
 <p>Returns <code>422</code> if <code>technique_id</code> is missing.</p>
 <h3 id="get-apiv1inteltechniques"><code>GET /api/v1/intel/techniques</code><a class="headerlink" href="#get-apiv1inteltechniques" title="Permanent link">&para;</a></h3>
 <p>List all registered ATT&amp;CK technique IDs with their metadata.</p>
-<p><strong>Response</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">[</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">&quot;technique_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;T1046&quot;</span><span class="p">,</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Network Service Discovery&quot;</span><span class="p">,</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">&quot;tactic&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;discovery&quot;</span><span class="p">,</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Scan networks to identify active services...&quot;</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">]</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong></p>
+<pre><code class="language-json">[
+  {
+    &quot;technique_id&quot;: &quot;T1046&quot;,
+    &quot;name&quot;: &quot;Network Service Discovery&quot;,
+    &quot;tactic&quot;: &quot;discovery&quot;,
+    &quot;description&quot;: &quot;Scan networks to identify active services...&quot;
+  }
+]
+</code></pre>
 <hr />
 <h2 id="stix-export">STIX Export<a class="headerlink" href="#stix-export" title="Permanent link">&para;</a></h2>
 <p>These endpoints are consumed by the GNAT <code>RedGNATConnector</code> plugin. GNAT operators typically access them via <code>connector.list_objects(type)</code> rather than directly.</p>
 <h3 id="get-apiv1stixresults"><code>GET /api/v1/stix/results</code><a class="headerlink" href="#get-apiv1stixresults" title="Permanent link">&para;</a></h3>
 <p>Return all emulation run summaries as STIX 2.1 <code>course-of-action</code> objects.</p>
-<p><strong>Response</strong> — array of STIX CoA objects:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">[</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;course-of-action&quot;</span><span class="p">,</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="nt">&quot;spec_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.1&quot;</span><span class="p">,</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;course-of-action--uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">    </span><span class="nt">&quot;created&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-18T09:05:23+00:00&quot;</span><span class="p">,</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="nt">&quot;modified&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-18T09:05:23+00:00&quot;</span><span class="p">,</span>
-</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CART Run: APT29 Phishing Campaign&quot;</span><span class="p">,</span>
-</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Automated red team emulation run. Techniques: 5. Status breakdown: {...}&quot;</span><span class="p">,</span>
-</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="nt">&quot;x_redgnat_metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">      </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">      </span><span class="nt">&quot;scenario_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;completed&quot;</span><span class="p">,</span>
-</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">      </span><span class="nt">&quot;triggered_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;intel_event&quot;</span><span class="p">,</span>
-</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">      </span><span class="nt">&quot;technique_results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;detected&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;blocked&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span>
-</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="p">]</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong> — array of STIX CoA objects:</p>
+<pre><code class="language-json">[
+  {
+    &quot;type&quot;: &quot;course-of-action&quot;,
+    &quot;spec_version&quot;: &quot;2.1&quot;,
+    &quot;id&quot;: &quot;course-of-action--uuid&quot;,
+    &quot;created&quot;: &quot;2026-04-18T09:05:23+00:00&quot;,
+    &quot;modified&quot;: &quot;2026-04-18T09:05:23+00:00&quot;,
+    &quot;name&quot;: &quot;CART Run: APT29 Phishing Campaign&quot;,
+    &quot;description&quot;: &quot;Automated red team emulation run. Techniques: 5. Status breakdown: {...}&quot;,
+    &quot;x_redgnat_metadata&quot;: {
+      &quot;run_id&quot;: &quot;uuid&quot;,
+      &quot;scenario_id&quot;: &quot;uuid&quot;,
+      &quot;status&quot;: &quot;completed&quot;,
+      &quot;triggered_by&quot;: &quot;intel_event&quot;,
+      &quot;technique_results&quot;: {&quot;success&quot;: 2, &quot;detected&quot;: 2, &quot;blocked&quot;: 1}
+    }
+  }
+]
+</code></pre>
 <h3 id="get-apiv1stixresultsrun_id"><code>GET /api/v1/stix/results/{run_id}</code><a class="headerlink" href="#get-apiv1stixresultsrun_id" title="Permanent link">&para;</a></h3>
 <p>Single run as a STIX CoA object. Returns <code>404</code> if run not found.</p>
 <h3 id="get-apiv1stixsightings"><code>GET /api/v1/stix/sightings</code><a class="headerlink" href="#get-apiv1stixsightings" title="Permanent link">&para;</a></h3>
 <p>Return all <code>TechniqueResult</code> records as STIX 2.1 <code>sighting</code> objects.</p>
-<p><strong>Response</strong> — array of STIX Sighting objects:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">[</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sighting&quot;</span><span class="p">,</span>
-</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nt">&quot;spec_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.1&quot;</span><span class="p">,</span>
-</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sighting--uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nt">&quot;sighting_of_ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;attack-pattern--T1046&quot;</span><span class="p">,</span>
-</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">    </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="nt">&quot;x_redgnat_metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-12-9"><a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">      </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-12-10"><a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">      </span><span class="nt">&quot;technique_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;T1046&quot;</span><span class="p">,</span>
-</span><span id="__span-12-11"><a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="p">,</span>
-</span><span id="__span-12-12"><a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="w">      </span><span class="nt">&quot;findings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
-</span><span id="__span-12-13"><a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-12-14"><a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="p">]</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong> — array of STIX Sighting objects:</p>
+<pre><code class="language-json">[
+  {
+    &quot;type&quot;: &quot;sighting&quot;,
+    &quot;spec_version&quot;: &quot;2.1&quot;,
+    &quot;id&quot;: &quot;sighting--uuid&quot;,
+    &quot;sighting_of_ref&quot;: &quot;attack-pattern--T1046&quot;,
+    &quot;count&quot;: 1,
+    &quot;x_redgnat_metadata&quot;: {
+      &quot;run_id&quot;: &quot;uuid&quot;,
+      &quot;technique_id&quot;: &quot;T1046&quot;,
+      &quot;status&quot;: &quot;success&quot;,
+      &quot;findings&quot;: [...]
+    }
+  }
+]
+</code></pre>
 <h3 id="get-apiv1stixgaps"><code>GET /api/v1/stix/gaps</code><a class="headerlink" href="#get-apiv1stixgaps" title="Permanent link">&para;</a></h3>
 <p>Return gap reports as STIX 2.1 <code>note</code> objects. A gap is any technique that executed with <code>status = success</code> (meaning no detection alert was triggered).</p>
-<p><strong>Response</strong> — array of STIX Note objects:
-<div class="language-json highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">[</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="p">{</span>
-</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;note&quot;</span><span class="p">,</span>
-</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="nt">&quot;spec_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.1&quot;</span><span class="p">,</span>
-</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;note--uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="w">    </span><span class="nt">&quot;abstract&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RedGNAT gap report: 2 undetected techniques&quot;</span><span class="p">,</span>
-</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="w">    </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RedGNAT CART gap report — run ...\nUndetected techniques (2):\n- [T1046] ...&quot;</span><span class="p">,</span>
-</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;redgnat-cart&quot;</span><span class="p">],</span>
-</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="w">    </span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;redgnat-gap&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;intelligence-requirement&quot;</span><span class="p">],</span>
-</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="w">    </span><span class="nt">&quot;x_redgnat_gap&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="w">      </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="w">      </span><span class="nt">&quot;scenario_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="w">      </span><span class="nt">&quot;undetected_technique_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;T1046&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;T1110.003&quot;</span><span class="p">],</span>
-</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="w">      </span><span class="nt">&quot;is_critical&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="w">      </span><span class="nt">&quot;gap_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span>
-</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a><span class="p">]</span>
-</span></code></pre></div></p>
+<p><strong>Response</strong> — array of STIX Note objects:</p>
+<pre><code class="language-json">[
+  {
+    &quot;type&quot;: &quot;note&quot;,
+    &quot;spec_version&quot;: &quot;2.1&quot;,
+    &quot;id&quot;: &quot;note--uuid&quot;,
+    &quot;abstract&quot;: &quot;RedGNAT gap report: 2 undetected techniques&quot;,
+    &quot;content&quot;: &quot;RedGNAT CART gap report — run ...\nUndetected techniques (2):\n- [T1046] ...&quot;,
+    &quot;authors&quot;: [&quot;redgnat-cart&quot;],
+    &quot;labels&quot;: [&quot;redgnat-gap&quot;, &quot;intelligence-requirement&quot;],
+    &quot;x_redgnat_gap&quot;: {
+      &quot;run_id&quot;: &quot;uuid&quot;,
+      &quot;scenario_id&quot;: &quot;uuid&quot;,
+      &quot;undetected_technique_ids&quot;: [&quot;T1046&quot;, &quot;T1110.003&quot;],
+      &quot;is_critical&quot;: true,
+      &quot;gap_id&quot;: &quot;uuid&quot;
+    }
+  }
+]
+</code></pre>
 <hr />
 <h2 id="engagement-endpoints">Engagement endpoints<a class="headerlink" href="#engagement-endpoints" title="Permanent link">&para;</a></h2>
 <p>Phase 2 engagement control. All endpoints require API key authentication plus the <code>X-Kill-Key</code> header for destructive operations (value must match the <code>REDGNAT_KILL_KEY</code> environment variable if set).</p>
 <h3 id="get-apiv1engagestatus"><code>GET /api/v1/engage/status</code><a class="headerlink" href="#get-apiv1engagestatus" title="Permanent link">&para;</a></h3>
 <p>Return the current engagement gate and kill-switch state.</p>
-<p><strong>Response:</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">{</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nt">&quot;phase2_config_enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="nt">&quot;phase2_unlock_env_set&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="nt">&quot;token_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">  </span><span class="nt">&quot;token_expires_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-20T18:00:00Z&quot;</span><span class="p">,</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span><span class="nt">&quot;token_remaining_seconds&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1800</span><span class="p">,</span>
-</span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">  </span><span class="nt">&quot;kill_switch_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
-</span><span id="__span-14-8"><a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">}</span>
-</span></code></pre></div></p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;phase2_config_enabled&quot;: true,
+  &quot;phase2_unlock_env_set&quot;: true,
+  &quot;token_active&quot;: true,
+  &quot;token_expires_at&quot;: &quot;2026-04-20T18:00:00Z&quot;,
+  &quot;token_remaining_seconds&quot;: 1800,
+  &quot;kill_switch_active&quot;: false
+}
+</code></pre>
 <hr />
 <h3 id="post-apiv1engageauthorize"><code>POST /api/v1/engage/authorize</code><a class="headerlink" href="#post-apiv1engageauthorize" title="Permanent link">&para;</a></h3>
 <p>Create a time-bounded engagement token to satisfy Gate 3. Gates 1 (config) and Gate 2 (env var) must already be satisfied; this endpoint returns <code>403</code> otherwise.</p>
-<p><strong>Request body:</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="p">{</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span><span class="nt">&quot;operator&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alice&quot;</span><span class="p">,</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="nt">&quot;duration_minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="p">}</span>
-</span></code></pre></div></p>
+<p><strong>Request body:</strong></p>
+<pre><code class="language-json">{
+  &quot;operator&quot;: &quot;alice&quot;,
+  &quot;duration_minutes&quot;: 60
+}
+</code></pre>
 <p><strong>Response:</strong> <code>201</code> with the token details.</p>
 <hr />
 <h3 id="delete-apiv1engageauthorize"><code>DELETE /api/v1/engage/authorize</code><a class="headerlink" href="#delete-apiv1engageauthorize" title="Permanent link">&para;</a></h3>
@@ -2022,12 +1813,12 @@
 <hr />
 <h3 id="post-apiv1engagekill"><code>POST /api/v1/engage/kill</code><a class="headerlink" href="#post-apiv1engagekill" title="Permanent link">&para;</a></h3>
 <p>Activate the global kill switch. Immediately stops all in-progress engagement runs, purges the Celery engagement queue, and closes any open GoPhish campaigns. Requires <code>X-Kill-Key</code> header.</p>
-<p><strong>Request body:</strong>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Unexpected detection — stopping engagement&quot;</span><span class="p">,</span>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span><span class="nt">&quot;operator&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alice&quot;</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="p">}</span>
-</span></code></pre></div></p>
+<p><strong>Request body:</strong></p>
+<pre><code class="language-json">{
+  &quot;reason&quot;: &quot;Unexpected detection — stopping engagement&quot;,
+  &quot;operator&quot;: &quot;alice&quot;
+}
+</code></pre>
 <p><strong>Response:</strong> <code>200</code> with kill switch status.</p>
 <hr />
 <h3 id="delete-apiv1engagekill"><code>DELETE /api/v1/engage/kill</code><a class="headerlink" href="#delete-apiv1engagekill" title="Permanent link">&para;</a></h3>
@@ -2053,79 +1844,18 @@
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
-        
       </main>
       
         <footer class="md-footer">
-  
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../configuration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Configuration">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Configuration
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../techniques/" class="md-footer__link md-footer__link--next" aria-label="Next: Technique Library">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Technique Library
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
-    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
   
-    <div class="md-copyright__highlight">
-      Copyright &copy; 2026 Bill Halpin — Apache-2.0
-    </div>
   
-  
-</div>
-      
-        
-<div class="md-social">
-  
-    
-    
-    
-    
-      
-      
-    
-    <a href="https://github.com/wrhalpin/RedGNAT" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
     </a>
   
 </div>
@@ -2143,7 +1873,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>

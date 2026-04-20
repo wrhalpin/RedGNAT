@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Continuous Automated Red Teaming — CART Addon for GNAT">
+        <meta name="description" content="CART addon for GNAT. Safe red teaming made simple.">
       
       
       
@@ -22,19 +22,16 @@
         
       
       
-      <link rel="icon" href="../../assets/favicon.png">
+      <link rel="icon" href="../../assets/logo/RedGNAT-logo.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Getting Started - RedGNAT</title>
+        <title>Getting started - RedGNAT</title>
       
     
     
       <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,7 +50,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -64,14 +61,7 @@
   </head>
   
   
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-orange">
+    <body dir="ltr">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -94,11 +84,11 @@
 
   
 
-<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="RedGNAT" class="md-header__button md-logo" aria-label="RedGNAT" data-md-component="logo">
       
-  <img src="../../assets/logo.png" alt="logo">
+  <img src="../../assets/logo/RedGNAT-logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,38 +105,12 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              Getting started
             
           </span>
         </div>
       </div>
     </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="red" data-md-color-accent="deep-orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-</form>
-      
     
     
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
@@ -178,8 +142,6 @@
         </button>
       </nav>
       
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
@@ -210,123 +172,13 @@
     
   </nav>
   
-    
-      
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-grid">
-    <ul class="md-tabs__list">
-      
-        
-  
-  
-  
-  
-    <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
-        
-  
-  
-    
-  
-  Home
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
-  
-    
-  
-  
-    
-    
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
-          
-  
-  
-  Tutorials
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../how-to/add-technique/" class="md-tabs__link">
-          
-  
-  
-  How-to Guides
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../reference/configuration/" class="md-tabs__link">
-          
-  
-  
-  Reference
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../../explanation/architecture/" class="md-tabs__link">
-          
-  
-  
-  Explanation
-
-        </a>
-      </li>
-    
-  
-
-      
-    </ul>
-  </div>
-</nav>
-    
-  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
+        
+          
         
       
       <main class="md-main" data-md-component="main">
@@ -340,14 +192,12 @@
                     
 
 
-  
 
-
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="RedGNAT" class="md-nav__button md-logo" aria-label="RedGNAT" data-md-component="logo">
       
-  <img src="../../assets/logo.png" alt="logo">
+  <img src="../../assets/logo/RedGNAT-logo.png" alt="logo">
 
     </a>
     RedGNAT
@@ -408,9 +258,6 @@
     
       
         
-        
-      
-      
         
       
     
@@ -474,7 +321,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Getting started
   
 
     
@@ -492,7 +339,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Getting started
   
 
     
@@ -732,12 +579,12 @@
     
     
       
-      
+        
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -746,14 +593,14 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    How-to Guides
+    How-to guides
   
 
     
@@ -769,7 +616,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    How-to Guides
+    How-to guides
   
 
           </label>
@@ -789,7 +636,7 @@
   <span class="md-ellipsis">
     
   
-    Add a Technique
+    Add a technique
   
 
     
@@ -817,7 +664,7 @@
   <span class="md-ellipsis">
     
   
-    Configure GNAT Integration
+    Configure GNAT integration
   
 
     
@@ -877,12 +724,12 @@
     
     
       
-      
+        
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -891,7 +738,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -962,35 +809,7 @@
   <span class="md-ellipsis">
     
   
-    REST API
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/techniques/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Technique Library
+    API
   
 
     
@@ -1022,12 +841,12 @@
     
     
       
-      
+        
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
@@ -1036,7 +855,7 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1100,34 +919,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../explanation/feedback-loop/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Feedback Loop
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../explanation/safe-harbor/" class="md-nav__link">
         
   
@@ -1135,7 +926,7 @@
   <span class="md-ellipsis">
     
   
-    Safe-Harbor Design
+    Safe-harbor model
   
 
     
@@ -1163,7 +954,7 @@
   <span class="md-ellipsis">
     
   
-    Phase 2 Activation
+    Phase 2 activation
   
 
     
@@ -1429,21 +1220,21 @@
 <hr />
 <h2 id="step-1-install-redgnat">Step 1 — Install RedGNAT<a class="headerlink" href="#step-1-install-redgnat" title="Permanent link">&para;</a></h2>
 <p>Clone the repository and install the package with all extras:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/wrhalpin/RedGNAT.git
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>RedGNAT
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[all]&quot;</span>
-</span></code></pre></div>
+<pre><code class="language-bash">git clone https://github.com/wrhalpin/RedGNAT.git
+cd RedGNAT
+python -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -e &quot;.[all]&quot;
+</code></pre>
 <p>The <code>[all]</code> extra pulls in optional dependencies for every technique category (nmap bindings, ldap3, boto3, msal, etc.). In production you only need the extras for techniques you actually use.</p>
 <p>Verify the install:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import redgnat; print(redgnat.__version__)&quot;</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># 0.1.0</span>
-</span></code></pre></div>
+<pre><code class="language-bash">python -c &quot;import redgnat; print(redgnat.__version__)&quot;
+# 0.1.0
+</code></pre>
 <hr />
 <h2 id="step-2-start-backing-services">Step 2 — Start backing services<a class="headerlink" href="#step-2-start-backing-services" title="Permanent link">&para;</a></h2>
 <p>RedGNAT needs Postgres (scenario + result storage) and Redis (Celery broker). For local development, start only those two services so you can run the worker and API directly on your machine with live code reloading:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>postgres<span class="w"> </span>redis
-</span></code></pre></div>
+<pre><code class="language-bash">docker compose up -d postgres redis
+</code></pre>
 <blockquote>
 <p><strong>Full Docker path:</strong> If you prefer to run everything in containers (no local worker or API processes), use <code>make docker-up</code> instead — it starts all five services (postgres, redis, worker, beat, api). In that case skip Steps 5 and 6; the worker and API are already running inside Docker.</p>
 </blockquote>
@@ -1451,109 +1242,109 @@
 <hr />
 <h2 id="step-3-create-your-configuration-file">Step 3 — Create your configuration file<a class="headerlink" href="#step-3-create-your-configuration-file" title="Permanent link">&para;</a></h2>
 <p>Copy the example and edit it:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>cp<span class="w"> </span>config/config.ini.example<span class="w"> </span>~/.redgnat/config.ini
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">$EDITOR</span><span class="w"> </span>~/.redgnat/config.ini
-</span></code></pre></div>
+<pre><code class="language-bash">cp config/config.ini.example ~/.redgnat/config.ini
+$EDITOR ~/.redgnat/config.ini
+</code></pre>
 <p>For this tutorial you only need to fill in four sections. Everything else can stay at its default.</p>
 <h3 id="3a-database-and-redis">3a — Database and Redis<a class="headerlink" href="#3a-database-and-redis" title="Permanent link">&para;</a></h3>
-<div class="language-ini highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">[redgnat]</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="na">db_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">postgresql://redgnat:redgnat@localhost:5432/redgnat</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="na">redis_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">redis://localhost:6379/0</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="na">dry_run</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span><span class="w">   </span><span class="c1"># ← important for this tutorial</span>
-</span></code></pre></div>
+<pre><code class="language-ini">[redgnat]
+db_url = postgresql://redgnat:redgnat@localhost:5432/redgnat
+redis_url = redis://localhost:6379/0
+dry_run = true   # ← important for this tutorial
+</code></pre>
 <p>Setting <code>dry_run = true</code> means every technique will log what it <em>would</em> do and return <code>DRY_RUN</code> status. No network activity reaches any target.</p>
 <h3 id="3b-point-at-your-gnat-config">3b — Point at your GNAT config<a class="headerlink" href="#3b-point-at-your-gnat-config" title="Permanent link">&para;</a></h3>
-<div class="language-ini highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">[gnat]</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="na">config_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">~/.gnat/config.ini</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="na">poll_interval_seconds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="na">min_confidence</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.6</span>
-</span></code></pre></div>
+<pre><code class="language-ini">[gnat]
+config_path = ~/.gnat/config.ini
+poll_interval_seconds = 300
+min_confidence = 0.6
+</code></pre>
 <h3 id="3c-set-a-safe-scope">3c — Set a safe scope<a class="headerlink" href="#3c-set-a-safe-scope" title="Permanent link">&para;</a></h3>
-<div class="language-ini highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">[scope]</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="na">target_ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10.0.0.0/8</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="na">excluded_ranges</span><span class="w"> </span><span class="o">=</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="na">target_domains</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">example.com</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="na">target_accounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">redteam-test@example.com</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="na">max_rate_per_minute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
-</span></code></pre></div>
+<pre><code class="language-ini">[scope]
+target_ranges = 10.0.0.0/8
+excluded_ranges =
+target_domains = example.com
+target_accounts = redteam-test@example.com
+max_rate_per_minute = 30
+</code></pre>
 <p>Even in dry-run mode the scope is validated — techniques will be BLOCKED rather than DRY_RUN if a target isn't in scope, which is intentional.</p>
 <hr />
 <h2 id="step-4-apply-database-migrations">Step 4 — Apply database migrations<a class="headerlink" href="#step-4-apply-database-migrations" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>make<span class="w"> </span>migrate
-</span></code></pre></div>
+<pre><code class="language-bash">make migrate
+</code></pre>
 <p>This runs <code>migrations/001_initial_schema.sql</code> against the Postgres instance. The migration is idempotent — safe to run multiple times.</p>
 <hr />
 <h2 id="step-5-start-the-celery-worker">Step 5 — Start the Celery worker<a class="headerlink" href="#step-5-start-the-celery-worker" title="Permanent link">&para;</a></h2>
 <p>Open a second terminal:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>make<span class="w"> </span>worker
-</span></code></pre></div>
+<pre><code class="language-bash">source .venv/bin/activate
+make worker
+</code></pre>
 <p>You should see Celery start and connect to Redis:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>[2026-04-18 09:00:00,000: INFO/MainProcess] Connected to redis://localhost:6379/0
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>[2026-04-18 09:00:00,000: INFO/MainProcess] mingle: searching for neighbors
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>[2026-04-18 09:00:00,000: INFO/MainProcess] celery@hostname ready.
-</span></code></pre></div>
+<pre><code>[2026-04-18 09:00:00,000: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2026-04-18 09:00:00,000: INFO/MainProcess] mingle: searching for neighbors
+[2026-04-18 09:00:00,000: INFO/MainProcess] celery@hostname ready.
+</code></pre>
 <hr />
 <h2 id="step-6-start-the-api-server">Step 6 — Start the API server<a class="headerlink" href="#step-6-start-the-api-server" title="Permanent link">&para;</a></h2>
 <p>Open a third terminal:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>make<span class="w"> </span>api
-</span></code></pre></div>
+<pre><code class="language-bash">source .venv/bin/activate
+make api
+</code></pre>
 <p>The FastAPI server starts on <code>http://localhost:8000</code>. Check it's healthy:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/api/v1/health
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="c1"># {&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;redgnat&quot;}</span>
-</span></code></pre></div>
+<pre><code class="language-bash">curl -s http://localhost:8000/api/v1/health
+# {&quot;status&quot;:&quot;ok&quot;,&quot;service&quot;:&quot;redgnat&quot;}
+</code></pre>
 <hr />
 <h2 id="step-7-trigger-your-first-intel-ingestion">Step 7 — Trigger your first intel ingestion<a class="headerlink" href="#step-7-trigger-your-first-intel-ingestion" title="Permanent link">&para;</a></h2>
 <p>RedGNAT polls GNAT for campaigns with ATT&amp;CK technique mappings and SandGNAT for sandbox analyses. Trigger a manual poll:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8000/api/v1/intel/ingest<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-API-Key: changeme&quot;</span>
-</span></code></pre></div>
+<pre><code class="language-bash">curl -s -X POST http://localhost:8000/api/v1/intel/ingest \
+  -H &quot;X-API-Key: changeme&quot;
+</code></pre>
 <p>If GNAT has any recent campaigns mapped to registered techniques you'll see:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">{</span><span class="nt">&quot;feeds_ingested&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;feed_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uuid-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uuid-2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uuid-3&quot;</span><span class="p">]}</span>
-</span></code></pre></div>
+<pre><code class="language-json">{&quot;feeds_ingested&quot;: 3, &quot;feed_ids&quot;: [&quot;uuid-1&quot;, &quot;uuid-2&quot;, &quot;uuid-3&quot;]}
+</code></pre>
 <p>If GNAT has no matching data yet, <code>feeds_ingested</code> will be <code>0</code> — that's fine, you can create a scenario manually in the next step.</p>
 <hr />
 <h2 id="step-8-run-your-first-scenario">Step 8 — Run your first scenario<a class="headerlink" href="#step-8-run-your-first-scenario" title="Permanent link">&para;</a></h2>
 <h3 id="option-a-run-a-scenario-from-ingested-intel">Option A — Run a scenario from ingested intel<a class="headerlink" href="#option-a-run-a-scenario-from-ingested-intel" title="Permanent link">&para;</a></h3>
 <p>List the scenarios that were built from intel:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/api/v1/scenarios<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-API-Key: changeme&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>json.tool
-</span></code></pre></div>
+<pre><code class="language-bash">curl -s http://localhost:8000/api/v1/scenarios \
+  -H &quot;X-API-Key: changeme&quot; | python -m json.tool
+</code></pre>
 <p>Pick a <code>scenario_id</code> and run it:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8000/api/v1/scenarios/&lt;scenario_id&gt;/run<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-API-Key: changeme&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;triggered_by&quot;: &quot;tutorial&quot;, &quot;async&quot;: true}&#39;</span>
-</span></code></pre></div>
+<pre><code class="language-bash">curl -s -X POST http://localhost:8000/api/v1/scenarios/&lt;scenario_id&gt;/run \
+  -H &quot;X-API-Key: changeme&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;triggered_by&quot;: &quot;tutorial&quot;, &quot;async&quot;: true}'
+</code></pre>
 <h3 id="option-b-run-programmatically">Option B — Run programmatically<a class="headerlink" href="#option-b-run-programmatically" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">redgnat.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">RedGNATClient</span>
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">client</span> <span class="o">=</span> <span class="n">RedGNATClient</span><span class="p">()</span>  <span class="c1"># reads ~/.redgnat/config.ini</span>
-</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">feeds</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">ingest_latest</span><span class="p">()</span>
-</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">scenarios</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_scenarios</span><span class="p">()</span>
-</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">if</span> <span class="n">scenarios</span><span class="p">:</span>
-</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">run_scenario</span><span class="p">(</span><span class="n">scenarios</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scenario_id</span><span class="p">,</span> <span class="n">triggered_by</span><span class="o">=</span><span class="s2">&quot;tutorial&quot;</span><span class="p">)</span>
-</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Run </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">run_id</span><span class="si">}</span><span class="s2"> queued — status: </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span></code></pre></div>
+<pre><code class="language-python">from redgnat.client import RedGNATClient
+
+client = RedGNATClient()  # reads ~/.redgnat/config.ini
+feeds = client.ingest_latest()
+scenarios = client.list_scenarios()
+
+if scenarios:
+    run = client.run_scenario(scenarios[0].scenario_id, triggered_by=&quot;tutorial&quot;)
+    print(f&quot;Run {run.run_id} queued — status: {run.status.value}&quot;)
+</code></pre>
 <hr />
 <h2 id="step-9-review-results">Step 9 — Review results<a class="headerlink" href="#step-9-review-results" title="Permanent link">&para;</a></h2>
 <p>Check the run's results:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/api/v1/runs/&lt;run_id&gt;/results<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-API-Key: changeme&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>json.tool
-</span></code></pre></div>
+<pre><code class="language-bash">curl -s http://localhost:8000/api/v1/runs/&lt;run_id&gt;/results \
+  -H &quot;X-API-Key: changeme&quot; | python -m json.tool
+</code></pre>
 <p>Because <code>dry_run = true</code>, every result will have <code>"status": "dry_run"</code> and a description of what the technique <em>would</em> have done. No network packets left the machine.</p>
 <p>You can also fetch the full CART report:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/api/v1/runs/&lt;run_id&gt;/report<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-API-Key: changeme&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>json.tool
-</span></code></pre></div>
+<pre><code class="language-bash">curl -s http://localhost:8000/api/v1/runs/&lt;run_id&gt;/report \
+  -H &quot;X-API-Key: changeme&quot; | python -m json.tool
+</code></pre>
 <hr />
 <h2 id="step-10-check-the-gap-report">Step 10 — Check the gap report<a class="headerlink" href="#step-10-check-the-gap-report" title="Permanent link">&para;</a></h2>
 <p>After the run completes, RedGNAT automatically builds a gap report and makes it available for GNAT to pull:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/api/v1/stix/gaps<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-API-Key: changeme&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>json.tool
-</span></code></pre></div>
+<pre><code class="language-bash">curl -s http://localhost:8000/api/v1/stix/gaps \
+  -H &quot;X-API-Key: changeme&quot; | python -m json.tool
+</code></pre>
 <p>In dry-run mode all results are <code>DRY_RUN</code> (not <code>SUCCESS</code>), so the gap list will be empty — gaps only appear when a technique completes without triggering a detection alert in a real run.</p>
 <hr />
 <h2 id="whats-next">What's next?<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
@@ -1583,79 +1374,18 @@
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
-        
       </main>
       
         <footer class="md-footer">
-  
-    
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../.." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Home
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../../how-to/add-technique/" class="md-footer__link md-footer__link--next" aria-label="Next: Add a Technique">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Add a Technique
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
-    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
   
-    <div class="md-copyright__highlight">
-      Copyright &copy; 2026 Bill Halpin — Apache-2.0
-    </div>
   
-  
-</div>
-      
-        
-<div class="md-social">
-  
-    
-    
-    
-    
-      
-      
-    
-    <a href="https://github.com/wrhalpin/RedGNAT" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
     </a>
   
 </div>
@@ -1673,7 +1403,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
