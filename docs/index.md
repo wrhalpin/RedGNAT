@@ -31,7 +31,7 @@ Pick the quadrant that matches what you need right now.
     <h3>📖 Tutorials</h3>
     <p>Learning-oriented. Start here if you are new to RedGNAT — install, configure, and run your first scenario end-to-end.</p>
   </a>
-  <a class="diataxis-card" href="how-to/add-technique/">
+  <a class="diataxis-card" href="how-to/">
     <h3>🛠 How-to Guides</h3>
     <p>Task-oriented. Step-by-step guides for adding techniques, wiring GNAT integration, and deploying to production.</p>
   </a>
