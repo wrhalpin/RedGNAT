@@ -1,6 +1,6 @@
 # RedGNAT Documentation
 
-RedGNAT is a **Continuous Automated Red Teaming (CART)** platform that ingests live threat intelligence from GNAT and SandGNAT, automatically builds adversary emulation scenarios, executes them against your environment, and feeds results back into GNAT as actionable intelligence requirements.
+RedGNAT is a **Continuous Automated Red Teaming (CART)** platform that ingests live threat intelligence from [GNAT](https://Wrhalpin.github.io/GNAT/) and [SandGNAT](https://wrhalpin.github.io/SandGNAT/), automatically builds adversary emulation scenarios, executes them against your environment, and feeds results back into GNAT as actionable intelligence requirements.
 
 ## Documentation map
 
