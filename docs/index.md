@@ -15,7 +15,7 @@
   <img alt="Phase 1" src="https://img.shields.io/badge/phase-1%20emulation-orange" />
 </div>
 
-RedGNAT ingests live threat intelligence from [GNAT](https://wrhalpin.github.io/GNAT/) and [SandGNAT](https://wrhalpin.github.io/GNAT/), automatically builds
+RedGNAT ingests live threat intelligence from [GNAT](https://wrhalpin.github.io/GNAT/) and [SandGNAT](https://wrhalpin.github.io/SandGNAT/), automatically builds
 adversary emulation scenarios mapped to MITRE ATT&CK, executes them against your environment,
 and feeds results back as actionable intelligence requirements — closing the CART loop continuously.
 
