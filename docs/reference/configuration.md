@@ -125,7 +125,7 @@ Required for cloud enumeration against AWS (T1087.004, T1069.003, T1526).
 
 ## `[feedback]` — Gap reporting and probe generation
 
-Controls the bidirectional feedback loop. See [Bidirectional feedback loop](../explanation/feedback-loop.md) for context.
+Controls the bidirectional feedback loop. See [Bidirectional feedback loop](../explanation/automation/feedback-loop.md) for context.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|

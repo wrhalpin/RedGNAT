@@ -1,7 +1,7 @@
 # Phase 2 Activation Model
 
 > **Explanation** — this page describes *why* the Phase 2 safety system works the way it does.
-> For step-by-step CLI usage see the [`redgnat engage`](../reference/api.md#engagement-endpoints) section of the API reference, or run `redgnat engage --help`.
+> For step-by-step CLI usage see the [`redgnat engage`](../../reference/api.md#engagement-endpoints) section of the API reference, or run `redgnat engage --help`.
 
 ---
 

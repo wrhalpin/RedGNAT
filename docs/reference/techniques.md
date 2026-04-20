@@ -1,8 +1,8 @@
 # Technique library reference
 
-RedGNAT's technique library covers three Phase 1 tactic areas plus a Phase 2 exploitation category. Phase 1 techniques are emulation-only: they observe, enumerate, and probe without delivering payloads or modifying state. Phase 2 techniques require the full three-factor engagement gate and are added individually after design review — see [Phase 2 Activation](../explanation/phase2-activation.md).
+RedGNAT's technique library covers three Phase 1 tactic areas plus a Phase 2 exploitation category. Phase 1 techniques are emulation-only: they observe, enumerate, and probe without delivering payloads or modifying state. Phase 2 techniques require the full three-factor engagement gate and are added individually after design review — see [Phase 2 Activation](../explanation/engagement/phase2-activation.md).
 
-Every technique enforces the [safe-harbor scope](../explanation/safe-harbor.md) before any network activity, and all return `DRY_RUN` status when `scope.dry_run = true`.
+Every technique enforces the [safe-harbor scope](../explanation/engagement/safe-harbor.md) before any network activity, and all return `DRY_RUN` status when `scope.dry_run = true`.
 
 ---
 
