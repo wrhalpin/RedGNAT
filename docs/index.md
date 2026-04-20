@@ -1,7 +1,5 @@
 # RedGNAT
 
-![RedGNAT logo](RedGNAT-logo.png)
-
 **CART Addon for GNAT**  
 **Safe Red Teaming Made Simple**
 
@@ -23,12 +21,12 @@ RedGNAT is intended to sit in the middle:
 
 ## Documentation
 
-RedGNAT documentation is organized using **DiÃ¡taxis**:
+RedGNAT documentation is organized using **[Diátaxis](https://diataxis.fr/)**:
 
-- **Tutorials** â€” get running safely
-- **How-to guides** â€” perform concrete operating tasks
-- **Reference** â€” exact configuration and API behavior
-- **Explanation** â€” safety model, phase model, and architecture
+- **[Tutorials](tutorials/README.md)** — get running safely
+- **[How-to guides](how-to/README.md)** — perform concrete operating tasks
+- **[Reference](reference/README.md)** — exact configuration and API behavior
+- **[Explanation](explanation/architecture/architecture.md)** — safety model, phase model, and architecture
 
 ## In the GNAT-o-sphere
 

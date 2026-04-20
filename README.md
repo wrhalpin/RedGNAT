@@ -1,40 +1,25 @@
 # RedGNAT
 
-![RedGNAT logo](RedGNAT-logo.png)
+**CART Addon for GNAT** — Safe Red Teaming Made Simple
 
-**CART Addon for GNAT**  
-**Safe Red Teaming Made Simple**
+RedGNAT is the controlled adversary-emulation arm of the GNAT-o-sphere. It ingests intelligence from GNAT and SandGNAT, turns that intelligence into scoped emulation scenarios, executes them under explicit safety controls, and feeds the resulting gaps back into GNAT as follow-up work.
 
-RedGNAT is the controlled adversary-emulation arm of the **GNAT-o-sphere**. It ingests intelligence from GNAT and SandGNAT, turns that intelligence into scoped emulation scenarios, executes them under explicit safety controls, and feeds the resulting gaps back into GNAT as follow-up work.
+**[Documentation](https://wrhalpin.github.io/RedGNAT/)** · **[GNAT](https://github.com/wrhalpin/GNAT)** · **[SandGNAT](https://github.com/wrhalpin/SandGNAT)**
 
-## Why RedGNAT exists
+## Quick start
 
-A lot of red-team tooling is either:
-- too manual to sustain continuously,
-- too detached from current intelligence to stay relevant,
-- or too loosely controlled to fit a safer operating model.
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+cp config/config.ini.example redgnat.ini
+# edit redgnat.ini — set db_url, redis_url, gnat config_path
+docker compose up -d
+make migrate
+make worker &
+make api
+```
 
-RedGNAT is intended to sit in the middle:
-- intelligence-led
-- automation-friendly
-- scope-aware
-- phase-gated
-- feedback-oriented
-
-## Documentation
-
-RedGNAT documentation is organized using **DiÃ¡taxis**:
-
-- **Tutorials** â€” get running safely
-- **How-to guides** â€” perform concrete operating tasks
-- **Reference** â€” exact configuration and API behavior
-- **Explanation** â€” safety model, phase model, and architecture
-
-## In the GNAT-o-sphere
-
-- **GNAT** supplies core intelligence and integration patterns
-- **SandGNAT** supplies malware-analysis output
-- **RedGNAT** turns those inputs into scoped adversary-emulation workflows
+See the [getting-started tutorial](docs/tutorials/getting-started.md) for the full walkthrough.
 
 ## License
 

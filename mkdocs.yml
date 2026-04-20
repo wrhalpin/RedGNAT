@@ -19,18 +19,27 @@ extra_css:
 nav:
   - Home: index.md
   - Tutorials:
+      - Overview: tutorials/README.md
       - Getting started: tutorials/getting-started.md
   - How-to guides:
+      - Overview: how-to/README.md
       - Add a technique: how-to/add-technique.md
       - Configure GNAT integration: how-to/configure-gnat-integration.md
       - Deploy with Docker: how-to/deploy-docker.md
   - Reference:
+      - Overview: reference/README.md
       - Configuration: reference/configuration.md
       - API: reference/api.md
+      - Technique library: reference/techniques.md
   - Explanation:
-      - Architecture: explanation/architecture.md
-      - Safe-harbor model: explanation/safe-harbor.md
-      - Phase 2 activation: explanation/phase2-activation.md
+      - Architecture: explanation/architecture/architecture.md
+      - Engagement:
+          - Safe-harbor model: explanation/engagement/safe-harbor.md
+          - Phase 2 activation: explanation/engagement/phase2-activation.md
+      - Automation:
+          - Feedback loop: explanation/automation/feedback-loop.md
+  - Releases:
+      - v0.1.0: releases/v0.1.0.md
 
 markdown_extensions:
   - admonition
