@@ -1,6 +1,6 @@
 # RedGNAT
 
-![RedGNAT logo](assets/logo/RedGNAT-logo.png)
+![RedGNAT logo](assets/RedGNAT-logo.png)
 
 **CART Addon for GNAT**  
 **Safe Red Teaming Made Simple**
