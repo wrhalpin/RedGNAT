@@ -1,6 +1,6 @@
 # Technique library reference
 
-RedGNAT's technique library covers three ATT&CK tactic areas. All Phase 1 techniques are emulation-only: they observe, enumerate, and probe, but do not deliver payloads or modify state.
+RedGNAT's technique library covers three Phase 1 tactic areas plus a Phase 2 exploitation category. Phase 1 techniques are emulation-only: they observe, enumerate, and probe without delivering payloads or modifying state. Phase 2 techniques require the full three-factor engagement gate and are added individually after design review — see [Phase 2 Activation](../explanation/phase2-activation.md).
 
 Every technique enforces the [safe-harbor scope](../explanation/safe-harbor.md) before any network activity, and all return `DRY_RUN` status when `scope.dry_run = true`.
 
@@ -264,6 +264,31 @@ Read-only audit log analysis — not active exploitation. Measures session token
 
 ---
 
+## Phase 2 — Exploitation
+
+Phase 2 exploitation techniques live in `redgnat/techniques/exploitation/` and are dispatched exclusively by `EngagementRunner`. All three engagement gates must be satisfied before any Phase 2 technique fires; the kill switch is checked between every step.
+
+Each exploitation technique requires individual design review before implementation. The requirements are documented in `redgnat/techniques/exploitation/README.md`:
+
+1. `emulation_only = False` — set deliberately, with a docstring explaining the impact
+2. `scope.allow_exploitation = true` — INI flag verified before dispatch
+3. Operator-triggered only — Celery beat must never auto-schedule Phase 2 runs
+4. Structured evidence record written to `technique_results.evidence` before returning
+5. Rollback procedure documented in the technique's module docstring
+
+### Candidate techniques (subject to per-technique design review)
+
+| ATT&CK ID | Technique | Status |
+|-----------|-----------|--------|
+| T1190 | Exploit Public-Facing Application | Candidate |
+| T1055 | Process Injection | Candidate |
+| T1548 | Abuse Elevation Control | Candidate |
+| T1078 | Valid Accounts (post-spray lateral movement) | Candidate |
+
+> **To add an exploitation technique:** follow `redgnat/techniques/exploitation/README.md`, open a PR tagged `phase2`, and ensure the PR includes a completed design review checklist.
+
+---
+
 ## Result status values
 
 | Status | Meaning |
@@ -274,3 +299,5 @@ Read-only audit log analysis — not active exploitation. Measures session token
 | `detected` | Technique triggered a detection or alert (the defender caught it) |
 | `error` | Unhandled exception during execution |
 | `dry_run` | `scope.dry_run = true` — no network activity occurred |
+| `killed` | Kill switch activated mid-run — technique did not start |
+| `expired` | Phase 2 engagement token expired mid-run — technique did not start |

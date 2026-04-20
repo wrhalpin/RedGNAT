@@ -74,6 +74,6 @@ flowchart LR
     F -->|ProbeRequests| I
 ```
 
-**Phase 1 (current):** emulation and probing — observe, enumerate, phish, spray. Never exploit.
+**Phase 1:** emulation and probing — observe, enumerate, phish, spray. Never exploit.
 
-**Phase 2 (planned):** controlled exploitation with three-factor authorization and a global kill switch.
+**Phase 2:** controlled exploitation with three-factor authorization and a global kill switch. Infrastructure delivered — see [Phase 2 Activation](explanation/phase2-activation.md). Exploitation techniques added per design review.

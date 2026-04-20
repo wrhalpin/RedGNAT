@@ -288,3 +288,73 @@ Return gap reports as STIX 2.1 `note` objects. A gap is any technique that execu
   }
 ]
 ```
+
+---
+
+## Engagement endpoints
+
+Phase 2 engagement control. All endpoints require API key authentication plus the `X-Kill-Key` header for destructive operations (value must match the `REDGNAT_KILL_KEY` environment variable if set).
+
+### `GET /api/v1/engage/status`
+
+Return the current engagement gate and kill-switch state.
+
+**Response:**
+```json
+{
+  "phase2_config_enabled": true,
+  "phase2_unlock_env_set": true,
+  "token_active": true,
+  "token_expires_at": "2026-04-20T18:00:00Z",
+  "token_remaining_seconds": 1800,
+  "kill_switch_active": false
+}
+```
+
+---
+
+### `POST /api/v1/engage/authorize`
+
+Create a time-bounded engagement token to satisfy Gate 3. Gates 1 (config) and Gate 2 (env var) must already be satisfied; this endpoint returns `403` otherwise.
+
+**Request body:**
+```json
+{
+  "operator": "alice",
+  "duration_minutes": 60
+}
+```
+
+**Response:** `201` with the token details.
+
+---
+
+### `DELETE /api/v1/engage/authorize`
+
+Revoke the active engagement token immediately.
+
+**Response:** `204 No Content`
+
+---
+
+### `POST /api/v1/engage/kill`
+
+Activate the global kill switch. Immediately stops all in-progress engagement runs, purges the Celery engagement queue, and closes any open GoPhish campaigns. Requires `X-Kill-Key` header.
+
+**Request body:**
+```json
+{
+  "reason": "Unexpected detection — stopping engagement",
+  "operator": "alice"
+}
+```
+
+**Response:** `200` with kill switch status.
+
+---
+
+### `DELETE /api/v1/engage/kill`
+
+Reset (deactivate) the kill switch after the engagement is cleared to continue. Requires `X-Kill-Key` header.
+
+**Response:** `204 No Content`

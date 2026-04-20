@@ -67,7 +67,7 @@ There is no "spray everything in the domain" mode. The test account list must be
 
 `Technique.emulation_only = True` is the Phase 1 default. Phase 1 techniques observe, enumerate, and probe — they do not deliver payloads, modify state, or exploit vulnerabilities.
 
-This flag is a **design checkpoint**, not a runtime access control. It communicates intent to developers and reviewers. Phase 2 exploitation techniques will set `emulation_only = False` only after explicit design review and with additional safety controls (scope guard for `allow_exploitation`, mandatory operator confirmation, audit trail requirements — see `redgnat/techniques/exploitation/README.md`).
+This flag is a **design checkpoint**, not a runtime access control. It communicates intent to developers and reviewers. Phase 2 exploitation techniques set `emulation_only = False` only after explicit design review; they require `EngagementRunner` (three-factor gate + kill switch), scope guard, operator confirmation, and a structured evidence record — see `redgnat/techniques/exploitation/README.md`.
 
 ---
 
@@ -111,4 +111,4 @@ Safe-harbor controls protect against **accidental** out-of-scope activity. They 
 - **Misconfigured scope** — if `target_ranges` includes production systems that should be excluded, techniques will target them. Scope configuration is a human responsibility.
 - **Compromised config** — if an attacker can modify `config.ini`, they can modify scope. Protect the config file accordingly.
 - **Bugs in technique implementations** — a technique that skips scope checks will not be caught at runtime. Code review and the dry-run test suite are the mitigations.
-- **Phase 2 exploitation** — once implemented, Phase 2 techniques can cause real impact. The additional controls described in the exploitation README are designed to compensate, but they require operator discipline.
+- **Phase 2 exploitation** — Phase 2 techniques can cause real impact. The three-factor gate (config flag + env var + engagement token) and kill switch are designed to compensate, but they require operator discipline. Review `redgnat/techniques/exploitation/README.md` before adding any exploitation technique.
