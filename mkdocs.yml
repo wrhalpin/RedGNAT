@@ -1,0 +1,94 @@
+site_name: RedGNAT
+site_description: Continuous Automated Red Teaming — CART Addon for GNAT
+site_url: https://wrhalpin.github.io/RedGNAT/
+repo_url: https://github.com/wrhalpin/RedGNAT
+repo_name: wrhalpin/RedGNAT
+copyright: Copyright &copy; 2026 Bill Halpin — Apache-2.0
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/favicon.png
+  palette:
+    - scheme: default
+      primary: red
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: red
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - toc.follow
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/wrhalpin/RedGNAT
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Tutorials:
+    - Getting Started: tutorials/getting-started.md
+  - How-to Guides:
+    - Add a Technique: how-to/add-technique.md
+    - Configure GNAT Integration: how-to/configure-gnat-integration.md
+    - Deploy with Docker: how-to/deploy-docker.md
+  - Reference:
+    - Configuration: reference/configuration.md
+    - REST API: reference/api.md
+    - Technique Library: reference/techniques.md
+  - Explanation:
+    - Architecture: explanation/architecture.md
+    - Feedback Loop: explanation/feedback-loop.md
+    - Safe-Harbor Design: explanation/safe-harbor.md
+    - Phase 2 Activation: explanation/phase2-activation.md

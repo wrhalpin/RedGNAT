@@ -42,3 +42,6 @@ Thumbs.db
 *.log
 celerybeat-schedule
 celerybeat.pid
+
+# MkDocs build output
+site/

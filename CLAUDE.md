@@ -22,10 +22,11 @@ scenarios against the enterprise environment.
 **Design phases:**
 - **Phase 1 (current):** Emulation and probing — observe, enumerate, phish, spray, but never exploit.
   The `emulation_only = True` class attribute is the Phase 1 default, not a permanent hard constraint.
-- **Phase 2 (planned):** Controlled offensive testing — exploitation techniques with explicit opt-in,
-  additional safety controls (kill-switch, break-glass approval), and separate technique category.
-  Phase 2 techniques will live in `redgnat/techniques/exploitation/` and require `emulation_only = False`
-  to be set deliberately on a per-technique basis after design review.
+- **Phase 2 (delivered):** Controlled offensive testing — exploitation techniques with explicit opt-in,
+  three-factor engagement gate (config flag + env var + Redis token), global kill switch, and
+  `EngagementRunner` with per-step kill/expiry checks. Infrastructure lives in `redgnat/engagement/`.
+  Exploitation techniques live in `redgnat/techniques/exploitation/` and require `emulation_only = False`
+  set deliberately on a per-technique basis after individual design review.
 
 **Package name (PyPI):** `redgnat`
 **Import root:** `redgnat`
@@ -59,7 +60,7 @@ scenarios against the enterprise environment.
 │    ▲                                         ├── discovery/          │  │
 │    │ probe_requests                          ├── phishing/           │  │
 │    │ from GNAT agents                        ├── identity/           │  │
-│    │                                         └── [exploitation/ P2]  │  │
+│    │                                         └── exploitation/        │  │
 │  feedback/ ◄── results                                               │  │
 │    │  gap_reporter.py  → gap STIX Notes ──────────────────────────►  │  │
 │    │  probe_generator.py → new ProbeRequests via GNAT LLMClient      │  │
@@ -120,8 +121,13 @@ redgnat/                          # Main Python package
 │   │   ├── mfa_fatigue.py        # T1621 — MFA push bombing simulation
 │   │   ├── oauth_abuse.py        # T1528 — OAuth consent phishing via GoPhish
 │   │   └── token_theft.py        # T1539 — session token pattern detection
-│   └── exploitation/             # Phase 2 — controlled offensive techniques (planned)
-│       └── README.md             # Phase 2 design notes; no code yet
+│   └── exploitation/             # Phase 2 — controlled offensive techniques
+│       └── README.md             # Per-technique design review checklist
+├── engagement/                   # Phase 2 gate, token, kill switch, runner
+│   ├── gate.py                   # EngagementGate — three-factor authorization check
+│   ├── token.py                  # EngagementToken — time-bounded Redis-backed token
+│   ├── kill_switch.py            # KillSwitch — Redis fast path + Postgres durable record
+│   └── runner.py                 # EngagementRunner — EmulationRunner + gate/kill re-check
 ├── feedback/                     # Closed-loop intelligence feedback
 │   ├── gap_reporter.py           # Converts gaps → STIX Notes pushed back to GNAT
 │   └── probe_generator.py        # Uses GNAT's LLMClient to suggest follow-on probes
