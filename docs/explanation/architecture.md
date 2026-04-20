@@ -24,7 +24,7 @@ graph TB
         INT[Intake<br/>gnat_subscriber<br/>sandgnat_subscriber]
         SCN[Scenarios<br/>builder · store]
         EMU[Emulation<br/>runner · tasks]
-        TEC[Techniques<br/>discovery · phishing · identity]
+        TEC[Techniques<br/>discovery · phishing · identity · exploitation]
         FBK[Feedback<br/>gap_reporter · probe_generator]
         API[REST API<br/>FastAPI :8000]
 
@@ -113,12 +113,23 @@ sequenceDiagram
 
 ### Technique layer
 
-`redgnat/techniques/` implements the ATT&CK technique library. Every technique follows the same contract enforced by the `Technique` abstract base class:
+`redgnat/techniques/` implements the ATT&CK technique library across four categories:
+
+| Directory | Tactics | Runner required |
+|-----------|---------|----------------|
+| `discovery/` | TA0007, TA0043 | `EmulationRunner` |
+| `phishing/` | TA0001 | `EmulationRunner` |
+| `identity/` | TA0006 | `EmulationRunner` |
+| `exploitation/` | various | `EngagementRunner` (Phase 2 only) |
+
+Every technique follows the same contract enforced by the `Technique` abstract base class:
 
 1. Check `scope.dry_run` first → return `DRY_RUN` immediately if true
 2. Validate every target with `_check_scope_*()` before touching it
 3. Call `_rate_sleep()` before each network request
 4. Return a `TechniqueResult` with structured findings
+
+Phase 2 exploitation techniques additionally require `emulation_only = False`, pass through the three-factor `EngagementGate`, and have their execution interleaved with kill-switch and token-expiry checks via `EngagementRunner`.
 
 ### Feedback layer
 
@@ -134,6 +145,7 @@ sequenceDiagram
 | Audience | Endpoints |
 |----------|-----------|
 | Operators (human) | `GET/POST /scenarios`, `GET/POST /runs`, `POST /intel/ingest`, `GET /intel/techniques` |
+| Engagement control | `GET /engage/status`, `POST /engage/authorize`, `POST /engage/kill`, `DELETE /engage/kill` |
 | GNAT connector (machine) | `GET /stix/results`, `GET /stix/sightings`, `GET /stix/gaps` |
 | GNAT AI agents (machine) | `POST /intel/probe-request` |
 
