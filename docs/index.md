@@ -4,13 +4,18 @@ title: RedGNAT
 description: Continuous Automated Red Teaming addon for GNAT. Safe red teaming made simple.
 ---
 
+<div class="intro-hero">
+<div class="intro-text" markdown="1">
+
 # RedGNAT
 
 Continuous Automated Red Teaming (CART) addon for the **GNAT-o-sphere**: ingest live threat intelligence from GNAT and SandGNAT, build scoped adversary-emulation scenarios, execute them under layered safety controls, and feed detection gaps back into GNAT as structured intelligence requirements.
 
 Source: [`github.com/wrhalpin/RedGNAT`](https://github.com/wrhalpin/RedGNAT).
 
-![RedGNAT logo](assets/logo-256.png)
+</div>
+<img src="assets/logo-256.png" alt="RedGNAT logo" class="intro-logo">
+</div>
 
 ---
 
