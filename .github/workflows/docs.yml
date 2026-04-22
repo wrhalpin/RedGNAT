@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 #
-# Build and deploy the Jekyll-rendered Diátaxis docs under docs/ to GitHub
-# Pages. Runs on every push to main that touches docs/, on manual dispatch.
+# Build Jekyll docs from docs/ and push the output to the gh-pages branch,
+# matching the original mkdocs gh-deploy behaviour.
 
 name: Deploy docs to GitHub Pages
 
@@ -14,39 +14,24 @@ on:
       - .github/workflows/docs.yml
   workflow_dispatch:
 
-# Only one concurrent deploy; a second push in flight is coalesced into one.
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./docs
           destination: ./_site
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Push to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
