@@ -1,3 +1,8 @@
+---
+layout: default
+title: Documentation Standards
+---
+
 # Documentation Standards
 
 RedGNAT documentation uses the [Diátaxis](https://diataxis.fr/) framework.

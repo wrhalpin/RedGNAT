@@ -1,0 +1,53 @@
+/* RedGNAT palette — overrides jekyll-theme-cayman defaults */
+
+/* Header gradient: dark crimson → bright red */
+.page-header {
+  background-color: #8b0000;
+  background-image: linear-gradient(120deg, #5f0f13, #cc0000);
+}
+
+/* Main content link color */
+.main-content a {
+  color: #9e1b1b;
+}
+
+.main-content a:hover {
+  color: #cc0000;
+  text-decoration: underline;
+}
+
+/* Code block left accent */
+.main-content pre {
+  border-left: 3px solid #cc0000;
+}
+
+/* Inline code */
+.main-content code {
+  background-color: #f7e6e6;
+  color: #5f0f13;
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+
+/* Table header row */
+.main-content table th {
+  background-color: #f7e6e6;
+  color: #5f0f13;
+}
+
+/* Horizontal rule */
+.main-content hr {
+  border-color: #d5b1b1;
+}
+
+/* Button overrides on header */
+.btn {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+.btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
+}

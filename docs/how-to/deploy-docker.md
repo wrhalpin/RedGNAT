@@ -1,3 +1,9 @@
+---
+layout: default
+title: Deploy with Docker
+description: Production Docker Compose deployment for RedGNAT.
+---
+
 # How to deploy RedGNAT with Docker Compose
 
 This guide covers a production-ready Docker Compose deployment with Postgres, Redis, the Celery worker and beat scheduler, and the FastAPI server.

@@ -1,3 +1,9 @@
+---
+layout: default
+title: Getting Started
+description: Install RedGNAT and run your first scenario in dry-run mode.
+---
+
 # Getting started with RedGNAT
 
 **What you'll build:** A running RedGNAT instance connected to GNAT, with a first emulation scenario executed in dry-run mode so nothing touches production targets.

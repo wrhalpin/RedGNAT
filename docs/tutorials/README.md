@@ -1,3 +1,8 @@
+---
+layout: default
+title: Tutorials
+---
+
 # Tutorials
 
 Learning-oriented walkthroughs. Follow these end-to-end to get hands-on experience with RedGNAT.

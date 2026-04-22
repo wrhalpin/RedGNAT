@@ -1,3 +1,8 @@
+---
+layout: default
+title: Reference
+---
+
 # Reference
 
 Precise technical details. Use these when you need exact configuration keys, API endpoint behaviour, or technique specifications.

@@ -1,3 +1,9 @@
+---
+layout: default
+title: The Bidirectional Feedback Loop
+description: How gap reports, AI-driven probe generation, and convergence work together.
+---
+
 # The bidirectional feedback loop
 
 RedGNAT's defining feature is a closed loop between emulation execution and threat intelligence. This article explains how the loop works, why it matters, and the design choices behind it.

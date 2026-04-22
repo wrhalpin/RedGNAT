@@ -1,3 +1,9 @@
+---
+layout: default
+title: Configuration Reference
+description: All INI configuration keys, sections, and discovery rules.
+---
+
 # Configuration reference
 
 RedGNAT uses INI-format configuration (same convention as GNAT and SandGNAT). The config file is searched in this order:

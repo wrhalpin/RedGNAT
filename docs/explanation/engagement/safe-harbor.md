@@ -1,3 +1,9 @@
+---
+layout: default
+title: Safe-Harbor Design
+description: The layered scope, dry-run, rate-limit, and phase controls that make RedGNAT safe by default.
+---
+
 # Safe-harbor design
 
 RedGNAT is built around a core principle: automated offensive tooling must be harder to misfire than to operate safely. This article explains the layered controls that enforce this, and the philosophy behind them.

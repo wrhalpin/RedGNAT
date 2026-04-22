@@ -1,3 +1,8 @@
+---
+layout: default
+title: How-to Guides
+---
+
 # How-to guides
 
 Task-oriented recipes. Each guide answers "how do I accomplish X?" without requiring sequential reading.

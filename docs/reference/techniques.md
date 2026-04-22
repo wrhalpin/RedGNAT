@@ -1,3 +1,9 @@
+---
+layout: default
+title: Technique Library Reference
+description: All registered ATT&CK techniques — scope requirements, result statuses, Phase 2 notes.
+---
+
 # Technique library reference
 
 RedGNAT's technique library covers three Phase 1 tactic areas plus a Phase 2 exploitation category. Phase 1 techniques are emulation-only: they observe, enumerate, and probe without delivering payloads or modifying state. Phase 2 techniques require the full three-factor engagement gate and are added individually after design review — see [Phase 2 Activation](../explanation/engagement/phase2-activation.md).

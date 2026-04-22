@@ -1,3 +1,9 @@
+---
+layout: default
+title: Phase 2 Activation Model
+description: Three-factor engagement gate, kill switch, and audit trail for controlled exploitation.
+---
+
 # Phase 2 Activation Model
 
 > **Explanation** — this page describes *why* the Phase 2 safety system works the way it does.

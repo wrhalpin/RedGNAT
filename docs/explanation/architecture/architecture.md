@@ -1,3 +1,9 @@
+---
+layout: default
+title: Architecture
+description: System context, component overview, data model, and technology choices.
+---
+
 # Architecture
 
 RedGNAT sits between three systems: GNAT (threat intelligence platform), SandGNAT (malware sandbox), and the defender's enterprise environment. Its job is to translate live threat intelligence into emulation runs, execute them safely, and return results back to GNAT as structured intelligence.

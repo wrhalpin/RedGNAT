@@ -1,3 +1,9 @@
+---
+layout: default
+title: API Reference
+description: REST endpoint reference — request/response schemas, status codes, authentication.
+---
+
 # REST API reference
 
 The RedGNAT API is a FastAPI application served on port `8000` by default. All endpoints are under the `/api/v1` prefix.

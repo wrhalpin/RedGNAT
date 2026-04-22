@@ -1,3 +1,9 @@
+---
+layout: default
+title: Configure GNAT Integration
+description: Set up bidirectional intel flow between RedGNAT and GNAT.
+---
+
 # How to configure GNAT integration
 
 RedGNAT has a bidirectional relationship with GNAT:

@@ -1,3 +1,9 @@
+---
+layout: default
+title: Add a Technique
+description: Add and register a new ATT&CK-mapped technique in RedGNAT.
+---
+
 # How to add a new emulation technique
 
 This guide walks through adding a new ATT&CK-mapped technique to RedGNAT's library. After completing it the technique will be discovered, scoped, executed, and reported automatically alongside existing ones.

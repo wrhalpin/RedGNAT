@@ -1,0 +1,28 @@
+title: RedGNAT
+
+description: >-
+  Continuous Automated Red Teaming addon for GNAT. Safe red teaming made simple.
+  Organised with the Diátaxis framework.
+
+theme: jekyll-theme-cayman
+
+show_downloads: false
+
+github:
+  repository_url: https://github.com/wrhalpin/RedGNAT
+
+markdown: kramdown
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+include:
+  - assets
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
