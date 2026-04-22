@@ -40,12 +40,21 @@
   border-color: #d5b1b1;
 }
 
-/* Logo in banner header */
-.project-logo {
-  width: 80px;
-  height: 80px;
-  display: block;
-  margin: 0 auto 0.75rem;
+/* Intro hero: text left, logo right */
+.intro-hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.intro-text {
+  flex: 1;
+}
+
+.intro-logo {
+  width: 288px;
+  height: 288px;
+  flex-shrink: 0;
   border-radius: 8px;
 }
 
