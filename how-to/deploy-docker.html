@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Deploy with Docker | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Deploy with Docker" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Production Docker Compose deployment for RedGNAT." />
+<meta property="og:description" content="Production Docker Compose deployment for RedGNAT." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/how-to/deploy-docker.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/how-to/deploy-docker.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Deploy with Docker" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Production Docker Compose deployment for RedGNAT.","headline":"Deploy with Docker","url":"https://wrhalpin.github.io/RedGNAT/how-to/deploy-docker.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Deploy with Docker">
+<meta property="og:description" content="Production Docker Compose deployment for RedGNAT.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">Deploy with Docker</h1>
+  <h2 class="project-tagline">Production Docker Compose deployment for RedGNAT.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="how-to-deploy-redgnat-with-docker-compose">How to deploy RedGNAT with Docker Compose</h1>
+
+<p>This guide covers a production-ready Docker Compose deployment with Postgres, Redis, the Celery worker and beat scheduler, and the FastAPI server.</p>
+
+<hr />
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+  <li>Docker Engine 24+ and Docker Compose v2</li>
+  <li>A <code class="language-plaintext highlighter-rouge">config.ini</code> with real credentials (see <a href="/RedGNAT/tutorials/getting-started.html">Getting started</a> for the template)</li>
+  <li>A GNAT config file reachable from the Docker host</li>
+</ul>
+
+<hr />
+
+<h2 id="1--prepare-configuration">1 — Prepare configuration</h2>
+
+<p>Create a <code class="language-plaintext highlighter-rouge">config/</code> directory with your production config:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cp </span>config/config.ini.example config/redgnat.ini
+<span class="nv">$EDITOR</span> config/redgnat.ini
+</code></pre></div></div>
+
+<p>Minimum changes from the template for a Docker deployment:</p>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[redgnat]</span>
+<span class="c"># Use Docker service hostnames, not localhost
+</span><span class="py">db_url</span> <span class="p">=</span> <span class="s">postgresql://redgnat:redgnat@postgres:5432/redgnat</span>
+<span class="py">redis_url</span> <span class="p">=</span> <span class="s">redis://redis:6379/0</span>
+<span class="py">dry_run</span> <span class="p">=</span> <span class="s">false</span>
+
+<span class="nn">[gnat]</span>
+<span class="py">config_path</span> <span class="p">=</span> <span class="s">/run/secrets/gnat.ini</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">docker-compose.yml</code> mounts <code class="language-plaintext highlighter-rouge">./config/redgnat.ini</code> into every service at <code class="language-plaintext highlighter-rouge">/app/config/redgnat.ini</code>.</p>
+
+<hr />
+
+<h2 id="2--set-the-api-key">2 — Set the API key</h2>
+
+<p>The API server reads its key from the <code class="language-plaintext highlighter-rouge">REDGNAT_API_KEY</code> environment variable. Set it in a <code class="language-plaintext highlighter-rouge">.env</code> file (never commit this):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"REDGNAT_API_KEY=</span><span class="si">$(</span>openssl rand <span class="nt">-hex</span> 32<span class="si">)</span><span class="s2">"</span> <span class="o">&gt;</span> .env
+</code></pre></div></div>
+
+<p>The compose file references <code class="language-plaintext highlighter-rouge">${REDGNAT_API_KEY}</code> for the <code class="language-plaintext highlighter-rouge">api</code> service.</p>
+
+<hr />
+
+<h2 id="3--build-and-start">3 — Build and start</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker compose up <span class="nt">--build</span> <span class="nt">-d</span>
+</code></pre></div></div>
+
+<p>Services start in dependency order:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>postgres (healthy) ─┬─► worker ─► beat
+redis (healthy)    ─┘─► api
+</code></pre></div></div>
+
+<p>Check that everything is running:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker compose ps
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NAME        IMAGE      STATUS          PORTS
+postgres    postgres   Up (healthy)    0.0.0.0:5432-&gt;5432/tcp
+redis       redis      Up (healthy)    0.0.0.0:6379-&gt;6379/tcp
+worker      redgnat    Up
+beat        redgnat    Up
+api         redgnat    Up              0.0.0.0:8000-&gt;8000/tcp
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="4--apply-migrations">4 — Apply migrations</h2>
+
+<p>Migrations run automatically on first Postgres start (they are mounted into <code class="language-plaintext highlighter-rouge">/docker-entrypoint-initdb.d/</code>). Verify the schema was applied:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker compose <span class="nb">exec </span>postgres psql <span class="nt">-U</span> redgnat <span class="nt">-c</span> <span class="s2">"</span><span class="se">\d</span><span class="s2">t"</span>
+</code></pre></div></div>
+
+<p>You should see <code class="language-plaintext highlighter-rouge">intel_feeds</code>, <code class="language-plaintext highlighter-rouge">emulation_scenarios</code>, <code class="language-plaintext highlighter-rouge">emulation_runs</code>, and <code class="language-plaintext highlighter-rouge">technique_results</code> tables.</p>
+
+<hr />
+
+<h2 id="5--verify-the-deployment">5 — Verify the deployment</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> http://localhost:8000/api/v1/health
+<span class="c"># {"status":"ok","service":"redgnat"}</span>
+
+curl <span class="nt">-s</span> <span class="nt">-X</span> POST http://localhost:8000/api/v1/intel/ingest <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: </span><span class="si">$(</span><span class="nb">grep </span>REDGNAT_API_KEY .env | <span class="nb">cut</span> <span class="nt">-d</span><span class="o">=</span> <span class="nt">-f2</span><span class="si">)</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="6--view-logs">6 — View logs</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># All services</span>
+docker compose logs <span class="nt">-f</span>
+
+<span class="c"># Specific service</span>
+docker compose logs <span class="nt">-f</span> worker
+docker compose logs <span class="nt">-f</span> api
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="updating">Updating</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git pull
+docker compose build
+docker compose up <span class="nt">-d</span>
+</code></pre></div></div>
+
+<p>Rolling updates are not currently supported — all services restart together.</p>
+
+<hr />
+
+<h2 id="stopping-and-data-retention">Stopping and data retention</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Stop without deleting data</span>
+docker compose down
+
+<span class="c"># Stop AND delete the Postgres volume (loses all scenario/run data)</span>
+docker compose down <span class="nt">-v</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">redgnat_pgdata</code> Docker volume persists all database state across restarts. Back it up before any destructive operation:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker compose <span class="nb">exec </span>postgres pg_dump <span class="nt">-U</span> redgnat redgnat | <span class="nb">gzip</span> <span class="o">&gt;</span> redgnat-backup.sql.gz
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="production-hardening-checklist">Production hardening checklist</h2>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Change <code class="language-plaintext highlighter-rouge">REDGNAT_API_KEY</code> from the example value</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Change Postgres password from the default <code class="language-plaintext highlighter-rouge">redgnat</code></li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Put the API server behind a TLS-terminating reverse proxy (nginx, Caddy, or ALB)</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Restrict <code class="language-plaintext highlighter-rouge">0.0.0.0:5432</code> and <code class="language-plaintext highlighter-rouge">0.0.0.0:6379</code> — they should not be internet-facing</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Mount GNAT config as a Docker secret rather than a bind mount</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Set <code class="language-plaintext highlighter-rouge">dry_run = false</code> only after confirming scope is correct</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />Configure log aggregation for the worker and api containers</li>
+</ul>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

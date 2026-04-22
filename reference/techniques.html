@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Technique Library Reference | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Technique Library Reference" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="All registered ATT&amp;CK techniques — scope requirements, result statuses, Phase 2 notes." />
+<meta property="og:description" content="All registered ATT&amp;CK techniques — scope requirements, result statuses, Phase 2 notes." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/reference/techniques.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/reference/techniques.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Technique Library Reference" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"All registered ATT&amp;CK techniques — scope requirements, result statuses, Phase 2 notes.","headline":"Technique Library Reference","url":"https://wrhalpin.github.io/RedGNAT/reference/techniques.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Technique Library Reference">
+<meta property="og:description" content="All registered ATT&CK techniques — scope requirements, result statuses, Phase 2 notes.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">Technique Library Reference</h1>
+  <h2 class="project-tagline">All registered ATT&CK techniques — scope requirements, result statuses, Phase 2 notes.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="technique-library-reference">Technique library reference</h1>
+
+<p>RedGNAT’s technique library covers three Phase 1 tactic areas plus a Phase 2 exploitation category. Phase 1 techniques are emulation-only: they observe, enumerate, and probe without delivering payloads or modifying state. Phase 2 techniques require the full three-factor engagement gate and are added individually after design review — see <a href="/RedGNAT/explanation/engagement/phase2-activation.html">Phase 2 Activation</a>.</p>
+
+<p>Every technique enforces the <a href="/RedGNAT/explanation/engagement/safe-harbor.html">safe-harbor scope</a> before any network activity, and all return <code class="language-plaintext highlighter-rouge">DRY_RUN</code> status when <code class="language-plaintext highlighter-rouge">scope.dry_run = true</code>.</p>
+
+<hr />
+
+<h2 id="discovery-and-reconnaissance">Discovery and Reconnaissance</h2>
+
+<h3 id="t1046--network-service-discovery">T1046 — Network Service Discovery</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/network_scan.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">NetworkScanTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">discovery</code></p>
+
+<p>Uses <code class="language-plaintext highlighter-rouge">python-nmap</code> to perform port and service discovery against in-scope CIDR ranges. Validates every target CIDR against <code class="language-plaintext highlighter-rouge">scope.target_ranges</code> before scanning.</p>
+
+<p><strong>Scope requirements:</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">target_ranges</code> — CIDR blocks to scan</li>
+  <li><code class="language-plaintext highlighter-rouge">max_rate_per_minute</code> — applied as nmap rate limit</li>
+</ul>
+
+<p><strong>Findings schema:</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.0.5"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"open_ports"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nl">"port"</span><span class="p">:</span><span class="w"> </span><span class="mi">22</span><span class="p">,</span><span class="w"> </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ssh"</span><span class="p">,</span><span class="w"> </span><span class="nl">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"open"</span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>GNAT intel ask when undetected:</strong> Enrich exposed hosts via Shodan/Censys connectors. Check for CVEs on detected services via CISA KEV / VulnCheck.</p>
+
+<hr />
+
+<h3 id="t1595001--active-scanning-scanning-ip-blocks">T1595.001 — Active Scanning: Scanning IP Blocks</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/network_scan.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">NetworkScanTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">reconnaissance</code></p>
+
+<p>Registered as an alias of <code class="language-plaintext highlighter-rouge">NetworkScanTechnique</code>. Same implementation, different ATT&amp;CK sub-technique categorisation.</p>
+
+<hr />
+
+<h3 id="t1087002--account-discovery-domain-account">T1087.002 — Account Discovery: Domain Account</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/ad_enum.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">ADEnumTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">discovery</code></p>
+
+<p>Enumerates Active Directory user accounts via LDAP (ldap3, read-only bind). Retrieves <code class="language-plaintext highlighter-rouge">sAMAccountName</code>, <code class="language-plaintext highlighter-rouge">userPrincipalName</code>, <code class="language-plaintext highlighter-rouge">memberOf</code>, <code class="language-plaintext highlighter-rouge">adminCount</code>, <code class="language-plaintext highlighter-rouge">userAccountControl</code>.</p>
+
+<p><strong>Config required:</strong> <code class="language-plaintext highlighter-rouge">[ldap]</code> section.</p>
+
+<p><strong>Findings schema:</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"users_found"</span><span class="p">:</span><span class="w"> </span><span class="mi">412</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"privileged_accounts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"admin@example.com"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"gpos_found"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h3 id="t1069002--permission-groups-discovery-domain-groups">T1069.002 — Permission Groups Discovery: Domain Groups</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/ad_enum.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">ADEnumTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">discovery</code></p>
+
+<p>Enumerates AD security groups and their members via LDAP. Focuses on privileged groups: Domain Admins, Enterprise Admins, Schema Admins, Backup Operators.</p>
+
+<hr />
+
+<h3 id="t1482--domain-trust-discovery">T1482 — Domain Trust Discovery</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/ad_enum.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">ADEnumTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">discovery</code></p>
+
+<p>Queries <code class="language-plaintext highlighter-rouge">trustedDomain</code> objects via LDAP to map forest and external trusts.</p>
+
+<hr />
+
+<h3 id="t1046--network-service-discovery-banner-grabbing-variant">T1046 — Network Service Discovery (banner grabbing variant)</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/service_enum.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">ServiceEnumTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">discovery</code></p>
+
+<p>TCP banner grabbing and service fingerprinting (SSH, HTTP, SMTP, FTP, SMB, RDP). Uses raw sockets with TLS wrapping where applicable. Lighter-weight than nmap — no privilege required.</p>
+
+<hr />
+
+<h3 id="t1087004--account-discovery-cloud-account">T1087.004 — Account Discovery: Cloud Account</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/cloud_enum.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">CloudEnumTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">discovery</code></p>
+
+<p>Enumerates user accounts and service principals in Entra ID (Microsoft Graph API) and Okta (<code class="language-plaintext highlighter-rouge">/api/v1/users</code>).</p>
+
+<p><strong>Config required:</strong> <code class="language-plaintext highlighter-rouge">[entra]</code> and/or <code class="language-plaintext highlighter-rouge">[okta]</code>.</p>
+
+<hr />
+
+<h3 id="t1069003--permission-groups-discovery-cloud-groups">T1069.003 — Permission Groups Discovery: Cloud Groups</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/cloud_enum.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">CloudEnumTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">discovery</code></p>
+
+<p>Enumerates group membership in Entra ID (Microsoft Graph) and Okta groups.</p>
+
+<hr />
+
+<h3 id="t1526--cloud-service-discovery">T1526 — Cloud Service Discovery</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/cloud_enum.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">CloudEnumTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">discovery</code></p>
+
+<p>Enumerates cloud resources: Entra ID applications and service principals, AWS IAM identities, Okta applications.</p>
+
+<hr />
+
+<h2 id="initial-access--phishing">Initial Access — Phishing</h2>
+
+<h3 id="t1566002--spearphishing-link">T1566.002 — Spearphishing Link</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/phishing/spearphishing_link.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">SpearphishingLinkTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">initial-access</code></p>
+
+<p>Creates a link-based GoPhish campaign targeting in-scope domains. Polls GoPhish for click and credential submission statistics. <code class="language-plaintext highlighter-rouge">capture_passwords = False</code> by default — the landing page records click events only.</p>
+
+<p><strong>Config required:</strong> <code class="language-plaintext highlighter-rouge">[gophish]</code> section.</p>
+
+<p><strong>Scope requirements:</strong> <code class="language-plaintext highlighter-rouge">target_domains</code></p>
+
+<p><strong>Params (via <code class="language-plaintext highlighter-rouge">ctx.params</code>):</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">campaign_name</code></td>
+      <td>string</td>
+      <td>Override campaign name</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">targets</code></td>
+      <td>list of dicts</td>
+      <td><code class="language-plaintext highlighter-rouge">[{"first_name": ..., "last_name": ..., "email": ..., "position": ...}]</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">duration_hours</code></td>
+      <td>int</td>
+      <td>Campaign duration (default: <code class="language-plaintext highlighter-rouge">gophish.default_campaign_hours</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Findings schema:</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"campaign_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"emails_sent"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"links_clicked"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"click_rate"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.32</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"credentials_submitted"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>GNAT intel ask when undetected:</strong> Pull phishing campaign data from Cofense Intelligence / Proofpoint TAP. Verify email gateway sandbox coverage.</p>
+
+<hr />
+
+<h3 id="t1566001--spearphishing-attachment">T1566.001 — Spearphishing Attachment</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/phishing/spearphishing_attachment.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">SpearphishingAttachmentTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">initial-access</code></p>
+
+<p>Sends an HTML email attachment containing a harmless beacon (tracking pixel + click link). No macros, no execution — purely a sandbox/gateway detection coverage test.</p>
+
+<p><strong>Config required:</strong> <code class="language-plaintext highlighter-rouge">[gophish]</code> section.</p>
+
+<p><strong>GNAT intel ask when undetected:</strong> Check attachment sandbox coverage in Proofpoint TAP / Mimecast.</p>
+
+<hr />
+
+<h3 id="t1566--phishing-aitm-variant">T1566 — Phishing (AiTM variant)</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/phishing/mfa_phishing.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">MFAPhishingTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">initial-access</code></p>
+
+<p>Adversary-in-the-middle style credential and OTP harvest landing page served via GoPhish. <code class="language-plaintext highlighter-rouge">capture_passwords = False</code> by default — the page demonstrates the capability without storing credentials. Measures whether phishing-resistant MFA (FIDO2, passkeys) is enrolled.</p>
+
+<hr />
+
+<h2 id="credential-access-and-identity">Credential Access and Identity</h2>
+
+<h3 id="t1110003--brute-force-password-spraying">T1110.003 — Brute Force: Password Spraying</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/identity/password_spray.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">PasswordSprayTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">credential-access</code></p>
+
+<p>Controlled password spray against Entra ID, Okta, and/or Active Directory. <strong>Only targets accounts explicitly listed in <code class="language-plaintext highlighter-rouge">scope.target_accounts</code></strong>. Shuffles account order each round, detects lockout and stops immediately. Adds random jitter between attempts.</p>
+
+<p><strong>Config required:</strong> <code class="language-plaintext highlighter-rouge">[entra]</code> and/or <code class="language-plaintext highlighter-rouge">[okta]</code> and/or <code class="language-plaintext highlighter-rouge">[ldap]</code>. <code class="language-plaintext highlighter-rouge">[scope] target_accounts</code>.</p>
+
+<p><strong>Safety controls:</strong></p>
+<ul>
+  <li>Stops entire spray on first lockout detection</li>
+  <li>Per-account inter-attempt delay with jitter</li>
+  <li>Never targets accounts not in <code class="language-plaintext highlighter-rouge">scope.target_accounts</code></li>
+</ul>
+
+<p><strong>GNAT intel ask when undetected:</strong> Pull Okta smart lockout policy via Okta connector. Check Entra ID sign-in risk policy in Sentinel. Verify password spray detection rule in Silverfort.</p>
+
+<hr />
+
+<h3 id="t1110004--brute-force-credential-stuffing">T1110.004 — Brute Force: Credential Stuffing</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/identity/credential_stuffing.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">CredentialStuffingTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">credential-access</code></p>
+
+<p>Replays a list of known-breached credential pairs against IdPs. Filters <code class="language-plaintext highlighter-rouge">credential_pairs</code> to only those whose email matches a <code class="language-plaintext highlighter-rouge">scope.target_accounts</code> entry.</p>
+
+<p><strong>GNAT intel ask when undetected:</strong> Check if Entra ID ‘Leaked Credentials’ risk policy is active. Verify HIBP breach detection via HaveIBeenPwned connector.</p>
+
+<hr />
+
+<h3 id="t1621--multi-factor-authentication-request-generation">T1621 — Multi-Factor Authentication Request Generation</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/identity/mfa_fatigue.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">MFAFatigueTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">credential-access</code></p>
+
+<p>Simulates MFA push-bombing (fatigue attack) against enrolled test users. Requires <code class="language-plaintext highlighter-rouge">confirm_mfa_fatigue_test = true</code> in <code class="language-plaintext highlighter-rouge">ctx.params</code> as an explicit safety gate. Capped at 10 pushes per account (<code class="language-plaintext highlighter-rouge">_MAX_PUSHES_CAP</code>).</p>
+
+<p><strong>Params (required):</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">confirm_mfa_fatigue_test</code></td>
+      <td>bool</td>
+      <td>Must be <code class="language-plaintext highlighter-rouge">true</code> to proceed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">max_pushes</code></td>
+      <td>int</td>
+      <td>Max pushes per account (capped at 10)</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p><strong>Important:</strong> The normal scenario pipeline (<code class="language-plaintext highlighter-rouge">ScenarioBuilder</code>) sets <code class="language-plaintext highlighter-rouge">params={}</code> for all steps, so T1621 will return <code class="language-plaintext highlighter-rouge">BLOCKED</code> if triggered through an <code class="language-plaintext highlighter-rouge">EmulationScenario</code> without explicit params. To run MFA fatigue, submit it as a probe request via <code class="language-plaintext highlighter-rouge">POST /api/v1/intel/probe-request</code> with <code class="language-plaintext highlighter-rouge">suggested_params: {"confirm_mfa_fatigue_test": true, "max_pushes": 3}</code>, or call <code class="language-plaintext highlighter-rouge">run_probe_task</code> directly. This behaviour is intentional — the confirmation gate prevents the technique from running silently in bulk scenario sweeps.</p>
+</blockquote>
+
+<p><strong>GNAT intel ask when undetected:</strong> Verify FIDO2/phishing-resistant MFA enrollment rate via Entra ID / Okta connectors. Check MFA fatigue detection in Silverfort / Entra ID Protection.</p>
+
+<hr />
+
+<h3 id="t1528--steal-application-access-token">T1528 — Steal Application Access Token</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/identity/oauth_abuse.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">OAuthAbuseTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">credential-access</code></p>
+
+<p>OAuth consent phishing via GoPhish — presents a fake OAuth consent page to in-scope users. <code class="language-plaintext highlighter-rouge">capture_passwords = False</code>. Measures whether anomaly detection fires on new OAuth consent grants.</p>
+
+<p><strong>GNAT intel ask when undetected:</strong> Audit OAuth app consent permissions via Entra ID connector. Check for MCAS/Defender Cloud Apps anomaly detection on new consents.</p>
+
+<hr />
+
+<h3 id="t1539--steal-web-session-cookie">T1539 — Steal Web Session Cookie</h3>
+
+<p><strong>Module:</strong> <code class="language-plaintext highlighter-rouge">redgnat/techniques/identity/token_theft.py</code><br />
+<strong>Class:</strong> <code class="language-plaintext highlighter-rouge">TokenTheftTechnique</code><br />
+<strong>Tactic:</strong> <code class="language-plaintext highlighter-rouge">credential-access</code></p>
+
+<p>Read-only audit log analysis — not active exploitation. Measures session token lifetime policies, Continuous Access Evaluation (CAE) coverage in Entra ID, and impossible travel detection in Okta system logs.</p>
+
+<p><strong>GNAT intel ask when undetected:</strong> Review session token lifetime policies in Entra ID / Okta. Check CAE (Continuous Access Evaluation) coverage in Entra ID connector.</p>
+
+<hr />
+
+<h2 id="phase-2--exploitation">Phase 2 — Exploitation</h2>
+
+<p>Phase 2 exploitation techniques live in <code class="language-plaintext highlighter-rouge">redgnat/techniques/exploitation/</code> and are dispatched exclusively by <code class="language-plaintext highlighter-rouge">EngagementRunner</code>. All three engagement gates must be satisfied before any Phase 2 technique fires; the kill switch is checked between every step.</p>
+
+<p>Each exploitation technique requires individual design review before implementation. The requirements are documented in <code class="language-plaintext highlighter-rouge">redgnat/techniques/exploitation/README.md</code>:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">emulation_only = False</code> — set deliberately, with a docstring explaining the impact</li>
+  <li><code class="language-plaintext highlighter-rouge">scope.allow_exploitation = true</code> — INI flag verified before dispatch</li>
+  <li>Operator-triggered only — Celery beat must never auto-schedule Phase 2 runs</li>
+  <li>Structured evidence record written to <code class="language-plaintext highlighter-rouge">technique_results.evidence</code> before returning</li>
+  <li>Rollback procedure documented in the technique’s module docstring</li>
+</ol>
+
+<h3 id="candidate-techniques-subject-to-per-technique-design-review">Candidate techniques (subject to per-technique design review)</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>ATT&amp;CK ID</th>
+      <th>Technique</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>T1190</td>
+      <td>Exploit Public-Facing Application</td>
+      <td>Candidate</td>
+    </tr>
+    <tr>
+      <td>T1055</td>
+      <td>Process Injection</td>
+      <td>Candidate</td>
+    </tr>
+    <tr>
+      <td>T1548</td>
+      <td>Abuse Elevation Control</td>
+      <td>Candidate</td>
+    </tr>
+    <tr>
+      <td>T1078</td>
+      <td>Valid Accounts (post-spray lateral movement)</td>
+      <td>Candidate</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p><strong>To add an exploitation technique:</strong> follow <code class="language-plaintext highlighter-rouge">redgnat/techniques/exploitation/README.md</code>, open a PR tagged <code class="language-plaintext highlighter-rouge">phase2</code>, and ensure the PR includes a completed design review checklist.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="result-status-values">Result status values</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">success</code></td>
+      <td>Technique completed without triggering a detection alert — a <strong>gap</strong></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">partial</code></td>
+      <td>Technique ran but produced incomplete results (some targets out of scope, some errors)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">blocked</code></td>
+      <td>Scope check failed — target not in scope, run skipped cleanly</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">detected</code></td>
+      <td>Technique triggered a detection or alert (the defender caught it)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">error</code></td>
+      <td>Unhandled exception during execution</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dry_run</code></td>
+      <td><code class="language-plaintext highlighter-rouge">scope.dry_run = true</code> — no network activity occurred</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">killed</code></td>
+      <td>Kill switch activated mid-run — technique did not start</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">expired</code></td>
+      <td>Phase 2 engagement token expired mid-run — technique did not start</td>
+    </tr>
+  </tbody>
+</table>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

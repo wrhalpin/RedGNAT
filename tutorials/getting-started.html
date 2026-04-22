@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Getting Started | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Getting Started" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Install RedGNAT and run your first scenario in dry-run mode." />
+<meta property="og:description" content="Install RedGNAT and run your first scenario in dry-run mode." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/tutorials/getting-started.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/tutorials/getting-started.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Getting Started" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Install RedGNAT and run your first scenario in dry-run mode.","headline":"Getting Started","url":"https://wrhalpin.github.io/RedGNAT/tutorials/getting-started.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Getting Started">
+<meta property="og:description" content="Install RedGNAT and run your first scenario in dry-run mode.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">Getting Started</h1>
+  <h2 class="project-tagline">Install RedGNAT and run your first scenario in dry-run mode.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="getting-started-with-redgnat">Getting started with RedGNAT</h1>
+
+<p><strong>What you’ll build:</strong> A running RedGNAT instance connected to GNAT, with a first emulation scenario executed in dry-run mode so nothing touches production targets.</p>
+
+<p><strong>Time:</strong> ~30 minutes.</p>
+
+<p><strong>Prerequisites:</strong></p>
+<ul>
+  <li>Python 3.11+ and <code class="language-plaintext highlighter-rouge">pip</code></li>
+  <li>Docker and Docker Compose (for Postgres + Redis)</li>
+  <li>A working GNAT installation with <code class="language-plaintext highlighter-rouge">gnat.ini</code> accessible from this host</li>
+  <li>Network access to your GNAT instance</li>
+</ul>
+
+<hr />
+
+<h2 id="step-1--install-redgnat">Step 1 — Install RedGNAT</h2>
+
+<p>Clone the repository and install the package with all extras:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/wrhalpin/RedGNAT.git
+<span class="nb">cd </span>RedGNAT
+python <span class="nt">-m</span> venv .venv <span class="o">&amp;&amp;</span> <span class="nb">source</span> .venv/bin/activate
+pip <span class="nb">install</span> <span class="nt">-e</span> <span class="s2">".[all]"</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">[all]</code> extra pulls in optional dependencies for every technique category (nmap bindings, ldap3, boto3, msal, etc.). In production you only need the extras for techniques you actually use.</p>
+
+<p>Verify the install:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>python <span class="nt">-c</span> <span class="s2">"import redgnat; print(redgnat.__version__)"</span>
+<span class="c"># 0.1.0</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="step-2--start-backing-services">Step 2 — Start backing services</h2>
+
+<p>RedGNAT needs Postgres (scenario + result storage) and Redis (Celery broker). For local development, start only those two services so you can run the worker and API directly on your machine with live code reloading:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker compose up <span class="nt">-d</span> postgres redis
+</code></pre></div></div>
+
+<blockquote>
+  <p><strong>Full Docker path:</strong> If you prefer to run everything in containers (no local worker or API processes), use <code class="language-plaintext highlighter-rouge">make docker-up</code> instead — it starts all five services (postgres, redis, worker, beat, api). In that case skip Steps 5 and 6; the worker and API are already running inside Docker.</p>
+</blockquote>
+
+<p>The <code class="language-plaintext highlighter-rouge">postgres:16-alpine</code> and <code class="language-plaintext highlighter-rouge">redis:7-alpine</code> containers expose their ports on <code class="language-plaintext highlighter-rouge">localhost</code> only by default.</p>
+
+<hr />
+
+<h2 id="step-3--create-your-configuration-file">Step 3 — Create your configuration file</h2>
+
+<p>Copy the example and edit it:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cp </span>config/config.ini.example ~/.redgnat/config.ini
+<span class="nv">$EDITOR</span> ~/.redgnat/config.ini
+</code></pre></div></div>
+
+<p>For this tutorial you only need to fill in four sections. Everything else can stay at its default.</p>
+
+<h3 id="3a--database-and-redis">3a — Database and Redis</h3>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[redgnat]</span>
+<span class="py">db_url</span> <span class="p">=</span> <span class="s">postgresql://redgnat:redgnat@localhost:5432/redgnat</span>
+<span class="py">redis_url</span> <span class="p">=</span> <span class="s">redis://localhost:6379/0</span>
+<span class="py">dry_run</span> <span class="p">=</span> <span class="s">true   # ← important for this tutorial</span>
+</code></pre></div></div>
+
+<p>Setting <code class="language-plaintext highlighter-rouge">dry_run = true</code> means every technique will log what it <em>would</em> do and return <code class="language-plaintext highlighter-rouge">DRY_RUN</code> status. No network activity reaches any target.</p>
+
+<h3 id="3b--point-at-your-gnat-config">3b — Point at your GNAT config</h3>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[gnat]</span>
+<span class="py">config_path</span> <span class="p">=</span> <span class="s">~/.gnat/config.ini</span>
+<span class="py">poll_interval_seconds</span> <span class="p">=</span> <span class="s">300</span>
+<span class="py">min_confidence</span> <span class="p">=</span> <span class="s">0.6</span>
+</code></pre></div></div>
+
+<h3 id="3c--set-a-safe-scope">3c — Set a safe scope</h3>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[scope]</span>
+<span class="py">target_ranges</span> <span class="p">=</span> <span class="s">10.0.0.0/8</span>
+<span class="py">excluded_ranges</span> <span class="p">=</span>
+<span class="py">target_domains</span> <span class="p">=</span> <span class="s">example.com</span>
+<span class="py">target_accounts</span> <span class="p">=</span> <span class="s">redteam-test@example.com</span>
+<span class="py">max_rate_per_minute</span> <span class="p">=</span> <span class="s">30</span>
+</code></pre></div></div>
+
+<p>Even in dry-run mode the scope is validated — techniques will be BLOCKED rather than DRY_RUN if a target isn’t in scope, which is intentional.</p>
+
+<hr />
+
+<h2 id="step-4--apply-database-migrations">Step 4 — Apply database migrations</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make migrate
+</code></pre></div></div>
+
+<p>This runs <code class="language-plaintext highlighter-rouge">migrations/001_initial_schema.sql</code> against the Postgres instance. The migration is idempotent — safe to run multiple times.</p>
+
+<hr />
+
+<h2 id="step-5--start-the-celery-worker">Step 5 — Start the Celery worker</h2>
+
+<p>Open a second terminal:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">source</span> .venv/bin/activate
+make worker
+</code></pre></div></div>
+
+<p>You should see Celery start and connect to Redis:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[2026-04-18 09:00:00,000: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2026-04-18 09:00:00,000: INFO/MainProcess] mingle: searching for neighbors
+[2026-04-18 09:00:00,000: INFO/MainProcess] celery@hostname ready.
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="step-6--start-the-api-server">Step 6 — Start the API server</h2>
+
+<p>Open a third terminal:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">source</span> .venv/bin/activate
+make api
+</code></pre></div></div>
+
+<p>The FastAPI server starts on <code class="language-plaintext highlighter-rouge">http://localhost:8000</code>. Check it’s healthy:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> http://localhost:8000/api/v1/health
+<span class="c"># {"status":"ok","service":"redgnat"}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="step-7--trigger-your-first-intel-ingestion">Step 7 — Trigger your first intel ingestion</h2>
+
+<p>RedGNAT polls GNAT for campaigns with ATT&amp;CK technique mappings and SandGNAT for sandbox analyses. Trigger a manual poll:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> POST http://localhost:8000/api/v1/intel/ingest <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: changeme"</span>
+</code></pre></div></div>
+
+<p>If GNAT has any recent campaigns mapped to registered techniques you’ll see:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"feeds_ingested"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"feed_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"uuid-1"</span><span class="p">,</span><span class="w"> </span><span class="s2">"uuid-2"</span><span class="p">,</span><span class="w"> </span><span class="s2">"uuid-3"</span><span class="p">]}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>If GNAT has no matching data yet, <code class="language-plaintext highlighter-rouge">feeds_ingested</code> will be <code class="language-plaintext highlighter-rouge">0</code> — that’s fine, you can create a scenario manually in the next step.</p>
+
+<hr />
+
+<h2 id="step-8--run-your-first-scenario">Step 8 — Run your first scenario</h2>
+
+<h3 id="option-a--run-a-scenario-from-ingested-intel">Option A — Run a scenario from ingested intel</h3>
+
+<p>List the scenarios that were built from intel:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> http://localhost:8000/api/v1/scenarios <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: changeme"</span> | python <span class="nt">-m</span> json.tool
+</code></pre></div></div>
+
+<p>Pick a <code class="language-plaintext highlighter-rouge">scenario_id</code> and run it:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> POST http://localhost:8000/api/v1/scenarios/&lt;scenario_id&gt;/run <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: changeme"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{"triggered_by": "tutorial", "async": true}'</span>
+</code></pre></div></div>
+
+<h3 id="option-b--run-programmatically">Option B — Run programmatically</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">redgnat.client</span> <span class="kn">import</span> <span class="n">RedGNATClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">RedGNATClient</span><span class="p">()</span>  <span class="c1"># reads ~/.redgnat/config.ini
+</span><span class="n">feeds</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">ingest_latest</span><span class="p">()</span>
+<span class="n">scenarios</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">list_scenarios</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">scenarios</span><span class="p">:</span>
+    <span class="n">run</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">run_scenario</span><span class="p">(</span><span class="n">scenarios</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">scenario_id</span><span class="p">,</span> <span class="n">triggered_by</span><span class="o">=</span><span class="s">"tutorial"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Run </span><span class="si">{</span><span class="n">run</span><span class="p">.</span><span class="n">run_id</span><span class="si">}</span><span class="s"> queued — status: </span><span class="si">{</span><span class="n">run</span><span class="p">.</span><span class="n">status</span><span class="p">.</span><span class="n">value</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="step-9--review-results">Step 9 — Review results</h2>
+
+<p>Check the run’s results:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> http://localhost:8000/api/v1/runs/&lt;run_id&gt;/results <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: changeme"</span> | python <span class="nt">-m</span> json.tool
+</code></pre></div></div>
+
+<p>Because <code class="language-plaintext highlighter-rouge">dry_run = true</code>, every result will have <code class="language-plaintext highlighter-rouge">"status": "dry_run"</code> and a description of what the technique <em>would</em> have done. No network packets left the machine.</p>
+
+<p>You can also fetch the full CART report:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> http://localhost:8000/api/v1/runs/&lt;run_id&gt;/report <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: changeme"</span> | python <span class="nt">-m</span> json.tool
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="step-10--check-the-gap-report">Step 10 — Check the gap report</h2>
+
+<p>After the run completes, RedGNAT automatically builds a gap report and makes it available for GNAT to pull:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> http://localhost:8000/api/v1/stix/gaps <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: changeme"</span> | python <span class="nt">-m</span> json.tool
+</code></pre></div></div>
+
+<p>In dry-run mode all results are <code class="language-plaintext highlighter-rouge">DRY_RUN</code> (not <code class="language-plaintext highlighter-rouge">SUCCESS</code>), so the gap list will be empty — gaps only appear when a technique completes without triggering a detection alert in a real run.</p>
+
+<hr />
+
+<h2 id="whats-next">What’s next?</h2>
+
+<ul>
+  <li><strong>Enable real execution</strong> — set <code class="language-plaintext highlighter-rouge">dry_run = false</code> in your config, configure the <code class="language-plaintext highlighter-rouge">[scope]</code> section carefully, and re-run against actual test targets</li>
+  <li><strong>Configure GNAT integration</strong> — follow <a href="/RedGNAT/how-to/configure-gnat-integration.html">Configure GNAT integration</a> to enable bidirectional results flow</li>
+  <li><strong>Add a technique</strong> — follow <a href="/RedGNAT/how-to/add-technique.html">Add a new technique</a> to extend the technique library</li>
+  <li><strong>Deploy to production</strong> — follow <a href="/RedGNAT/how-to/deploy-docker.html">Deploy with Docker</a></li>
+</ul>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

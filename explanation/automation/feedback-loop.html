@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>The Bidirectional Feedback Loop | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="The Bidirectional Feedback Loop" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="How gap reports, AI-driven probe generation, and convergence work together." />
+<meta property="og:description" content="How gap reports, AI-driven probe generation, and convergence work together." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/explanation/automation/feedback-loop.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/explanation/automation/feedback-loop.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="The Bidirectional Feedback Loop" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"How gap reports, AI-driven probe generation, and convergence work together.","headline":"The Bidirectional Feedback Loop","url":"https://wrhalpin.github.io/RedGNAT/explanation/automation/feedback-loop.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="The Bidirectional Feedback Loop">
+<meta property="og:description" content="How gap reports, AI-driven probe generation, and convergence work together.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">The Bidirectional Feedback Loop</h1>
+  <h2 class="project-tagline">How gap reports, AI-driven probe generation, and convergence work together.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="the-bidirectional-feedback-loop">The bidirectional feedback loop</h1>
+
+<p>RedGNAT’s defining feature is a closed loop between emulation execution and threat intelligence. This article explains how the loop works, why it matters, and the design choices behind it.</p>
+
+<hr />
+
+<h2 id="the-problem-it-solves">The problem it solves</h2>
+
+<p>A one-shot red team engagement answers the question: <em>“Can these specific techniques get through today?”</em> But the threat landscape changes continuously. A technique that was detected last quarter may slip through after a SIEM rule change, a staff rotation, or a platform update.</p>
+
+<p>CART (Continuous Automated Red Teaming) keeps asking the same question on a schedule. But a simple loop — ingest intel → emulate → report → repeat — misses an opportunity: the <em>results themselves</em> are intelligence. When a technique goes undetected, that tells you something precise: what the adversary would know, what the defender doesn’t see, and what follow-on techniques are now low-risk for a real attacker.</p>
+
+<p>The feedback loop turns that implicit knowledge into explicit, actionable tasks.</p>
+
+<hr />
+
+<h2 id="the-loop-step-by-step">The loop, step by step</h2>
+
+<pre><code class="language-mermaid">sequenceDiagram
+    participant GNAT
+    participant Intake as RedGNAT Intake
+    participant Emulation as RedGNAT Emulation
+    participant Gap as GapReporter
+    participant Probe as ProbeGenerator
+    participant LLM as GNAT LLMClient
+
+    GNAT-&gt;&gt;Intake: New campaign: T1110.003, T1621
+    Intake-&gt;&gt;Emulation: EmulationScenario created
+
+    Emulation-&gt;&gt;Emulation: Execute T1110.003 (password spray)
+    Note over Emulation: No lockout triggered → SUCCESS
+
+    Emulation-&gt;&gt;Emulation: Execute T1621 (MFA fatigue)
+    Note over Emulation: No alert fired → SUCCESS
+
+    Emulation-&gt;&gt;Gap: build_report(results)
+    Gap-&gt;&gt;GNAT: STIX Note: "T1110.003 + T1621 undetected.&lt;br/&gt;Intel needed: Okta lockout policy,&lt;br/&gt;Silverfort spray detection rule."
+
+    GNAT-&gt;&gt;GNAT: Enrich via Okta + Silverfort connectors
+    GNAT-&gt;&gt;LLM: Analyse gap Note + enrichment
+    LLM-&gt;&gt;GNAT: "Spray succeeded, no lockout.&lt;br/&gt;Test credential stuffing (T1110.004)&lt;br/&gt;and token theft (T1539)."
+
+    GNAT-&gt;&gt;Probe: POST /intel/probe-request&lt;br/&gt;technique_id=T1110.004, priority=high
+    GNAT-&gt;&gt;Probe: POST /intel/probe-request&lt;br/&gt;technique_id=T1539, priority=high
+
+    Probe-&gt;&gt;Emulation: run_probe_task(T1110.004)
+    Probe-&gt;&gt;Emulation: run_probe_task(T1539)
+
+    Emulation-&gt;&gt;Emulation: Execute T1110.004, T1539
+    Emulation-&gt;&gt;Gap: build_report(results)
+    Gap-&gt;&gt;GNAT: Updated gap Note
+</code></pre>
+
+<hr />
+
+<h2 id="what-undetected-means">What “undetected” means</h2>
+
+<p>A technique result with <code class="language-plaintext highlighter-rouge">status = SUCCESS</code> means the technique completed its full execution sequence without RedGNAT observing any detection alert. This does <strong>not</strong> mean the defender has no capability — it means the technique ran and no alert appeared in the interface or response that RedGNAT can observe.</p>
+
+<p>In practice this is the most actionable finding: the attacker would have gotten the same result and the defender wouldn’t know.</p>
+
+<p><code class="language-plaintext highlighter-rouge">DETECTED</code> means RedGNAT observed a response consistent with detection (lockout, challenge, alerting behaviour). <code class="language-plaintext highlighter-rouge">BLOCKED</code> means the scope check prevented execution — the target was out of scope. Neither of these is a gap.</p>
+
+<hr />
+
+<h2 id="gap-reports-as-stix-intelligence-requirements">Gap reports as STIX intelligence requirements</h2>
+
+<p><code class="language-plaintext highlighter-rouge">GapReporter</code> converts each gap into a STIX 2.1 <code class="language-plaintext highlighter-rouge">note</code> object. The note is structured so GNAT can:</p>
+
+<ol>
+  <li><strong>Ingest it directly</strong> via <code class="language-plaintext highlighter-rouge">GNATClient.upsert_object(note)</code> — it appears in the GNAT workspace alongside campaigns and IOCs</li>
+  <li><strong>Pull it via the connector</strong> — <code class="language-plaintext highlighter-rouge">connector.list_objects("note")</code> fetches all gap notes from <code class="language-plaintext highlighter-rouge">GET /stix/gaps</code></li>
+  <li><strong>Task collection</strong> — the <code class="language-plaintext highlighter-rouge">x_redgnat_gap</code> extension and note <code class="language-plaintext highlighter-rouge">content</code> specify which GNAT connectors should be queried (Shodan, Semperis, Silverfort, Okta, etc.)</li>
+</ol>
+
+<p>Each technique has a corresponding entry in <code class="language-plaintext highlighter-rouge">_INTEL_ASKS</code> (in <code class="language-plaintext highlighter-rouge">gap_reporter.py</code>) — a curated description of what a GNAT operator or AI agent should collect to understand the gap.</p>
+
+<p>Example for T1110.003 (password spray undetected):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Pull Okta smart lockout policy via Okta connector.
+Check Entra ID sign-in risk policy in Sentinel.
+Verify password spray detection rule in Silverfort.
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="ai-driven-probe-generation">AI-driven probe generation</h2>
+
+<p><code class="language-plaintext highlighter-rouge">ProbeGenerator</code> is where intelligence becomes new attacks. After a gap report is built, it calls <code class="language-plaintext highlighter-rouge">gnat.agents.LLMClient</code> (backed by Claude) with:</p>
+
+<ul>
+  <li>The list of undetected techniques and their tactics</li>
+  <li>A prompt asking for follow-on probes with rationale and priority</li>
+</ul>
+
+<p>The LLM response is a JSON array of probe suggestions. <code class="language-plaintext highlighter-rouge">ProbeGenerator</code> parses this, deduplicates, and returns a list of <code class="language-plaintext highlighter-rouge">ProbeRequest</code> objects — each representing a single follow-on technique to run.</p>
+
+<p>If the LLM is unavailable (no <code class="language-plaintext highlighter-rouge">gnat</code> package, network failure, API error), <code class="language-plaintext highlighter-rouge">ProbeGenerator</code> falls back to <code class="language-plaintext highlighter-rouge">_RULE_BASED_FOLLOWONS</code> — a static table of technique-to-followon mappings derived from ATT&amp;CK kill-chain logic. This ensures the loop continues even without a live LLM.</p>
+
+<pre><code class="language-mermaid">flowchart LR
+    GR[GapReport] --&gt; PG[ProbeGenerator.generate]
+    PG --&gt; LLM{LLM available?}
+    LLM --&gt;|yes| LLMCall[gnat.agents.LLMClient.complete]
+    LLM --&gt;|no| RuleBased[_generate_rule_based]
+    LLMCall --&gt; Parse[parse JSON response]
+    RuleBased --&gt; Static[_RULE_BASED_FOLLOWONS lookup]
+    Parse --&gt; Dedup[deduplicate + cap at max_probes]
+    Static --&gt; Dedup
+    Dedup --&gt; PR[list of ProbeRequests]
+    PR --&gt; Queue[run_probe_task.delay]
+    Queue --&gt; Celery[Celery worker]
+    Celery --&gt; NewRun[New EmulationRun]
+</code></pre>
+
+<hr />
+
+<h2 id="probe-requests-as-the-intake-path">Probe requests as the intake path</h2>
+
+<p><code class="language-plaintext highlighter-rouge">ProbeRequest</code> objects re-enter RedGNAT through the same Celery queue as normal emulation runs. <code class="language-plaintext highlighter-rouge">run_probe_task</code> builds a minimal <code class="language-plaintext highlighter-rouge">IntelFeed</code> and <code class="language-plaintext highlighter-rouge">EmulationScenario</code> from the probe’s single technique and runs it synchronously. The result feeds back into the same gap/feedback pipeline.</p>
+
+<p>This means a probe can itself generate further probes — the loop deepens until either:</p>
+<ul>
+  <li>All probed techniques are <code class="language-plaintext highlighter-rouge">DETECTED</code> (coverage converges)</li>
+  <li><code class="language-plaintext highlighter-rouge">max_probes_per_report</code> is reached (runaway guard)</li>
+  <li>The follow-on technique isn’t in the registry (skipped with a warning)</li>
+</ul>
+
+<hr />
+
+<h2 id="convergence">Convergence</h2>
+
+<p>Over many cycles the loop drives toward coverage convergence: the set of undetected techniques shrinks as GNAT enriches intelligence, operators tune detection, and RedGNAT validates the fixes.</p>
+
+<pre><code class="language-mermaid">xychart-beta
+    title "Gap count across CART cycles"
+    x-axis ["Cycle 1", "Cycle 2", "Cycle 3", "Cycle 4", "Cycle 5"]
+    y-axis "Undetected techniques" 0 --&gt; 12
+    line [10, 7, 5, 3, 2]
+</code></pre>
+
+<p>The gap count never reaches zero in practice — new intel from GNAT introduces new scenarios — but the trend tracks defensive improvement over time. The CART report (available at <code class="language-plaintext highlighter-rouge">GET /runs/{run_id}/report</code>) surfaces this as an ATT&amp;CK coverage matrix showing detected vs. undetected techniques per tactic.</p>
+
+<hr />
+
+<h2 id="design-constraints">Design constraints</h2>
+
+<p><strong>AI calls are never in the hot path.</strong> <code class="language-plaintext highlighter-rouge">ProbeGenerator</code> is called by <code class="language-plaintext highlighter-rouge">_run_feedback()</code> after a run completes, not during technique execution. This keeps emulation latency predictable and ensures a slow or unavailable LLM cannot block an active run.</p>
+
+<p><strong>The loop is bounded.</strong> <code class="language-plaintext highlighter-rouge">max_probes_per_report</code> (default 10) prevents a single gap-heavy run from flooding the queue with follow-on tasks.</p>
+
+<p><strong>Rule-based fallback preserves continuity.</strong> The LLM is an enhancement, not a dependency. The rule table covers the most common kill-chain progressions and ensures the loop runs even in air-gapped or offline deployments.</p>
+
+<p><strong>Scope applies to probe-generated runs.</strong> <code class="language-plaintext highlighter-rouge">run_probe_task</code> builds scenarios through the same normalizer and scope-checking path as intel-driven runs. A probe can only target techniques and targets that pass the configured scope.</p>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

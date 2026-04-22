@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Documentation Standards | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Documentation Standards" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Continuous Automated Red Teaming addon for GNAT. Safe red teaming made simple. Organised with the Diátaxis framework." />
+<meta property="og:description" content="Continuous Automated Red Teaming addon for GNAT. Safe red teaming made simple. Organised with the Diátaxis framework." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/Documentation-Standards.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/Documentation-Standards.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Documentation Standards" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Continuous Automated Red Teaming addon for GNAT. Safe red teaming made simple. Organised with the Diátaxis framework.","headline":"Documentation Standards","url":"https://wrhalpin.github.io/RedGNAT/Documentation-Standards.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Documentation Standards">
+<meta property="og:description" content="Continuous Automated Red Teaming addon for GNAT. Safe red teaming made simple. Organised with the Diátaxis framework.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">Documentation Standards</h1>
+  <h2 class="project-tagline">Continuous Automated Red Teaming addon for GNAT. Safe red teaming made simple. Organised with the Diátaxis framework.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="documentation-standards">Documentation Standards</h1>
+
+<p>RedGNAT documentation uses the <a href="https://diataxis.fr/">Diátaxis</a> framework.</p>
+
+<h2 id="framework">Framework</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Purpose</th>
+      <th>Question answered</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tutorial</td>
+      <td>Learning by doing</td>
+      <td>“Help me learn this”</td>
+    </tr>
+    <tr>
+      <td>How-to</td>
+      <td>Solving a task</td>
+      <td>“How do I accomplish X?”</td>
+    </tr>
+    <tr>
+      <td>Reference</td>
+      <td>Exact technical details</td>
+      <td>“What is the exact value/behaviour of X?”</td>
+    </tr>
+    <tr>
+      <td>Explanation</td>
+      <td>Design rationale</td>
+      <td>“Why does it work this way?”</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="rules">Rules</h2>
+
+<ol>
+  <li>Each document serves exactly one Diátaxis purpose — do not mix types in a single file.</li>
+  <li>Link between documents rather than duplicating content.</li>
+  <li>Reference documentation is the authoritative source for exact values (config keys, API endpoints, status codes).</li>
+  <li>Use Architecture Decision Records (ADRs) in <code class="language-plaintext highlighter-rouge">explanation/architecture/adrs/</code> for significant design choices.</li>
+</ol>
+
+<h2 id="directory-layout">Directory layout</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docs/
+├── tutorials/      # Learning-oriented walkthroughs
+├── how-to/         # Task-oriented recipes
+├── reference/      # Technical reference material
+├── explanation/
+│   ├── architecture/   # System architecture + ADRs
+│   ├── engagement/     # Safety model + Phase 2 design
+│   └── automation/     # Feedback loop + AI-driven automation
+└── releases/       # Per-version release notes
+</code></pre></div></div>
+
+<h2 id="section-readme-files">Section README files</h2>
+
+<p>Each section directory contains a <code class="language-plaintext highlighter-rouge">README.md</code> that lists its contents in a table. Keep this index up to date when adding documents.</p>
+
+<h2 id="philosophy">Philosophy</h2>
+
+<p>Documentation should match user intent.</p>
+
+<hr />
+
+<p><em>Licensed under the Apache License, Version 2.0</em></p>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

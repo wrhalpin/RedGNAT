@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Architecture | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Architecture" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="System context, component overview, data model, and technology choices." />
+<meta property="og:description" content="System context, component overview, data model, and technology choices." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/explanation/architecture/architecture.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/explanation/architecture/architecture.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Architecture" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"System context, component overview, data model, and technology choices.","headline":"Architecture","url":"https://wrhalpin.github.io/RedGNAT/explanation/architecture/architecture.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Architecture">
+<meta property="og:description" content="System context, component overview, data model, and technology choices.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">Architecture</h1>
+  <h2 class="project-tagline">System context, component overview, data model, and technology choices.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="architecture">Architecture</h1>
+
+<p>RedGNAT sits between three systems: GNAT (threat intelligence platform), SandGNAT (malware sandbox), and the defender’s enterprise environment. Its job is to translate live threat intelligence into emulation runs, execute them safely, and return results back to GNAT as structured intelligence.</p>
+
+<hr />
+
+<h2 id="system-context">System context</h2>
+
+<pre><code class="language-mermaid">graph TB
+    subgraph GNAT["GNAT — Threat Intelligence Platform"]
+        GC[GNATClient&lt;br/&gt;158+ connectors]
+        AI[LLMClient&lt;br/&gt;Claude / GPT]
+        GC &lt;--&gt;|campaigns · TTPs| AI
+    end
+
+    subgraph SandGNAT["SandGNAT — Malware Sandbox"]
+        DET[Detonation Engine&lt;br/&gt;Proxmox VMs]
+        EXP[Export API&lt;br/&gt;/analyses]
+        DET --&gt; EXP
+    end
+
+    subgraph RedGNAT["RedGNAT — CART Platform"]
+        INT[Intake&lt;br/&gt;gnat_subscriber&lt;br/&gt;sandgnat_subscriber]
+        SCN[Scenarios&lt;br/&gt;builder · store]
+        EMU[Emulation&lt;br/&gt;runner · tasks]
+        TEC[Techniques&lt;br/&gt;discovery · phishing · identity · exploitation]
+        FBK[Feedback&lt;br/&gt;gap_reporter · probe_generator]
+        API[REST API&lt;br/&gt;FastAPI :8000]
+
+        INT --&gt; SCN --&gt; EMU --&gt; TEC
+        TEC --&gt; EMU
+        EMU --&gt; FBK
+        FBK --&gt; API
+        API --&gt; INT
+    end
+
+    subgraph Enterprise["Enterprise Environment"]
+        NET[Network targets]
+        IDP[Identity providers&lt;br/&gt;Entra ID · Okta · AD]
+        MAIL[Email targets&lt;br/&gt;GoPhish campaigns]
+    end
+
+    GC --&gt;|"campaigns · attack patterns"| INT
+    EXP --&gt;|"STIX behavioral bundles"| INT
+    AI --&gt;|"ProbeRequests"| API
+
+    TEC --&gt;|"port scans · enum"| NET
+    TEC --&gt;|"credential tests"| IDP
+    TEC --&gt;|"phishing campaigns"| MAIL
+
+    FBK --&gt;|"STIX CoA · Sightings · Gap Notes"| GC
+    API --&gt;|"STIX results via connector"| GC
+</code></pre>
+
+<hr />
+
+<h2 id="component-overview">Component overview</h2>
+
+<h3 id="intake-layer">Intake layer</h3>
+
+<p><code class="language-plaintext highlighter-rouge">redgnat/intake/</code> has two subscribers that poll their respective sources on a Celery beat schedule:</p>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">GNATSubscriber</code></strong> — polls <code class="language-plaintext highlighter-rouge">GNATClient.list_objects("campaign")</code>, fetches associated <code class="language-plaintext highlighter-rouge">attack-pattern</code> objects, extracts ATT&amp;CK IDs from <code class="language-plaintext highlighter-rouge">external_references</code>, and filters by <code class="language-plaintext highlighter-rouge">min_confidence</code></li>
+  <li><strong><code class="language-plaintext highlighter-rouge">SandGNATSubscriber</code></strong> — polls SandGNAT’s <code class="language-plaintext highlighter-rouge">/analyses</code> endpoint, fetches full STIX bundles, and filters to emulatable technique families</li>
+</ul>
+
+<p>Both subscribers produce <code class="language-plaintext highlighter-rouge">IntelFeed</code> records, which <code class="language-plaintext highlighter-rouge">IntelNormalizer</code> converts into <code class="language-plaintext highlighter-rouge">EmulationScenario</code> objects.</p>
+
+<p><strong><code class="language-plaintext highlighter-rouge">IntelNormalizer</code></strong> maps ATT&amp;CK IDs to registered <code class="language-plaintext highlighter-rouge">Technique</code> classes, deduplicates, and sorts by kill-chain order (reconnaissance → initial-access → credential-access).</p>
+
+<h3 id="scenario-layer">Scenario layer</h3>
+
+<p><code class="language-plaintext highlighter-rouge">redgnat/scenarios/</code> manages:</p>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">ScenarioBuilder</code></strong> — builds an <code class="language-plaintext highlighter-rouge">EmulationPlan</code> from a scenario: resolves technique classes from the registry, applies scope from config, creates ordered <code class="language-plaintext highlighter-rouge">PlannedStep</code> objects</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">ScenarioStore</code></strong> — all SQL in one module; upserts are idempotent so re-ingesting the same campaign is safe</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">TTPMapper</code></strong> — static ATT&amp;CK metadata (name, tactic, description) for 30+ techniques</li>
+</ul>
+
+<h3 id="emulation-layer">Emulation layer</h3>
+
+<p><code class="language-plaintext highlighter-rouge">redgnat/emulation/</code> drives execution:</p>
+
+<pre><code class="language-mermaid">sequenceDiagram
+    participant Beat as Celery Beat
+    participant Task as run_scenario_task
+    participant Runner as EmulationRunner
+    participant Technique as Technique.execute()
+    participant Store as ScenarioStore
+    participant Feedback as _run_feedback()
+
+    Beat-&gt;&gt;Task: ingest_intel_task()
+    Task-&gt;&gt;Store: upsert_scenario()
+    Task-&gt;&gt;Task: run_scenario_task.delay(run_id)
+
+    Task-&gt;&gt;Runner: execute(run, scenario)
+    Runner-&gt;&gt;Store: mark run RUNNING
+    loop Each PlannedStep
+        Runner-&gt;&gt;Technique: execute(ctx)
+        Technique--&gt;&gt;Runner: TechniqueResult
+        Runner-&gt;&gt;Store: insert_result()
+        Runner-&gt;&gt;Runner: _inter_technique_pause()
+    end
+    Runner-&gt;&gt;Store: mark run COMPLETED
+    Runner--&gt;&gt;Task: list[TechniqueResult]
+
+    Task-&gt;&gt;Feedback: _run_feedback(results)
+    Feedback-&gt;&gt;Feedback: GapReporter.build_report()
+    Feedback-&gt;&gt;Feedback: push_to_gnat()
+    Feedback-&gt;&gt;Feedback: ProbeGenerator.generate()
+    Feedback-&gt;&gt;Task: run_probe_task.delay(probe)
+</code></pre>
+
+<h3 id="technique-layer">Technique layer</h3>
+
+<p><code class="language-plaintext highlighter-rouge">redgnat/techniques/</code> implements the ATT&amp;CK technique library across four categories:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Directory</th>
+      <th>Tactics</th>
+      <th>Runner required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">discovery/</code></td>
+      <td>TA0007, TA0043</td>
+      <td><code class="language-plaintext highlighter-rouge">EmulationRunner</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">phishing/</code></td>
+      <td>TA0001</td>
+      <td><code class="language-plaintext highlighter-rouge">EmulationRunner</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">identity/</code></td>
+      <td>TA0006</td>
+      <td><code class="language-plaintext highlighter-rouge">EmulationRunner</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">exploitation/</code></td>
+      <td>various</td>
+      <td><code class="language-plaintext highlighter-rouge">EngagementRunner</code> (Phase 2 only)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Every technique follows the same contract enforced by the <code class="language-plaintext highlighter-rouge">Technique</code> abstract base class:</p>
+
+<ol>
+  <li>Check <code class="language-plaintext highlighter-rouge">scope.dry_run</code> first → return <code class="language-plaintext highlighter-rouge">DRY_RUN</code> immediately if true</li>
+  <li>Validate every target with <code class="language-plaintext highlighter-rouge">_check_scope_*()</code> before touching it</li>
+  <li>Call <code class="language-plaintext highlighter-rouge">_rate_sleep()</code> before each network request</li>
+  <li>Return a <code class="language-plaintext highlighter-rouge">TechniqueResult</code> with structured findings</li>
+</ol>
+
+<p>Phase 2 exploitation techniques additionally require <code class="language-plaintext highlighter-rouge">emulation_only = False</code>, pass through the three-factor <code class="language-plaintext highlighter-rouge">EngagementGate</code>, and have their execution interleaved with kill-switch and token-expiry checks via <code class="language-plaintext highlighter-rouge">EngagementRunner</code>.</p>
+
+<h3 id="feedback-layer">Feedback layer</h3>
+
+<p><code class="language-plaintext highlighter-rouge">redgnat/feedback/</code> closes the loop:</p>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">GapReporter</code></strong> — identifies <code class="language-plaintext highlighter-rouge">SUCCESS</code> results (= undetected), builds <code class="language-plaintext highlighter-rouge">GapReport</code>, serialises to STIX 2.1 Note with per-technique GNAT enrichment hints, pushes to GNAT</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">ProbeGenerator</code></strong> — calls <code class="language-plaintext highlighter-rouge">gnat.agents.LLMClient</code> with gap context; parses the LLM’s JSON suggestions into <code class="language-plaintext highlighter-rouge">ProbeRequest</code> objects; falls back to a static rule table if the LLM is unavailable</li>
+</ul>
+
+<h3 id="api-layer">API layer</h3>
+
+<p><code class="language-plaintext highlighter-rouge">redgnat/api/</code> exposes two audiences:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Audience</th>
+      <th>Endpoints</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Operators (human)</td>
+      <td><code class="language-plaintext highlighter-rouge">GET/POST /scenarios</code>, <code class="language-plaintext highlighter-rouge">GET/POST /runs</code>, <code class="language-plaintext highlighter-rouge">POST /intel/ingest</code>, <code class="language-plaintext highlighter-rouge">GET /intel/techniques</code></td>
+    </tr>
+    <tr>
+      <td>Engagement control</td>
+      <td><code class="language-plaintext highlighter-rouge">GET /engage/status</code>, <code class="language-plaintext highlighter-rouge">POST /engage/authorize</code>, <code class="language-plaintext highlighter-rouge">POST /engage/kill</code>, <code class="language-plaintext highlighter-rouge">DELETE /engage/kill</code></td>
+    </tr>
+    <tr>
+      <td>GNAT connector (machine)</td>
+      <td><code class="language-plaintext highlighter-rouge">GET /stix/results</code>, <code class="language-plaintext highlighter-rouge">GET /stix/sightings</code>, <code class="language-plaintext highlighter-rouge">GET /stix/gaps</code></td>
+    </tr>
+    <tr>
+      <td>GNAT AI agents (machine)</td>
+      <td><code class="language-plaintext highlighter-rouge">POST /intel/probe-request</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="data-model">Data model</h2>
+
+<pre><code class="language-mermaid">erDiagram
+    IntelFeed {
+        uuid feed_id PK
+        string source
+        string source_ref_id
+        json stix_bundle
+        string campaign_name
+        json attack_pattern_ids
+        float confidence
+        datetime ingested_at
+    }
+
+    EmulationScenario {
+        uuid scenario_id PK
+        uuid feed_id FK
+        string name
+        string description
+        json technique_ids
+        json scope_overrides
+        string status
+        datetime created_at
+    }
+
+    EmulationRun {
+        uuid run_id PK
+        uuid scenario_id FK
+        string celery_task_id
+        string status
+        string triggered_by
+        datetime started_at
+        datetime completed_at
+    }
+
+    TechniqueResult {
+        uuid result_id PK
+        uuid run_id FK
+        uuid scenario_id FK
+        string technique_id
+        string tactic
+        string status
+        json findings
+        json evidence
+        string error
+        datetime executed_at
+    }
+
+    IntelFeed ||--o{ EmulationScenario : "produces"
+    EmulationScenario ||--o{ EmulationRun : "executed as"
+    EmulationRun ||--o{ TechniqueResult : "contains"
+</code></pre>
+
+<hr />
+
+<h2 id="technology-choices">Technology choices</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Decision</th>
+      <th>Choice</th>
+      <th>Reason</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Config format</td>
+      <td>INI (<code class="language-plaintext highlighter-rouge">configparser</code>)</td>
+      <td>Matches GNAT / SandGNAT convention; zero extra dependencies</td>
+    </tr>
+    <tr>
+      <td>Database</td>
+      <td>PostgreSQL + psycopg3</td>
+      <td>JSONB for STIX bundles and findings; same choice as SandGNAT</td>
+    </tr>
+    <tr>
+      <td>All SQL in one module</td>
+      <td><code class="language-plaintext highlighter-rouge">scenarios/store.py</code></td>
+      <td>Prevents SQL scattered across the codebase</td>
+    </tr>
+    <tr>
+      <td>Task queue</td>
+      <td>Celery + Redis</td>
+      <td>Async, retryable, rate-limited; beat scheduler drives periodic polling</td>
+    </tr>
+    <tr>
+      <td>HTTP</td>
+      <td><code class="language-plaintext highlighter-rouge">urllib.request</code> / <code class="language-plaintext highlighter-rouge">urllib3</code></td>
+      <td>Matches GNAT’s no-<code class="language-plaintext highlighter-rouge">requests</code> convention</td>
+    </tr>
+    <tr>
+      <td>Serialisation</td>
+      <td>STIX 2.1 dicts</td>
+      <td>Native GNAT ORM format; no additional translation layer</td>
+    </tr>
+    <tr>
+      <td>GNAT integration</td>
+      <td><code class="language-plaintext highlighter-rouge">ConnectorMixin</code> plugin + PyPI entry point</td>
+      <td>GNAT discovers the connector automatically; no GNAT source modifications</td>
+    </tr>
+    <tr>
+      <td>AI calls</td>
+      <td><code class="language-plaintext highlighter-rouge">gnat.agents.LLMClient</code></td>
+      <td>Reuses GNAT’s existing LLM infrastructure; supports Claude, GPT, and Grok backends</td>
+    </tr>
+  </tbody>
+</table>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

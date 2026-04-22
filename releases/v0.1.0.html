@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>v0.1.0 | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="v0.1.0" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Initial release of RedGNAT." />
+<meta property="og:description" content="Initial release of RedGNAT." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/releases/v0.1.0.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/releases/v0.1.0.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="v0.1.0" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Initial release of RedGNAT.","headline":"v0.1.0","url":"https://wrhalpin.github.io/RedGNAT/releases/v0.1.0.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="v0.1.0">
+<meta property="og:description" content="Initial release of RedGNAT.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">v0.1.0</h1>
+  <h2 class="project-tagline">Initial release of RedGNAT.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="v010">v0.1.0</h1>
+
+<p><em>Released 2026-04-20</em></p>
+
+<p>Initial release of RedGNAT — the Continuous Automated Red Teaming (CART) addon for GNAT.</p>
+
+<h2 id="whats-included">What’s included</h2>
+
+<p><strong>Intake</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">GNATSubscriber</code> — polls GNAT for new campaigns and TTPs via <code class="language-plaintext highlighter-rouge">GNATClient</code></li>
+  <li><code class="language-plaintext highlighter-rouge">SandGNATSubscriber</code> — polls SandGNAT export API for new STIX behavioral bundles</li>
+  <li><code class="language-plaintext highlighter-rouge">IntelNormalizer</code> — maps STIX bundles to <code class="language-plaintext highlighter-rouge">EmulationScenario</code> objects</li>
+</ul>
+
+<p><strong>Scenario management</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ScenarioBuilder</code> — assembles ordered <code class="language-plaintext highlighter-rouge">EmulationPlan</code> from intel</li>
+  <li><code class="language-plaintext highlighter-rouge">ScenarioStore</code> — PostgreSQL persistence for scenarios, runs, and results</li>
+  <li><code class="language-plaintext highlighter-rouge">TTPMapper</code> — ATT&amp;CK technique metadata for 30+ technique IDs</li>
+</ul>
+
+<p><strong>Emulation</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">EmulationRunner</code> — dispatches techniques, records results, enforces rate limits</li>
+  <li>Celery task definitions for async, retryable scenario execution</li>
+</ul>
+
+<p><strong>Technique library (Phase 1)</strong></p>
+<ul>
+  <li>Discovery: T1046, T1595.001, T1087.002, T1069.002, T1482, T1087.004, T1069.003, T1526</li>
+  <li>Phishing: T1566.001, T1566.002, T1566 + T1621 (AiTM)</li>
+  <li>Identity: T1110.003, T1110.004, T1621, T1528, T1539</li>
+</ul>
+
+<p><strong>Phase 2 engagement infrastructure</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">EngagementGate</code> — three-factor authorization (config flag + env var + Redis token)</li>
+  <li><code class="language-plaintext highlighter-rouge">EngagementToken</code> — time-bounded, Redis-backed engagement window</li>
+  <li><code class="language-plaintext highlighter-rouge">KillSwitch</code> — Redis fast path + Postgres durable record</li>
+  <li><code class="language-plaintext highlighter-rouge">EngagementRunner</code> — per-step gate and kill-switch re-checks</li>
+</ul>
+
+<p><strong>Feedback loop</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">GapReporter</code> — converts undetected techniques to STIX 2.1 Note objects pushed to GNAT</li>
+  <li><code class="language-plaintext highlighter-rouge">ProbeGenerator</code> — uses GNAT’s <code class="language-plaintext highlighter-rouge">LLMClient</code> (Claude) to suggest follow-on probes; rule-based fallback</li>
+</ul>
+
+<p><strong>API</strong></p>
+<ul>
+  <li>FastAPI management interface on <code class="language-plaintext highlighter-rouge">:8000</code></li>
+  <li>Operator endpoints: <code class="language-plaintext highlighter-rouge">/scenarios</code>, <code class="language-plaintext highlighter-rouge">/runs</code>, <code class="language-plaintext highlighter-rouge">/intel</code></li>
+  <li>GNAT connector endpoints: <code class="language-plaintext highlighter-rouge">/stix/results</code>, <code class="language-plaintext highlighter-rouge">/stix/sightings</code>, <code class="language-plaintext highlighter-rouge">/stix/gaps</code></li>
+  <li>Engagement control endpoints: <code class="language-plaintext highlighter-rouge">/engage/status</code>, <code class="language-plaintext highlighter-rouge">/engage/authorize</code>, <code class="language-plaintext highlighter-rouge">/engage/kill</code></li>
+</ul>
+
+<p><strong>GNAT integration</strong></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">RedGNATConnector</code> plugin — bidirectional STIX exchange via <code class="language-plaintext highlighter-rouge">ConnectorMixin</code></li>
+</ul>
+
+<h2 id="safe-harbor-controls">Safe-harbor controls</h2>
+
+<p>All Phase 1 techniques enforce:</p>
+<ol>
+  <li>Scope validation (<code class="language-plaintext highlighter-rouge">target_ranges</code>, <code class="language-plaintext highlighter-rouge">excluded_ranges</code>, <code class="language-plaintext highlighter-rouge">target_accounts</code>)</li>
+  <li>Dry-run mode (default <code class="language-plaintext highlighter-rouge">true</code> on new installs)</li>
+  <li>Rate limiting with per-technique jitter for credential techniques</li>
+  <li>Test-account-only enforcement for credential techniques</li>
+  <li><code class="language-plaintext highlighter-rouge">emulation_only = True</code> flag on all Phase 1 techniques</li>
+</ol>
+
+<p>See <a href="/RedGNAT/explanation/engagement/safe-harbor.html">safe-harbor design</a> for details.</p>
+
+<h2 id="dependencies">Dependencies</h2>
+
+<ul>
+  <li>Python 3.11+</li>
+  <li>PostgreSQL 15+ (psycopg3)</li>
+  <li>Redis 7+</li>
+  <li>Celery 5+</li>
+  <li>FastAPI 0.110+</li>
+  <li>GNAT library (<code class="language-plaintext highlighter-rouge">gnat</code>)</li>
+</ul>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

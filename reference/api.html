@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>API Reference | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="API Reference" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="REST endpoint reference — request/response schemas, status codes, authentication." />
+<meta property="og:description" content="REST endpoint reference — request/response schemas, status codes, authentication." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/reference/api.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/reference/api.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="API Reference" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"REST endpoint reference — request/response schemas, status codes, authentication.","headline":"API Reference","url":"https://wrhalpin.github.io/RedGNAT/reference/api.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="API Reference">
+<meta property="og:description" content="REST endpoint reference — request/response schemas, status codes, authentication.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">API Reference</h1>
+  <h2 class="project-tagline">REST endpoint reference — request/response schemas, status codes, authentication.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="rest-api-reference">REST API reference</h1>
+
+<p>The RedGNAT API is a FastAPI application served on port <code class="language-plaintext highlighter-rouge">8000</code> by default. All endpoints are under the <code class="language-plaintext highlighter-rouge">/api/v1</code> prefix.</p>
+
+<h2 id="authentication">Authentication</h2>
+
+<p>Every request must include an <code class="language-plaintext highlighter-rouge">X-API-Key</code> header matching the <code class="language-plaintext highlighter-rouge">REDGNAT_API_KEY</code> environment variable set on the server.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-H</span> <span class="s2">"X-API-Key: </span><span class="nv">$REDGNAT_API_KEY</span><span class="s2">"</span> http://localhost:8000/api/v1/health
+</code></pre></div></div>
+
+<p>A missing or incorrect key returns <code class="language-plaintext highlighter-rouge">403 Forbidden</code>.</p>
+
+<hr />
+
+<h2 id="health">Health</h2>
+
+<h3 id="get-apiv1health"><code class="language-plaintext highlighter-rouge">GET /api/v1/health</code></h3>
+
+<p>Returns service status. Used by load balancers and the GNAT connector’s <code class="language-plaintext highlighter-rouge">health_check()</code>.</p>
+
+<p><strong>Response</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span><span class="w"> </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"redgnat"</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="scenarios">Scenarios</h2>
+
+<h3 id="get-apiv1scenarios"><code class="language-plaintext highlighter-rouge">GET /api/v1/scenarios</code></h3>
+
+<p>List all emulation scenarios.</p>
+
+<p><strong>Response</strong> — array of scenario objects:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"scenario_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"APT29 Phishing Campaign"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"feed_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"technique_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"T1566.002"</span><span class="p">,</span><span class="w"> </span><span class="s2">"T1110.003"</span><span class="p">,</span><span class="w"> </span><span class="s2">"T1621"</span><span class="p">],</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-18T09:00:00+00:00"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="get-apiv1scenariosscenario_id"><code class="language-plaintext highlighter-rouge">GET /api/v1/scenarios/{scenario_id}</code></h3>
+
+<p>Get one scenario by ID.</p>
+
+<p><strong>Response</strong> — single scenario object (same shape as list item). Returns <code class="language-plaintext highlighter-rouge">404</code> if not found.</p>
+
+<h3 id="post-apiv1scenariosscenario_idrun"><code class="language-plaintext highlighter-rouge">POST /api/v1/scenarios/{scenario_id}/run</code></h3>
+
+<p>Trigger an emulation run for a scenario.</p>
+
+<p><strong>Request body</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"triggered_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"manual"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"async"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">triggered_by</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">"manual"</code></td>
+      <td>Audit label — who or what triggered this run</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">async</code></td>
+      <td>bool</td>
+      <td><code class="language-plaintext highlighter-rouge">true</code></td>
+      <td>If <code class="language-plaintext highlighter-rouge">true</code>, enqueues a Celery task and returns immediately. If <code class="language-plaintext highlighter-rouge">false</code>, runs synchronously (blocks until complete)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Response</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scenario_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"queued"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"triggered_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"manual"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="runs">Runs</h2>
+
+<h3 id="get-apiv1runs"><code class="language-plaintext highlighter-rouge">GET /api/v1/runs</code></h3>
+
+<p>List emulation runs. Optionally filter by scenario.</p>
+
+<p><strong>Query parameters</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">scenario_id</code></td>
+      <td>string (optional)</td>
+      <td>Filter to runs of a specific scenario</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Response</strong> — array of run objects:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"scenario_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"triggered_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"intel_event"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"started_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-18T09:00:00+00:00"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"completed_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-18T09:05:23+00:00"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="get-apiv1runsrun_id"><code class="language-plaintext highlighter-rouge">GET /api/v1/runs/{run_id}</code></h3>
+
+<p>Get one run by ID. Returns <code class="language-plaintext highlighter-rouge">404</code> if not found.</p>
+
+<h3 id="get-apiv1runsrun_idresults"><code class="language-plaintext highlighter-rouge">GET /api/v1/runs/{run_id}/results</code></h3>
+
+<p>Get all <code class="language-plaintext highlighter-rouge">TechniqueResult</code> objects for a run.</p>
+
+<p><strong>Response</strong> — array of result objects:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"result_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"scenario_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"technique_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T1046"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"tactic"</span><span class="p">:</span><span class="w"> </span><span class="s2">"discovery"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"findings"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nl">"host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.0.5"</span><span class="p">,</span><span class="w"> </span><span class="nl">"open_ports"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nl">"port"</span><span class="p">:</span><span class="w"> </span><span class="mi">22</span><span class="p">,</span><span class="w"> </span><span class="nl">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ssh"</span><span class="p">}]}],</span><span class="w">
+    </span><span class="nl">"evidence"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+    </span><span class="nl">"error"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"executed_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-18T09:01:15+00:00"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">status</code> values: <code class="language-plaintext highlighter-rouge">success</code>, <code class="language-plaintext highlighter-rouge">partial</code>, <code class="language-plaintext highlighter-rouge">blocked</code>, <code class="language-plaintext highlighter-rouge">detected</code>, <code class="language-plaintext highlighter-rouge">error</code>, <code class="language-plaintext highlighter-rouge">dry_run</code></p>
+
+<h3 id="get-apiv1runsrun_idreport"><code class="language-plaintext highlighter-rouge">GET /api/v1/runs/{run_id}/report</code></h3>
+
+<p>Get the full CART report for a run as a structured dict.</p>
+
+<p><strong>Response</strong> — CART report object with keys: <code class="language-plaintext highlighter-rouge">executive_summary</code>, <code class="language-plaintext highlighter-rouge">attack_coverage</code>, <code class="language-plaintext highlighter-rouge">technique_details</code>, <code class="language-plaintext highlighter-rouge">gap_summary</code>.</p>
+
+<hr />
+
+<h2 id="intel">Intel</h2>
+
+<h3 id="post-apiv1intelingest"><code class="language-plaintext highlighter-rouge">POST /api/v1/intel/ingest</code></h3>
+
+<p>Manually trigger intel ingestion from GNAT and SandGNAT. Equivalent to what <code class="language-plaintext highlighter-rouge">ingest_intel_task</code> does on a schedule.</p>
+
+<p><strong>Response</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"feeds_ingested"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nl">"feed_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"uuid-1"</span><span class="p">,</span><span class="w"> </span><span class="s2">"uuid-2"</span><span class="p">,</span><span class="w"> </span><span class="s2">"uuid-3"</span><span class="p">]}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="post-apiv1intelprobe-request"><code class="language-plaintext highlighter-rouge">POST /api/v1/intel/probe-request</code></h3>
+
+<p>Submit a <code class="language-plaintext highlighter-rouge">ProbeRequest</code> from a GNAT AI agent or external system. Enqueues <code class="language-plaintext highlighter-rouge">run_probe_task</code> on the Celery queue.</p>
+
+<p><strong>Request body</strong> — <code class="language-plaintext highlighter-rouge">ProbeRequest.to_dict()</code> shape:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"technique_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T1621"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"priority"</span><span class="p">:</span><span class="w"> </span><span class="s2">"critical"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"rationale"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Password spray succeeded without lockout — test MFA fatigue."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"suggested_params"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+  </span><span class="nl">"source_gap_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid-of-gap-report"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"source_run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid-of-source-run"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">technique_id</code></td>
+      <td>string</td>
+      <td>Yes</td>
+      <td>ATT&amp;CK technique ID to probe</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">priority</code></td>
+      <td>string</td>
+      <td>No</td>
+      <td><code class="language-plaintext highlighter-rouge">"critical"</code>, <code class="language-plaintext highlighter-rouge">"high"</code>, or <code class="language-plaintext highlighter-rouge">"medium"</code> (default: <code class="language-plaintext highlighter-rouge">"high"</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">rationale</code></td>
+      <td>string</td>
+      <td>No</td>
+      <td>Human-readable reason for this probe</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">suggested_params</code></td>
+      <td>object</td>
+      <td>No</td>
+      <td>Per-technique parameter overrides</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">source_gap_id</code></td>
+      <td>string</td>
+      <td>No</td>
+      <td>GapReport ID that triggered this probe</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">source_run_id</code></td>
+      <td>string</td>
+      <td>No</td>
+      <td>EmulationRun ID that produced the gap</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Response</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="nl">"queued"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nl">"task_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"celery-task-uuid"</span><span class="p">,</span><span class="w"> </span><span class="nl">"technique_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T1621"</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Returns <code class="language-plaintext highlighter-rouge">422</code> if <code class="language-plaintext highlighter-rouge">technique_id</code> is missing.</p>
+
+<h3 id="get-apiv1inteltechniques"><code class="language-plaintext highlighter-rouge">GET /api/v1/intel/techniques</code></h3>
+
+<p>List all registered ATT&amp;CK technique IDs with their metadata.</p>
+
+<p><strong>Response</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"technique_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T1046"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Network Service Discovery"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"tactic"</span><span class="p">:</span><span class="w"> </span><span class="s2">"discovery"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Scan networks to identify active services..."</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="stix-export">STIX Export</h2>
+
+<p>These endpoints are consumed by the GNAT <code class="language-plaintext highlighter-rouge">RedGNATConnector</code> plugin. GNAT operators typically access them via <code class="language-plaintext highlighter-rouge">connector.list_objects(type)</code> rather than directly.</p>
+
+<h3 id="get-apiv1stixresults"><code class="language-plaintext highlighter-rouge">GET /api/v1/stix/results</code></h3>
+
+<p>Return all emulation run summaries as STIX 2.1 <code class="language-plaintext highlighter-rouge">course-of-action</code> objects.</p>
+
+<p><strong>Response</strong> — array of STIX CoA objects:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"course-of-action"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"spec_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"course-of-action--uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-18T09:05:23+00:00"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-18T09:05:23+00:00"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CART Run: APT29 Phishing Campaign"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Automated red team emulation run. Techniques: 5. Status breakdown: {...}"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"x_redgnat_metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"scenario_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"triggered_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"intel_event"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"technique_results"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nl">"success"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nl">"detected"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nl">"blocked"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="get-apiv1stixresultsrun_id"><code class="language-plaintext highlighter-rouge">GET /api/v1/stix/results/{run_id}</code></h3>
+
+<p>Single run as a STIX CoA object. Returns <code class="language-plaintext highlighter-rouge">404</code> if run not found.</p>
+
+<h3 id="get-apiv1stixsightings"><code class="language-plaintext highlighter-rouge">GET /api/v1/stix/sightings</code></h3>
+
+<p>Return all <code class="language-plaintext highlighter-rouge">TechniqueResult</code> records as STIX 2.1 <code class="language-plaintext highlighter-rouge">sighting</code> objects.</p>
+
+<p><strong>Response</strong> — array of STIX Sighting objects:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sighting"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"spec_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sighting--uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"sighting_of_ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"attack-pattern--T1046"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"x_redgnat_metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"technique_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"T1046"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"findings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="get-apiv1stixgaps"><code class="language-plaintext highlighter-rouge">GET /api/v1/stix/gaps</code></h3>
+
+<p>Return gap reports as STIX 2.1 <code class="language-plaintext highlighter-rouge">note</code> objects. A gap is any technique that executed with <code class="language-plaintext highlighter-rouge">status = success</code> (meaning no detection alert was triggered).</p>
+
+<p><strong>Response</strong> — array of STIX Note objects:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"note"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"spec_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"note--uuid"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"abstract"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RedGNAT gap report: 2 undetected techniques"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RedGNAT CART gap report — run ...</span><span class="se">\n</span><span class="s2">Undetected techniques (2):</span><span class="se">\n</span><span class="s2">- [T1046] ..."</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"authors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"redgnat-cart"</span><span class="p">],</span><span class="w">
+    </span><span class="nl">"labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"redgnat-gap"</span><span class="p">,</span><span class="w"> </span><span class="s2">"intelligence-requirement"</span><span class="p">],</span><span class="w">
+    </span><span class="nl">"x_redgnat_gap"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"scenario_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"undetected_technique_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"T1046"</span><span class="p">,</span><span class="w"> </span><span class="s2">"T1110.003"</span><span class="p">],</span><span class="w">
+      </span><span class="nl">"is_critical"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"gap_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="engagement-endpoints">Engagement endpoints</h2>
+
+<p>Phase 2 engagement control. All endpoints require API key authentication plus the <code class="language-plaintext highlighter-rouge">X-Kill-Key</code> header for destructive operations (value must match the <code class="language-plaintext highlighter-rouge">REDGNAT_KILL_KEY</code> environment variable if set).</p>
+
+<h3 id="get-apiv1engagestatus"><code class="language-plaintext highlighter-rouge">GET /api/v1/engage/status</code></h3>
+
+<p>Return the current engagement gate and kill-switch state.</p>
+
+<p><strong>Response:</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"phase2_config_enabled"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"phase2_unlock_env_set"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"token_active"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"token_expires_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-04-20T18:00:00Z"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"token_remaining_seconds"</span><span class="p">:</span><span class="w"> </span><span class="mi">1800</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"kill_switch_active"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h3 id="post-apiv1engageauthorize"><code class="language-plaintext highlighter-rouge">POST /api/v1/engage/authorize</code></h3>
+
+<p>Create a time-bounded engagement token to satisfy Gate 3. Gates 1 (config) and Gate 2 (env var) must already be satisfied; this endpoint returns <code class="language-plaintext highlighter-rouge">403</code> otherwise.</p>
+
+<p><strong>Request body:</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"operator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"alice"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"duration_minutes"</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>Response:</strong> <code class="language-plaintext highlighter-rouge">201</code> with the token details.</p>
+
+<hr />
+
+<h3 id="delete-apiv1engageauthorize"><code class="language-plaintext highlighter-rouge">DELETE /api/v1/engage/authorize</code></h3>
+
+<p>Revoke the active engagement token immediately.</p>
+
+<p><strong>Response:</strong> <code class="language-plaintext highlighter-rouge">204 No Content</code></p>
+
+<hr />
+
+<h3 id="post-apiv1engagekill"><code class="language-plaintext highlighter-rouge">POST /api/v1/engage/kill</code></h3>
+
+<p>Activate the global kill switch. Immediately stops all in-progress engagement runs, purges the Celery engagement queue, and closes any open GoPhish campaigns. Requires <code class="language-plaintext highlighter-rouge">X-Kill-Key</code> header.</p>
+
+<p><strong>Request body:</strong></p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Unexpected detection — stopping engagement"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"operator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"alice"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><strong>Response:</strong> <code class="language-plaintext highlighter-rouge">200</code> with kill switch status.</p>
+
+<hr />
+
+<h3 id="delete-apiv1engagekill"><code class="language-plaintext highlighter-rouge">DELETE /api/v1/engage/kill</code></h3>
+
+<p>Reset (deactivate) the kill switch after the engagement is cleared to continue. Requires <code class="language-plaintext highlighter-rouge">X-Kill-Key</code> header.</p>
+
+<p><strong>Response:</strong> <code class="language-plaintext highlighter-rouge">204 No Content</code></p>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

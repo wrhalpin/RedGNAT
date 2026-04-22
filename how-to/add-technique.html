@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Add a Technique | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Add a Technique" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Add and register a new ATT&amp;CK-mapped technique in RedGNAT." />
+<meta property="og:description" content="Add and register a new ATT&amp;CK-mapped technique in RedGNAT." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/how-to/add-technique.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/how-to/add-technique.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Add a Technique" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Add and register a new ATT&amp;CK-mapped technique in RedGNAT.","headline":"Add a Technique","url":"https://wrhalpin.github.io/RedGNAT/how-to/add-technique.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Add a Technique">
+<meta property="og:description" content="Add and register a new ATT&CK-mapped technique in RedGNAT.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">Add a Technique</h1>
+  <h2 class="project-tagline">Add and register a new ATT&CK-mapped technique in RedGNAT.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="how-to-add-a-new-emulation-technique">How to add a new emulation technique</h1>
+
+<p>This guide walks through adding a new ATT&amp;CK-mapped technique to RedGNAT’s library. After completing it the technique will be discovered, scoped, executed, and reported automatically alongside existing ones.</p>
+
+<p><strong>You’ll need:</strong> Python 3.11+, a development install of RedGNAT (<code class="language-plaintext highlighter-rouge">pip install -e ".[dev]"</code>).</p>
+
+<hr />
+
+<h2 id="1--create-the-module-file">1 — Create the module file</h2>
+
+<p>Technique modules live under <code class="language-plaintext highlighter-rouge">redgnat/techniques/&lt;tactic&gt;/</code>. Choose the right tactic directory or create one:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ATT&amp;CK Tactic</th>
+      <th>Directory</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Discovery / Reconnaissance</td>
+      <td><code class="language-plaintext highlighter-rouge">redgnat/techniques/discovery/</code></td>
+    </tr>
+    <tr>
+      <td>Initial Access (phishing)</td>
+      <td><code class="language-plaintext highlighter-rouge">redgnat/techniques/phishing/</code></td>
+    </tr>
+    <tr>
+      <td>Credential Access / Identity</td>
+      <td><code class="language-plaintext highlighter-rouge">redgnat/techniques/identity/</code></td>
+    </tr>
+    <tr>
+      <td>Exploitation (Phase 2 only)</td>
+      <td><code class="language-plaintext highlighter-rouge">redgnat/techniques/exploitation/</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Create your file. Example: implementing T1135 (Network Share Discovery):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">touch </span>redgnat/techniques/discovery/network_shares.py
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="2--implement-the-technique-class">2 — Implement the Technique class</h2>
+
+<p>Every technique follows the same pattern:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""T1135 — Network Share Discovery via SMB enumeration."""</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">redgnat.techniques.base</span> <span class="kn">import</span> <span class="n">Technique</span><span class="p">,</span> <span class="n">TechniqueContext</span>
+<span class="kn">from</span> <span class="nn">redgnat.orm.models</span> <span class="kn">import</span> <span class="n">ResultStatus</span><span class="p">,</span> <span class="n">TechniqueResult</span>
+
+
+<span class="k">class</span> <span class="nc">NetworkSharesTechnique</span><span class="p">(</span><span class="n">Technique</span><span class="p">):</span>
+    <span class="n">technique_id</span> <span class="o">=</span> <span class="s">"T1135"</span>
+    <span class="n">tactic</span> <span class="o">=</span> <span class="s">"discovery"</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"Network Share Discovery"</span>
+    <span class="n">emulation_only</span> <span class="o">=</span> <span class="bp">True</span>  <span class="c1"># Phase 1 default — observe, do not exploit
+</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">TechniqueContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TechniqueResult</span><span class="p">:</span>
+        <span class="c1"># 1. Dry-run guard — MUST be first
+</span>        <span class="k">if</span> <span class="n">ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">.</span><span class="n">dry_run</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_dry_run_result</span><span class="p">(</span>
+                <span class="n">ctx</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s">"Would enumerate SMB shares on </span><span class="si">{</span><span class="n">ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">.</span><span class="n">target_ranges</span><span class="si">}</span><span class="s">"</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">findings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">cidr</span> <span class="ow">in</span> <span class="n">ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">.</span><span class="n">target_ranges</span><span class="p">:</span>
+            <span class="c1"># 2. Scope check — validates BEFORE any network activity
+</span>            <span class="k">if</span> <span class="ow">not</span> <span class="n">ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">.</span><span class="n">allows_cidr</span><span class="p">(</span><span class="n">cidr</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_rate_sleep</span><span class="p">(</span><span class="n">ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">)</span>
+                <span class="n">shares</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_enumerate_shares</span><span class="p">(</span><span class="n">cidr</span><span class="p">,</span> <span class="n">ctx</span><span class="p">.</span><span class="n">params</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">shares</span><span class="p">:</span>
+                    <span class="n">findings</span><span class="p">.</span><span class="n">append</span><span class="p">({</span><span class="s">"cidr"</span><span class="p">:</span> <span class="n">cidr</span><span class="p">,</span> <span class="s">"shares"</span><span class="p">:</span> <span class="n">shares</span><span class="p">})</span>
+            <span class="k">except</span> <span class="nb">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">errors</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+        <span class="n">status</span> <span class="o">=</span> <span class="n">ResultStatus</span><span class="p">.</span><span class="n">SUCCESS</span> <span class="k">if</span> <span class="n">findings</span> <span class="k">else</span> <span class="n">ResultStatus</span><span class="p">.</span><span class="n">PARTIAL</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_make_result</span><span class="p">(</span>
+            <span class="n">ctx</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
+            <span class="n">findings</span><span class="o">=</span><span class="n">findings</span><span class="p">,</span>
+            <span class="n">error</span><span class="o">=</span><span class="s">"; "</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="k">if</span> <span class="n">errors</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_enumerate_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cidr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+        <span class="c1"># Your enumeration logic here.
+</span>        <span class="c1"># Use stdlib or an approved library (no `requests`).
+</span>        <span class="c1"># Keep all calls read-only.
+</span>        <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div></div>
+
+<h3 id="rules-you-must-follow">Rules you must follow</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Rule</th>
+      <th>Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Check <code class="language-plaintext highlighter-rouge">ctx.scope.dry_run</code> first, return <code class="language-plaintext highlighter-rouge">_dry_run_result()</code></td>
+      <td>Enables safe testing without any network activity</td>
+    </tr>
+    <tr>
+      <td>Call <code class="language-plaintext highlighter-rouge">_check_scope_ip/domain/account()</code> or <code class="language-plaintext highlighter-rouge">allows_*()</code> before touching each target</td>
+      <td>Every target is validated; out-of-scope targets raise <code class="language-plaintext highlighter-rouge">OutOfScopeError</code> or are silently skipped</td>
+    </tr>
+    <tr>
+      <td>Call <code class="language-plaintext highlighter-rouge">_rate_sleep(ctx.scope)</code> before each network request</td>
+      <td>Respects <code class="language-plaintext highlighter-rouge">max_rate_per_minute</code></td>
+    </tr>
+    <tr>
+      <td>Keep <code class="language-plaintext highlighter-rouge">emulation_only = True</code> (Phase 1)</td>
+      <td>Techniques in Phase 1 observe and enumerate; they do not deliver payloads or modify state</td>
+    </tr>
+    <tr>
+      <td>Return a <code class="language-plaintext highlighter-rouge">TechniqueResult</code> from <code class="language-plaintext highlighter-rouge">_make_result()</code> always</td>
+      <td>Structured results feed the gap reporter and STIX export</td>
+    </tr>
+    <tr>
+      <td>Mock all external calls in unit tests</td>
+      <td>Technique tests must run offline</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="3--register-the-technique">3 — Register the technique</h2>
+
+<p>Open <code class="language-plaintext highlighter-rouge">redgnat/techniques/registry.py</code> and add your class:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">redgnat.techniques.discovery.network_shares</span> <span class="kn">import</span> <span class="n">NetworkSharesTechnique</span>
+
+<span class="n">TECHNIQUE_REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">Technique</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># ... existing entries ...
+</span>    <span class="s">"T1135"</span><span class="p">:</span> <span class="n">NetworkSharesTechnique</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="4--add-attck-metadata-to-the-ttp-mapper">4 — Add ATT&amp;CK metadata to the TTP mapper</h2>
+
+<p>Open <code class="language-plaintext highlighter-rouge">redgnat/scenarios/ttp_mapper.py</code> and add an entry to <code class="language-plaintext highlighter-rouge">_TECHNIQUE_MAP</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"T1135"</span><span class="p">:</span> <span class="n">TechniqueInfo</span><span class="p">(</span>
+    <span class="n">technique_id</span><span class="o">=</span><span class="s">"T1135"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s">"Network Share Discovery"</span><span class="p">,</span>
+    <span class="n">tactic</span><span class="o">=</span><span class="s">"discovery"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">"Enumerate network shares accessible from the current context."</span><span class="p">,</span>
+<span class="p">),</span>
+</code></pre></div></div>
+
+<p>This entry is used by the normalizer (to include the technique in scenarios built from intel), the gap reporter (to name techniques in STIX Notes), and the CART report (for the ATT&amp;CK coverage matrix).</p>
+
+<hr />
+
+<h2 id="5--add-a-gnat-intel-ask-optional-but-recommended">5 — Add a GNAT intel ask (optional but recommended)</h2>
+
+<p>If a defender should know what GNAT intel to collect when this technique goes undetected, add it to <code class="language-plaintext highlighter-rouge">redgnat/feedback/gap_reporter.py</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_INTEL_ASKS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># ... existing entries ...
+</span>    <span class="s">"T1135"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s">"Check SMB share audit events in Sentinel/Splunk. "</span>
+        <span class="s">"Review DFS namespace access logs. "</span>
+        <span class="s">"Verify net share enumeration detection rule in SIEM."</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="6--write-unit-tests">6 — Write unit tests</h2>
+
+<p>Create <code class="language-plaintext highlighter-rouge">tests/unit/techniques/test_network_shares.py</code>. All external calls must be mocked:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">"""Unit tests for NetworkSharesTechnique (offline — all network calls mocked)."""</span>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="kn">from</span> <span class="nn">redgnat.techniques.discovery.network_shares</span> <span class="kn">import</span> <span class="n">NetworkSharesTechnique</span>
+<span class="kn">from</span> <span class="nn">redgnat.orm.models</span> <span class="kn">import</span> <span class="n">ResultStatus</span>
+
+
+<span class="k">def</span> <span class="nf">test_dry_run_returns_dry_run_status</span><span class="p">(</span><span class="n">mock_ctx</span><span class="p">):</span>
+    <span class="n">mock_ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">.</span><span class="n">dry_run</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">NetworkSharesTechnique</span><span class="p">().</span><span class="n">execute</span><span class="p">(</span><span class="n">mock_ctx</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ResultStatus</span><span class="p">.</span><span class="n">DRY_RUN</span>
+
+
+<span class="k">def</span> <span class="nf">test_out_of_scope_cidr_skipped</span><span class="p">(</span><span class="n">mock_ctx</span><span class="p">):</span>
+    <span class="n">mock_ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">.</span><span class="n">target_ranges</span> <span class="o">=</span> <span class="p">[</span><span class="s">"192.168.0.0/24"</span><span class="p">]</span>
+    <span class="n">mock_ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">.</span><span class="n">dry_run</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">with</span> <span class="n">patch</span><span class="p">.</span><span class="nb">object</span><span class="p">(</span><span class="n">NetworkSharesTechnique</span><span class="p">,</span> <span class="s">"_enumerate_shares"</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">NetworkSharesTechnique</span><span class="p">().</span><span class="n">execute</span><span class="p">(</span><span class="n">mock_ctx</span><span class="p">)</span>
+    <span class="c1"># No findings but no error — silently skipped out-of-scope target
+</span>    <span class="k">assert</span> <span class="n">result</span><span class="p">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">{</span><span class="n">ResultStatus</span><span class="p">.</span><span class="n">PARTIAL</span><span class="p">,</span> <span class="n">ResultStatus</span><span class="p">.</span><span class="n">SUCCESS</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">test_findings_on_success</span><span class="p">(</span><span class="n">mock_ctx</span><span class="p">):</span>
+    <span class="n">mock_ctx</span><span class="p">.</span><span class="n">scope</span><span class="p">.</span><span class="n">dry_run</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">fake_shares</span> <span class="o">=</span> <span class="p">[{</span><span class="s">"host"</span><span class="p">:</span> <span class="s">"10.0.0.5"</span><span class="p">,</span> <span class="s">"share"</span><span class="p">:</span> <span class="s">"SYSVOL"</span><span class="p">}]</span>
+    <span class="k">with</span> <span class="n">patch</span><span class="p">.</span><span class="nb">object</span><span class="p">(</span><span class="n">NetworkSharesTechnique</span><span class="p">,</span> <span class="s">"_enumerate_shares"</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="n">fake_shares</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">NetworkSharesTechnique</span><span class="p">().</span><span class="n">execute</span><span class="p">(</span><span class="n">mock_ctx</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ResultStatus</span><span class="p">.</span><span class="n">SUCCESS</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">findings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">mock_ctx</code> fixture is provided by <code class="language-plaintext highlighter-rouge">tests/conftest.py</code> — it returns a <code class="language-plaintext highlighter-rouge">TechniqueContext</code> with a pre-configured <code class="language-plaintext highlighter-rouge">Scope</code> that includes <code class="language-plaintext highlighter-rouge">10.0.0.0/8</code> in scope.</p>
+
+<p>Run the tests:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pytest tests/unit/techniques/test_network_shares.py <span class="nt">-v</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="7--verify-end-to-end-in-dry-run-mode">7 — Verify end-to-end in dry-run mode</h2>
+
+<p>The parametrized dry-run safety test in <code class="language-plaintext highlighter-rouge">tests/unit/techniques/test_dry_run.py</code> automatically picks up every technique in <code class="language-plaintext highlighter-rouge">TECHNIQUE_REGISTRY</code> and asserts it returns <code class="language-plaintext highlighter-rouge">DRY_RUN</code> status when <code class="language-plaintext highlighter-rouge">scope.dry_run = True</code>. Run it to confirm your technique is wired correctly:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pytest tests/unit/techniques/test_dry_run.py <span class="nt">-v</span> <span class="nt">-k</span> T1135
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="summary">Summary</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Step</th>
+      <th>File touched</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Create technique module</td>
+      <td><code class="language-plaintext highlighter-rouge">redgnat/techniques/&lt;tactic&gt;/&lt;name&gt;.py</code></td>
+    </tr>
+    <tr>
+      <td>Register technique</td>
+      <td><code class="language-plaintext highlighter-rouge">redgnat/techniques/registry.py</code></td>
+    </tr>
+    <tr>
+      <td>Add TTP metadata</td>
+      <td><code class="language-plaintext highlighter-rouge">redgnat/scenarios/ttp_mapper.py</code></td>
+    </tr>
+    <tr>
+      <td>Add GNAT intel ask</td>
+      <td><code class="language-plaintext highlighter-rouge">redgnat/feedback/gap_reporter.py</code></td>
+    </tr>
+    <tr>
+      <td>Write unit tests</td>
+      <td><code class="language-plaintext highlighter-rouge">tests/unit/techniques/test_&lt;name&gt;.py</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Configure GNAT Integration | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Configure GNAT Integration" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Set up bidirectional intel flow between RedGNAT and GNAT." />
+<meta property="og:description" content="Set up bidirectional intel flow between RedGNAT and GNAT." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/how-to/configure-gnat-integration.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/how-to/configure-gnat-integration.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Configure GNAT Integration" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Set up bidirectional intel flow between RedGNAT and GNAT.","headline":"Configure GNAT Integration","url":"https://wrhalpin.github.io/RedGNAT/how-to/configure-gnat-integration.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Configure GNAT Integration">
+<meta property="og:description" content="Set up bidirectional intel flow between RedGNAT and GNAT.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">Configure GNAT Integration</h1>
+  <h2 class="project-tagline">Set up bidirectional intel flow between RedGNAT and GNAT.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="how-to-configure-gnat-integration">How to configure GNAT integration</h1>
+
+<p>RedGNAT has a bidirectional relationship with GNAT:</p>
+
+<ul>
+  <li><strong>GNAT → RedGNAT</strong>: campaigns and TTPs become emulation scenarios; AI agents inject targeted probe requests</li>
+  <li><strong>RedGNAT → GNAT</strong>: emulation results, STIX sightings, and gap intelligence requirements flow back</li>
+</ul>
+
+<p>This guide covers setting up both directions.</p>
+
+<hr />
+
+<h2 id="direction-1--gnat--redgnat-intel-intake">Direction 1 — GNAT → RedGNAT (intel intake)</h2>
+
+<h3 id="1a--configure-the-gnat-connection">1a — Configure the GNAT connection</h3>
+
+<p>In your <code class="language-plaintext highlighter-rouge">~/.redgnat/config.ini</code>:</p>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[gnat]</span>
+<span class="c"># Path to an existing GNAT config file on this host
+</span><span class="py">config_path</span> <span class="p">=</span> <span class="s">~/.gnat/config.ini</span>
+
+<span class="c"># How often Celery beat polls for new campaigns (seconds)
+</span><span class="py">poll_interval_seconds</span> <span class="p">=</span> <span class="s">300</span>
+
+<span class="c"># Minimum confidence to act on intel (0.0–1.0)
+# Campaigns below this threshold are ignored
+</span><span class="py">min_confidence</span> <span class="p">=</span> <span class="s">0.6</span>
+</code></pre></div></div>
+
+<p>RedGNAT uses <code class="language-plaintext highlighter-rouge">GNATClient(config_path=...)</code> to authenticate. The GNAT config controls which platform connectors are used (Shodan, Crowdstrike, MISP, etc.) — RedGNAT only reads from it.</p>
+
+<h3 id="1b--start-the-celery-beat-scheduler">1b — Start the Celery beat scheduler</h3>
+
+<p>The beat scheduler drives periodic polling. Run it alongside your worker:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Terminal 1 — worker</span>
+celery <span class="nt">-A</span> redgnat.emulation.tasks worker <span class="nt">--loglevel</span><span class="o">=</span>info <span class="nt">-Q</span> redgnat
+
+<span class="c"># Terminal 2 — beat scheduler</span>
+celery <span class="nt">-A</span> redgnat.emulation.tasks beat <span class="nt">--loglevel</span><span class="o">=</span>info
+</code></pre></div></div>
+
+<p>Or with Docker Compose:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker compose up worker beat
+</code></pre></div></div>
+
+<p>You should see periodic log entries like:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[INFO] ingest_intel_task: ingested 2 new feed records
+[INFO] ingest_intel_task: 1 run(s) enqueued
+</code></pre></div></div>
+
+<h3 id="1c--verify-ingestion">1c — Verify ingestion</h3>
+
+<p>Trigger a manual poll to confirm connectivity:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> POST http://localhost:8000/api/v1/intel/ingest <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: </span><span class="nv">$REDGNAT_API_KEY</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<p>List the scenarios that were built:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> http://localhost:8000/api/v1/scenarios <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: </span><span class="nv">$REDGNAT_API_KEY</span><span class="s2">"</span> | python <span class="nt">-m</span> json.tool
+</code></pre></div></div>
+
+<h3 id="1d--gnat-ai-agent-probe-requests">1d — GNAT AI agent probe requests</h3>
+
+<p>GNAT’s LLM agents can inject targeted probes directly into the RedGNAT Celery queue via the intake API. On the GNAT side this looks like:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># GNAT side — after an agent analyses a gap report
+</span><span class="kn">from</span> <span class="nn">redgnat.plugins.gnat_plugin</span> <span class="kn">import</span> <span class="n">RedGNATConnector</span>
+
+<span class="n">connector</span> <span class="o">=</span> <span class="n">RedGNATConnector</span><span class="p">(</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="s">"http://redgnat.internal:8000"</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s">"REDGNAT_API_KEY"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">connector</span><span class="p">.</span><span class="n">push_probe_request</span><span class="p">({</span>
+    <span class="s">"technique_id"</span><span class="p">:</span> <span class="s">"T1621"</span><span class="p">,</span>
+    <span class="s">"priority"</span><span class="p">:</span> <span class="s">"critical"</span><span class="p">,</span>
+    <span class="s">"rationale"</span><span class="p">:</span> <span class="s">"Password spray succeeded on Okta without lockout — test MFA fatigue."</span><span class="p">,</span>
+    <span class="s">"suggested_params"</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s">"source_gap_id"</span><span class="p">:</span> <span class="s">"gap-uuid-from-stix-note"</span><span class="p">,</span>
+    <span class="s">"source_run_id"</span><span class="p">:</span> <span class="s">"run-uuid"</span><span class="p">,</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Or directly via the API:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> <span class="nt">-X</span> POST http://localhost:8000/api/v1/intel/probe-request <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: </span><span class="nv">$REDGNAT_API_KEY</span><span class="s2">"</span> <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{
+    "technique_id": "T1621",
+    "priority": "critical",
+    "rationale": "Follow-on probe from gap analysis.",
+    "suggested_params": {},
+    "source_gap_id": "",
+    "source_run_id": ""
+  }'</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="direction-2--redgnat--gnat-results--gap-intelligence">Direction 2 — RedGNAT → GNAT (results + gap intelligence)</h2>
+
+<h3 id="2a--register-the-redgnat-connector-in-gnat">2a — Register the RedGNAT connector in GNAT</h3>
+
+<p>RedGNAT ships a GNAT-compatible connector as a PyPI entry point. Once installed, add it to your GNAT workspace:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">gnat</span> <span class="kn">import</span> <span class="n">GNATClient</span>
+<span class="kn">from</span> <span class="nn">redgnat.plugins.gnat_plugin</span> <span class="kn">import</span> <span class="n">RedGNATConnector</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">GNATClient</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="s">"~/.gnat/config.ini"</span><span class="p">)</span>
+
+<span class="n">connector</span> <span class="o">=</span> <span class="n">RedGNATConnector</span><span class="p">(</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="s">"http://redgnat.internal:8000"</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s">"REDGNAT_API_KEY"</span><span class="p">,</span>
+    <span class="n">verify_ssl</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>   <span class="c1"># set False for self-signed certs in dev
+</span><span class="p">)</span>
+
+<span class="c1"># Verify connectivity
+</span><span class="k">assert</span> <span class="n">connector</span><span class="p">.</span><span class="n">health_check</span><span class="p">(),</span> <span class="s">"RedGNAT is not reachable"</span>
+</code></pre></div></div>
+
+<h3 id="2b--pull-results-into-gnat">2b — Pull results into GNAT</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Pull all emulation run summaries as STIX CourseOfAction objects
+</span><span class="n">runs</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">list_objects</span><span class="p">(</span><span class="s">"course-of-action"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">:</span>
+    <span class="n">client</span><span class="p">.</span><span class="n">upsert_object</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
+
+<span class="c1"># Pull per-technique STIX Sighting objects
+</span><span class="n">sightings</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">list_objects</span><span class="p">(</span><span class="s">"sighting"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">sighting</span> <span class="ow">in</span> <span class="n">sightings</span><span class="p">:</span>
+    <span class="n">client</span><span class="p">.</span><span class="n">upsert_object</span><span class="p">(</span><span class="n">sighting</span><span class="p">)</span>
+
+<span class="c1"># Pull gap intelligence requirements as STIX Note objects
+# These describe which techniques went undetected and what GNAT should collect
+</span><span class="n">gap_notes</span> <span class="o">=</span> <span class="n">connector</span><span class="p">.</span><span class="n">list_objects</span><span class="p">(</span><span class="s">"note"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">gap_notes</span><span class="p">:</span>
+    <span class="n">client</span><span class="p">.</span><span class="n">upsert_object</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Gap: </span><span class="si">{</span><span class="n">note</span><span class="p">[</span><span class="s">'abstract'</span><span class="p">]</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="2c--configure-automatic-gap-push">2c — Configure automatic gap push</h3>
+
+<p>RedGNAT can push gap STIX Notes directly to GNAT after each run (rather than waiting for GNAT to pull). Enable this in your config:</p>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[feedback]</span>
+<span class="py">enabled</span> <span class="p">=</span> <span class="s">true</span>
+<span class="py">push_to_gnat</span> <span class="p">=</span> <span class="s">true</span>
+<span class="py">probe_generation_enabled</span> <span class="p">=</span> <span class="s">true</span>
+<span class="py">probe_model</span> <span class="p">=</span> <span class="s">claude-3-5-sonnet-20241022</span>
+<span class="py">max_probes_per_report</span> <span class="p">=</span> <span class="s">10</span>
+</code></pre></div></div>
+
+<p>When <code class="language-plaintext highlighter-rouge">push_to_gnat = true</code>, <code class="language-plaintext highlighter-rouge">GapReporter.push_to_gnat()</code> is called automatically at the end of every run. It calls <code class="language-plaintext highlighter-rouge">GNATClient.upsert_object(stix_note)</code> so GNAT operators see new intelligence requirements in near-real-time.</p>
+
+<h3 id="2d--verify-gap-reports-are-being-generated">2d — Verify gap reports are being generated</h3>
+
+<p>After a real (non-dry-run) emulation run, check the STIX gaps endpoint:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-s</span> http://localhost:8000/api/v1/stix/gaps <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"X-API-Key: </span><span class="nv">$REDGNAT_API_KEY</span><span class="s2">"</span> | python <span class="nt">-m</span> json.tool
+</code></pre></div></div>
+
+<p>Each gap note includes:</p>
+<ul>
+  <li>Which techniques succeeded without detection</li>
+  <li>GNAT connector enrichment hints (what intel to task)</li>
+  <li>Whether the gap is <code class="language-plaintext highlighter-rouge">CRITICAL</code> (credential-access or initial-access techniques)</li>
+</ul>
+
+<hr />
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="gnat-not-installed-cannot-push-gap-report">“GNAT not installed, cannot push gap report”</h3>
+
+<p>The <code class="language-plaintext highlighter-rouge">gnat</code> Python package is not installed in your environment. Install it:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pip <span class="nb">install </span>gnat
+</code></pre></div></div>
+
+<p>Or use API-mode only (RedGNAT stores notes locally for GNAT to pull via <code class="language-plaintext highlighter-rouge">GET /stix/gaps</code>):</p>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[feedback]</span>
+<span class="py">push_to_gnat</span> <span class="p">=</span> <span class="s">false  # GNAT pulls via GET /stix/gaps instead</span>
+</code></pre></div></div>
+
+<h3 id="poll-interval-isnt-respected">Poll interval isn’t respected</h3>
+
+<p>The Celery beat schedule is baked into the <code class="language-plaintext highlighter-rouge">app.conf.beat_schedule</code> at startup. After changing <code class="language-plaintext highlighter-rouge">poll_interval_seconds</code> in your config, restart the beat process:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pkill <span class="nt">-f</span> <span class="s2">"celery.*beat"</span> <span class="o">&amp;&amp;</span> celery <span class="nt">-A</span> redgnat.emulation.tasks beat <span class="nt">--loglevel</span><span class="o">=</span>info
+</code></pre></div></div>
+
+<h3 id="connector-returns-empty-lists">Connector returns empty lists</h3>
+
+<p>Check that:</p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">REDGNAT_API_KEY</code> matches the <code class="language-plaintext highlighter-rouge">REDGNAT_API_KEY</code> environment variable set on the API server</li>
+  <li>The API server is reachable at <code class="language-plaintext highlighter-rouge">base_url</code> from the GNAT host</li>
+  <li>At least one emulation run has completed (no runs = no results to pull)</li>
+</ol>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Configuration Reference | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Configuration Reference" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="All INI configuration keys, sections, and discovery rules." />
+<meta property="og:description" content="All INI configuration keys, sections, and discovery rules." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/reference/configuration.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/reference/configuration.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Configuration Reference" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"All INI configuration keys, sections, and discovery rules.","headline":"Configuration Reference","url":"https://wrhalpin.github.io/RedGNAT/reference/configuration.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=39f9a91c88b50cc265fdfb126e230f036b3606f3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Configuration Reference">
+<meta property="og:description" content="All INI configuration keys, sections, and discovery rules.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <img class="project-logo" src="/RedGNAT/assets/logo.png" alt="RedGNAT logo">
+  <h1 class="project-name">Configuration Reference</h1>
+  <h2 class="project-tagline">All INI configuration keys, sections, and discovery rules.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="configuration-reference">Configuration reference</h1>
+
+<p>RedGNAT uses INI-format configuration (same convention as GNAT and SandGNAT). The config file is searched in this order:</p>
+
+<ol>
+  <li>Path in the <code class="language-plaintext highlighter-rouge">REDGNAT_CONFIG</code> environment variable</li>
+  <li><code class="language-plaintext highlighter-rouge">~/.redgnat/config.ini</code></li>
+  <li><code class="language-plaintext highlighter-rouge">./redgnat.ini</code> in the current directory</li>
+</ol>
+
+<p>Use the template at <code class="language-plaintext highlighter-rouge">config/config.ini.example</code> as a starting point.</p>
+
+<hr />
+
+<h2 id="redgnat--core-settings"><code class="language-plaintext highlighter-rouge">[redgnat]</code> — Core settings</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">db_url</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">postgresql://redgnat:redgnat@localhost:5432/redgnat</code></td>
+      <td>PostgreSQL connection URL (psycopg3 format)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">redis_url</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">redis://localhost:6379/0</code></td>
+      <td>Redis URL used as Celery broker and result backend</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">dry_run</code></td>
+      <td>bool</td>
+      <td><code class="language-plaintext highlighter-rouge">false</code></td>
+      <td>Global dry-run flag. When <code class="language-plaintext highlighter-rouge">true</code>, every technique logs what it <em>would</em> do and returns <code class="language-plaintext highlighter-rouge">DRY_RUN</code> status — no network activity reaches any target</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">log_level</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">INFO</code></td>
+      <td>Python log level: <code class="language-plaintext highlighter-rouge">DEBUG</code>, <code class="language-plaintext highlighter-rouge">INFO</code>, <code class="language-plaintext highlighter-rouge">WARNING</code>, or <code class="language-plaintext highlighter-rouge">ERROR</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="gnat--gnat-integration"><code class="language-plaintext highlighter-rouge">[gnat]</code> — GNAT integration</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">config_path</code></td>
+      <td>path</td>
+      <td><code class="language-plaintext highlighter-rouge">~/.gnat/config.ini</code></td>
+      <td>Path to an existing GNAT config file. RedGNAT passes this to <code class="language-plaintext highlighter-rouge">GNATClient(config_path=...)</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">poll_interval_seconds</code></td>
+      <td>int</td>
+      <td><code class="language-plaintext highlighter-rouge">300</code></td>
+      <td>How often Celery beat polls GNAT for new campaigns and TTPs</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">min_confidence</code></td>
+      <td>float</td>
+      <td><code class="language-plaintext highlighter-rouge">0.6</code></td>
+      <td>Minimum GNAT confidence score (0.0–1.0). Campaigns below this threshold are ignored during normalisation</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="sandgnat--sandgnat-sandbox-integration"><code class="language-plaintext highlighter-rouge">[sandgnat]</code> — SandGNAT sandbox integration</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">base_url</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">http://localhost:5000</code></td>
+      <td>SandGNAT export API base URL</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">api_key</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>SandGNAT <code class="language-plaintext highlighter-rouge">INTAKE_API_KEY</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">poll_interval_seconds</code></td>
+      <td>int</td>
+      <td><code class="language-plaintext highlighter-rouge">120</code></td>
+      <td>How often to poll SandGNAT for new analyses</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">min_severity</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">medium</code></td>
+      <td>Minimum analysis severity to ingest: <code class="language-plaintext highlighter-rouge">low</code>, <code class="language-plaintext highlighter-rouge">medium</code>, <code class="language-plaintext highlighter-rouge">high</code>, or <code class="language-plaintext highlighter-rouge">critical</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="gophish--gophish-phishing-campaigns"><code class="language-plaintext highlighter-rouge">[gophish]</code> — GoPhish phishing campaigns</h2>
+
+<p>Required for phishing techniques (T1566.001, T1566.002, T1566, T1528).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">base_url</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>GoPhish API base URL including port (e.g. <code class="language-plaintext highlighter-rouge">https://gophish.example.com:3333</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">api_key</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>GoPhish API key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">sending_profile_id</code></td>
+      <td>int</td>
+      <td><code class="language-plaintext highlighter-rouge">1</code></td>
+      <td>Default sending profile ID used for campaigns</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">landing_page_base_url</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>Base URL where phishing landing pages are served. Must be reachable by targets</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">default_campaign_hours</code></td>
+      <td>int</td>
+      <td><code class="language-plaintext highlighter-rouge">72</code></td>
+      <td>Default campaign duration in hours</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="scope--safe-harbor-scope"><code class="language-plaintext highlighter-rouge">[scope]</code> — Safe-harbor scope</h2>
+
+<p><strong>Every technique validates all targets against this scope before acting.</strong> Misconfiguration here is the most common source of incidents.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">target_ranges</code></td>
+      <td>CSV of CIDRs</td>
+      <td><em>(empty)</em></td>
+      <td>IP ranges permitted for network techniques. Comma-separated (e.g. <code class="language-plaintext highlighter-rouge">10.0.0.0/8,172.16.0.0/12</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">excluded_ranges</code></td>
+      <td>CSV of CIDRs</td>
+      <td><em>(empty)</em></td>
+      <td>IP ranges that are NEVER touched, regardless of <code class="language-plaintext highlighter-rouge">target_ranges</code>. Takes precedence</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">target_domains</code></td>
+      <td>CSV of strings</td>
+      <td><em>(empty)</em></td>
+      <td>DNS domains in scope for phishing and web techniques</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">excluded_domains</code></td>
+      <td>CSV of strings</td>
+      <td><em>(empty)</em></td>
+      <td>Domains explicitly excluded. Takes precedence over <code class="language-plaintext highlighter-rouge">target_domains</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">target_accounts</code></td>
+      <td>CSV of UPNs</td>
+      <td><em>(empty)</em></td>
+      <td>Email addresses / UPNs of dedicated test accounts. <strong>Only these accounts</strong> are targeted by credential techniques (password spray, MFA fatigue, etc.)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">max_rate_per_minute</code></td>
+      <td>int</td>
+      <td><code class="language-plaintext highlighter-rouge">30</code></td>
+      <td>Maximum requests per minute across all techniques, per target host</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="entra--microsoft-entra-id--azure-ad"><code class="language-plaintext highlighter-rouge">[entra]</code> — Microsoft Entra ID / Azure AD</h2>
+
+<p>Required for cloud enumeration and identity techniques targeting Entra ID.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">tenant_id</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>Azure AD tenant ID (UUID format)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">client_id</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>App registration client ID. The app needs appropriate read and test account permissions</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">client_secret</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>App registration secret</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">authority</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">https://login.microsoftonline.com</code></td>
+      <td>OAuth2 authority base URL</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="okta--okta-identity-provider"><code class="language-plaintext highlighter-rouge">[okta]</code> — Okta identity provider</h2>
+
+<p>Required for identity techniques targeting Okta (T1110.003, T1621).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">base_url</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>Okta org URL (e.g. <code class="language-plaintext highlighter-rouge">https://example.okta.com</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">api_token</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>Okta API token (SSWS or OAuth2 bearer)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="ldap--active-directory--ldap"><code class="language-plaintext highlighter-rouge">[ldap]</code> — Active Directory / LDAP</h2>
+
+<p>Required for AD enumeration techniques (T1087.002, T1069.002, T1482).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">server</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>Domain controller address (e.g. <code class="language-plaintext highlighter-rouge">ldap://dc.example.com</code> or <code class="language-plaintext highlighter-rouge">ldaps://dc.example.com</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">bind_dn</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>Service account distinguished name for read-only LDAP enumeration</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">bind_password</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>Service account password</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">base_dn</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>LDAP search base (e.g. <code class="language-plaintext highlighter-rouge">DC=example,DC=com</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">use_ssl</code></td>
+      <td>bool</td>
+      <td><code class="language-plaintext highlighter-rouge">false</code></td>
+      <td>Use LDAPS (TLS on port 636)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">port</code></td>
+      <td>int</td>
+      <td><code class="language-plaintext highlighter-rouge">389</code></td>
+      <td>LDAP port (use <code class="language-plaintext highlighter-rouge">636</code> with <code class="language-plaintext highlighter-rouge">use_ssl = true</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="aws--amazon-web-services"><code class="language-plaintext highlighter-rouge">[aws]</code> — Amazon Web Services</h2>
+
+<p>Required for cloud enumeration against AWS (T1087.004, T1069.003, T1526).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">aws_access_key_id</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>AWS access key for a read-only IAM identity</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">aws_secret_access_key</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>AWS secret access key</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">aws_default_region</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">us-east-1</code></td>
+      <td>Default AWS region</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">assume_role_arn</code></td>
+      <td>string</td>
+      <td><em>(empty)</em></td>
+      <td>If set, RedGNAT will assume this IAM role ARN before enumerating. Recommended for least-privilege deployments</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="feedback--gap-reporting-and-probe-generation"><code class="language-plaintext highlighter-rouge">[feedback]</code> — Gap reporting and probe generation</h2>
+
+<p>Controls the bidirectional feedback loop. See <a href="/RedGNAT/explanation/automation/feedback-loop.html">Bidirectional feedback loop</a> for context.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">enabled</code></td>
+      <td>bool</td>
+      <td><code class="language-plaintext highlighter-rouge">true</code></td>
+      <td>Enable automatic gap reporting after each emulation run</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">push_to_gnat</code></td>
+      <td>bool</td>
+      <td><code class="language-plaintext highlighter-rouge">true</code></td>
+      <td>Push gap STIX Notes to GNAT via <code class="language-plaintext highlighter-rouge">GNATClient.upsert_object()</code> immediately after each run</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">probe_generation_enabled</code></td>
+      <td>bool</td>
+      <td><code class="language-plaintext highlighter-rouge">true</code></td>
+      <td>Enable AI-driven follow-on probe generation using GNAT’s <code class="language-plaintext highlighter-rouge">LLMClient</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">probe_model</code></td>
+      <td>string</td>
+      <td><code class="language-plaintext highlighter-rouge">claude-3-5-sonnet-20241022</code></td>
+      <td>LLM model identifier passed to <code class="language-plaintext highlighter-rouge">gnat.agents.LLMClient</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">max_probes_per_report</code></td>
+      <td>int</td>
+      <td><code class="language-plaintext highlighter-rouge">10</code></td>
+      <td>Maximum <code class="language-plaintext highlighter-rouge">ProbeRequest</code> objects generated per gap report. Guards against runaway scheduling when many techniques go undetected</td>
+    </tr>
+  </tbody>
+</table>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>
