@@ -24,7 +24,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#8b0000">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=479b656b19428de483693c7641898a04497cb7c2">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=816c5167284cc20658a9ec02ed42da6202a0097d">
 <!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
 <link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
@@ -127,30 +127,34 @@
   <li><strong>AI calls stay out of the hot path.</strong> <code class="language-plaintext highlighter-rouge">ProbeGenerator</code> runs post-completion. A slow or unavailable LLM cannot block an active run.</li>
 </ul>
 
-<h2 id="in-the-gnat-o-sphere">In the GNAT-o-sphere</h2>
+<h2 id="the-gnat-o-sphere">The GNAT-o-sphere</h2>
 
-<table>
-  <thead>
-    <tr>
-      <th>Project</th>
-      <th>Role</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="https://github.com/wrhalpin/GNAT">GNAT</a></td>
-      <td>Core threat intelligence platform — 159 connectors, STIX ORM, AI agents</td>
-    </tr>
-    <tr>
-      <td><a href="https://github.com/wrhalpin/SandGNAT">SandGNAT</a></td>
-      <td>Malware detonation sandbox — STIX 2.1 behavioral profiles</td>
-    </tr>
-    <tr>
-      <td><strong>RedGNAT</strong></td>
-      <td>CART engine — turns intel into scoped adversary emulation</td>
-    </tr>
-  </tbody>
-</table>
+<p>RedGNAT is one part of a family of standalone capabilities that extend GNAT without modifying it.</p>
+
+<div class="gnatophere-grid">
+
+  <div class="gnat-card gnat-card-gnat">
+    <span class="gnat-card-tag">Core Platform</span>
+    <h3>GNAT</h3>
+    <p>The hub platform for threat intelligence. 159 connectors, STIX 2.1 modeling, AI agents, investigations, and workflow automation.</p>
+    <a class="gnat-card-link gnat-link-gnat" href="https://wrhalpin.github.io/GNAT/">Learn more</a>
+  </div>
+
+  <div class="gnat-card gnat-card-sand">
+    <span class="gnat-card-tag">Addon</span>
+    <h3>SandGNAT</h3>
+    <p>Automated malware sandbox — detonate binaries in isolated Windows VMs, capture behavioral artifacts, emit STIX 2.1 objects.</p>
+    <a class="gnat-card-link gnat-link-sand" href="https://wrhalpin.github.io/SandGNAT/">Learn more</a>
+  </div>
+
+  <div class="gnat-card gnat-card-sense">
+    <span class="gnat-card-tag">Addon</span>
+    <h3>SenseGNAT</h3>
+    <p>Behavior analytics companion — build per-entity baselines from network telemetry, run explainable detectors, push STIX 2.1 findings into GNAT.</p>
+    <a class="gnat-card-link gnat-link-sense" href="https://wrhalpin.github.io/SenseGNAT/">Learn more</a>
+  </div>
+
+</div>
 
 <h2 id="status">Status</h2>
 
