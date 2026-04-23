@@ -52,13 +52,34 @@ Full architecture diagrams and component breakdown in [explanation/architecture]
 - **The feedback loop is the point.** A single-shot emulation run has limited value. The gap→probe→emulate cycle is what drives coverage convergence over time. See [feedback loop](explanation/automation/feedback-loop.md).
 - **AI calls stay out of the hot path.** `ProbeGenerator` runs post-completion. A slow or unavailable LLM cannot block an active run.
 
-## In the GNAT-o-sphere
+## The GNAT-o-sphere
 
-| Project | Role |
-|---------|------|
-| [GNAT](https://github.com/wrhalpin/GNAT) | Core threat intelligence platform — 159 connectors, STIX ORM, AI agents |
-| [SandGNAT](https://github.com/wrhalpin/SandGNAT) | Malware detonation sandbox — STIX 2.1 behavioral profiles |
-| **RedGNAT** | CART engine — turns intel into scoped adversary emulation |
+RedGNAT is one part of a family of standalone capabilities that extend GNAT without modifying it.
+
+<div class="gnatophere-grid">
+
+  <div class="gnat-card gnat-card-gnat">
+    <span class="gnat-card-tag">Core Platform</span>
+    <h3>GNAT</h3>
+    <p>The hub platform for threat intelligence. 159 connectors, STIX 2.1 modeling, AI agents, investigations, and workflow automation.</p>
+    <a class="gnat-card-link gnat-link-gnat" href="https://wrhalpin.github.io/GNAT/">Learn more</a>
+  </div>
+
+  <div class="gnat-card gnat-card-sand">
+    <span class="gnat-card-tag">Addon</span>
+    <h3>SandGNAT</h3>
+    <p>Automated malware sandbox — detonate binaries in isolated Windows VMs, capture behavioral artifacts, emit STIX 2.1 objects.</p>
+    <a class="gnat-card-link gnat-link-sand" href="https://wrhalpin.github.io/SandGNAT/">Learn more</a>
+  </div>
+
+  <div class="gnat-card gnat-card-sense">
+    <span class="gnat-card-tag">Addon</span>
+    <h3>SenseGNAT</h3>
+    <p>Behavior analytics companion — build per-entity baselines from network telemetry, run explainable detectors, push STIX 2.1 findings into GNAT.</p>
+    <a class="gnat-card-link gnat-link-sense" href="https://wrhalpin.github.io/SenseGNAT/">Learn more</a>
+  </div>
+
+</div>
 
 ## Status
 
