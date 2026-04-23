@@ -58,6 +58,78 @@
   border-radius: 8px;
 }
 
+/* GNAT-o-sphere card grid */
+.gnatophere-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.gnat-card {
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 1.25rem 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+  transition: box-shadow 0.15s ease;
+}
+
+.gnat-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.13);
+}
+
+.gnat-card h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+}
+
+.gnat-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  flex: 1;
+  color: #444;
+}
+
+.gnat-card-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.gnat-card-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  color: #fff !important;
+}
+
+/* GNAT — threat red */
+.gnat-card-gnat { border-color: #c41e2a; }
+.gnat-card-gnat h3 { color: #c41e2a; }
+.gnat-link-gnat { background-color: #c41e2a; }
+.gnat-link-gnat:hover { background-color: #9e1520 !important; color: #fff !important; }
+
+/* SandGNAT — amber */
+.gnat-card-sand { border-color: #d4a017; }
+.gnat-card-sand h3 { color: #a07a10; }
+.gnat-link-sand { background-color: #d4a017; }
+.gnat-link-sand:hover { background-color: #a87e0e !important; color: #fff !important; }
+
+/* SenseGNAT — deep violet */
+.gnat-card-sense { border-color: #5b2da8; }
+.gnat-card-sense h3 { color: #5b2da8; }
+.gnat-link-sense { background-color: #5b2da8; }
+.gnat-link-sense:hover { background-color: #472090 !important; color: #fff !important; }
+
 /* Button overrides on header */
 .btn {
   background-color: rgba(255, 255, 255, 0.12);
