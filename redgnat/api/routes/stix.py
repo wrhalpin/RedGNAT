@@ -19,7 +19,9 @@ def _get_client() -> Any:
 async def list_stix_results() -> list[dict]:
     """
     Return all emulation run results as STIX 2.1 CourseOfAction objects.
-    Consumed by the GNAT RedGNATConnector plugin.
+
+    Investigation-scoped runs are also stamped with x_gnat_investigation_*
+    properties. Consumed by the GNAT RedGNATConnector plugin.
     """
     client = _get_client()
     store = client._get_store()
@@ -50,13 +52,20 @@ async def get_stix_result(run_id: str) -> dict:
 
 @router.get("/stix/sightings")
 async def list_stix_sightings() -> list[dict]:
-    """Return all TechniqueResults as STIX 2.1 Sighting objects."""
+    """
+    Return all TechniqueResults as STIX 2.1 Sighting objects.
+
+    Sightings from investigation-scoped runs are stamped with investigation context.
+    """
     client = _get_client()
     store = client._get_store()
     sightings = []
     for run in client.list_runs():
         for result in store.list_results(run.run_id):
-            sightings.append(result.to_stix_sighting())
+            sighting = result.to_stix_sighting()
+            if run.investigation_id:
+                _stamp(sighting, run)
+            sightings.append(sighting)
     return sightings
 
 
@@ -72,26 +81,97 @@ async def list_stix_gaps() -> list[dict]:
     client = _get_client()
     store = client._get_store()
     from redgnat.feedback.gap_reporter import GapReporter
-    from redgnat.orm.models import ResultStatus
 
     reporter = GapReporter(client.config)
     notes = []
     for run in client.list_runs():
         results = store.list_results(run.run_id)
-        report = reporter.build_report(run.run_id, run.scenario_id, results)
+        report = reporter.build_report(
+            run.run_id,
+            run.scenario_id,
+            results,
+            investigation_id=run.investigation_id,
+            hypothesis_id=run.hypothesis_id,
+        )
         if report.gaps:
             notes.append(report.to_stix_note())
     return notes
 
 
+@router.get("/stix/groupings")
+async def list_stix_groupings() -> list[dict]:
+    """
+    Return STIX 2.1 Grouping objects for all investigation-scoped runs.
+
+    Each Grouping envelopes the CoA, Sightings, and gap Note emitted by one run.
+    Consumed by GNAT via the RedGNATConnector (list_objects("grouping")).
+    """
+    from redgnat.feedback.gap_reporter import GapReporter
+    from redgnat.feedback.investigation_context import build_grouping
+
+    client = _get_client()
+    store = client._get_store()
+    reporter = GapReporter(client.config)
+    groupings = []
+
+    for run in client.list_runs():
+        if not run.investigation_id:
+            continue
+
+        scenario = client.get_scenario(run.scenario_id)
+        if not scenario:
+            continue
+
+        results = store.list_results(run.run_id)
+        report = reporter.build_report(
+            run.run_id,
+            run.scenario_id,
+            results,
+            investigation_id=run.investigation_id,
+            hypothesis_id=run.hypothesis_id,
+        )
+
+        object_refs = [f"course-of-action--{run.run_id}"]
+        object_refs += [f"sighting--{r.result_id}" for r in results]
+        if report.gaps:
+            object_refs.append(f"note--{report.gap_id}")
+
+        groupings.append(
+            build_grouping(
+                run.run_id,
+                run.investigation_id,
+                object_refs,
+                hypothesis_id=run.hypothesis_id,
+                created=run.started_at,
+            )
+        )
+    return groupings
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _stamp(stix_obj: dict[str, Any], run: Any) -> None:
+    """Apply investigation context properties to a STIX object in-place."""
+    from redgnat.feedback.investigation_context import apply_investigation_context
+
+    apply_investigation_context(
+        stix_obj,
+        run.investigation_id,
+        hypothesis_id=run.hypothesis_id,
+        link_type="confirmed",
+    )
+
+
 def _run_to_stix_coa(run: Any, scenario: Any, results: list[Any]) -> dict:
     from datetime import datetime, timezone
 
-    status_counts = {}
+    status_counts: dict[str, int] = {}
     for r in results:
         status_counts[r.status.value] = status_counts.get(r.status.value, 0) + 1
 
-    return {
+    coa: dict[str, Any] = {
         "type": "course-of-action",
         "spec_version": "2.1",
         "id": f"course-of-action--{run.run_id}",
@@ -112,3 +192,6 @@ def _run_to_stix_coa(run: Any, scenario: Any, results: list[Any]) -> dict:
             "technique_results": status_counts,
         },
     }
+    if run.investigation_id:
+        _stamp(coa, run)
+    return coa

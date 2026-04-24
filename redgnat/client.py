@@ -87,6 +87,10 @@ class RedGNATClient:
         scenario_id: str,
         triggered_by: str = "manual",
         async_: bool = True,
+        investigation_id: str | None = None,
+        hypothesis_id: str | None = None,
+        investigation_tenant_id: str | None = None,
+        investigation_validation_pending: bool = False,
     ) -> EmulationRun:
         """
         Dispatch an emulation run for the given scenario.
@@ -100,6 +104,14 @@ class RedGNATClient:
         async_ : bool
             If True, enqueue as a Celery task and return immediately.
             If False, run synchronously (useful for tests and CLI).
+        investigation_id : str | None
+            GNAT investigation ID this run validates.
+        hypothesis_id : str | None
+            Specific GNAT Hypothesis this run is scoped to.
+        investigation_tenant_id : str | None
+            GNAT tenant for multi-tenant deployments.
+        investigation_validation_pending : bool
+            Set True when hypothesis validation was skipped (GNAT unreachable).
 
         Returns
         -------
@@ -113,7 +125,14 @@ class RedGNATClient:
         from redgnat.emulation.runner import EmulationRunner
         from redgnat.orm.models import EmulationRun
 
-        run = EmulationRun(scenario_id=scenario_id, triggered_by=triggered_by)
+        run = EmulationRun(
+            scenario_id=scenario_id,
+            triggered_by=triggered_by,
+            investigation_id=investigation_id,
+            hypothesis_id=hypothesis_id,
+            investigation_tenant_id=investigation_tenant_id,
+            investigation_validation_pending=investigation_validation_pending,
+        )
         self._get_store().upsert_run(run)
 
         if async_:

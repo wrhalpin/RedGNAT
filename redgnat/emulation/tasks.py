@@ -83,7 +83,7 @@ def run_scenario_task(self, run_id: str) -> dict:
     runner = EmulationRunner(client.config)
     try:
         results = runner.execute(run, scenario)
-        _run_feedback(client.config, run_id, run.scenario_id, results)
+        _run_feedback(client.config, run, results)
         return {
             "run_id": run_id,
             "scenario_id": run.scenario_id,
@@ -95,8 +95,10 @@ def run_scenario_task(self, run_id: str) -> dict:
         raise self.retry(exc=exc)
 
 
-def _run_feedback(config: Any, run_id: str, scenario_id: str, results: list) -> None:
+def _run_feedback(config: Any, run: Any, results: list) -> None:
     """Build gap report, push to GNAT, and generate follow-on probes."""
+    run_id: str = run.run_id
+    scenario_id: str = run.scenario_id
     try:
         if not config.feedback_enabled:
             logger.debug("_run_feedback: disabled via config, skipping")
@@ -106,7 +108,13 @@ def _run_feedback(config: Any, run_id: str, scenario_id: str, results: list) -> 
         from redgnat.feedback.probe_generator import ProbeGenerator
 
         reporter = GapReporter(config)
-        report = reporter.build_report(run_id, scenario_id, results)
+        report = reporter.build_report(
+            run_id,
+            scenario_id,
+            results,
+            investigation_id=getattr(run, "investigation_id", None),
+            hypothesis_id=getattr(run, "hypothesis_id", None),
+        )
         if not report.gaps:
             return
 
@@ -230,7 +238,7 @@ def run_engagement_task(self, run_id: str) -> dict:
 
     runner = EngagementRunner(client.config)
     results = runner.execute(run, scenario)
-    _run_feedback(client.config, run_id, run.scenario_id, results)
+    _run_feedback(client.config, run, results)
     return {
         "run_id": run_id,
         "authorized": True,

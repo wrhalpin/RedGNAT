@@ -64,6 +64,16 @@ class RedGNATConfig:
         return v or None
 
     @property
+    def gnat_api_base_url(self) -> str:
+        """Base URL for direct GNAT REST API calls (investigation evidence push)."""
+        return self._get("gnat", "api_base_url", "")
+
+    @property
+    def gnat_api_key(self) -> str:
+        """API key for direct GNAT REST API calls."""
+        return self._get("gnat", "api_key", "")
+
+    @property
     def gnat_poll_interval(self) -> int:
         return int(self._get("gnat", "poll_interval_seconds", "300"))
 

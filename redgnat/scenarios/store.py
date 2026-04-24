@@ -186,13 +186,19 @@ class ScenarioStore:
         sql = """
             INSERT INTO emulation_runs (
                 run_id, scenario_id, celery_task_id, status,
-                started_at, completed_at, triggered_by
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                started_at, completed_at, triggered_by,
+                investigation_id, hypothesis_id, investigation_tenant_id,
+                investigation_validation_pending
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (run_id) DO UPDATE SET
                 celery_task_id = EXCLUDED.celery_task_id,
                 status = EXCLUDED.status,
                 started_at = EXCLUDED.started_at,
-                completed_at = EXCLUDED.completed_at
+                completed_at = EXCLUDED.completed_at,
+                investigation_id = EXCLUDED.investigation_id,
+                hypothesis_id = EXCLUDED.hypothesis_id,
+                investigation_tenant_id = EXCLUDED.investigation_tenant_id,
+                investigation_validation_pending = EXCLUDED.investigation_validation_pending
         """
         with self._get_conn() as conn:
             conn.execute(
@@ -205,6 +211,10 @@ class ScenarioStore:
                     run.started_at,
                     run.completed_at,
                     run.triggered_by,
+                    run.investigation_id,
+                    run.hypothesis_id,
+                    run.investigation_tenant_id,
+                    run.investigation_validation_pending,
                 ),
             )
 
@@ -217,20 +227,27 @@ class ScenarioStore:
     def list_runs(
         self,
         scenario_id: str | None = None,
+        investigation_id: str | None = None,
         limit: int = 50,
     ) -> list[EmulationRun]:
+        conditions = []
+        params: list = []
         if scenario_id:
-            sql = "SELECT * FROM emulation_runs WHERE scenario_id = %s ORDER BY started_at DESC NULLS LAST LIMIT %s"
-            params = (scenario_id, limit)
-        else:
-            sql = "SELECT * FROM emulation_runs ORDER BY started_at DESC NULLS LAST LIMIT %s"
-            params = (limit,)
+            conditions.append("scenario_id = %s")
+            params.append(scenario_id)
+        if investigation_id:
+            conditions.append("investigation_id = %s")
+            params.append(investigation_id)
+        where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+        params.append(limit)
+        sql = f"SELECT * FROM emulation_runs {where} ORDER BY started_at DESC NULLS LAST LIMIT %s"
         with self._get_conn() as conn:
             rows = conn.execute(sql, params).fetchall()
         return [self._row_to_run(r) for r in rows]
 
     @staticmethod
     def _row_to_run(row: Any) -> EmulationRun:
+        # Columns 0-6: original schema; 7-10: added by migration 003
         return EmulationRun(
             run_id=row[0],
             scenario_id=row[1],
@@ -239,6 +256,10 @@ class ScenarioStore:
             started_at=row[4],
             completed_at=row[5],
             triggered_by=row[6],
+            investigation_id=row[7] if len(row) > 7 else None,
+            hypothesis_id=row[8] if len(row) > 8 else None,
+            investigation_tenant_id=row[9] if len(row) > 9 else None,
+            investigation_validation_pending=bool(row[10]) if len(row) > 10 else False,
         )
 
     # ------------------------------------------------------------------

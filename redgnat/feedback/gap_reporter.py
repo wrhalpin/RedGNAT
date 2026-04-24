@@ -44,6 +44,13 @@ class GapReport:
     gaps : list[TechniqueResult]
         Results with status SUCCESS (= undetected by defenses).
     created_at : datetime
+    investigation_id : str | None
+        GNAT investigation this run was validating, if any.
+    hypothesis_id : str | None
+        Specific GNAT Hypothesis this run was scoped to, if any.
+    all_results : list[TechniqueResult]
+        All technique results (including detected/blocked), used for hypothesis
+        feedback (Phase 6). Empty when not needed.
     """
 
     gap_id: str = field(default_factory=lambda: str(uuid.uuid4()))
@@ -51,6 +58,9 @@ class GapReport:
     scenario_id: str = ""
     gaps: list[TechniqueResult] = field(default_factory=list)
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    investigation_id: str | None = None
+    hypothesis_id: str | None = None
+    all_results: list[TechniqueResult] = field(default_factory=list)
 
     @property
     def undetected_technique_ids(self) -> list[str]:
@@ -63,12 +73,30 @@ class GapReport:
         critical_tactics = {"credential-access", "initial-access"}
         return any(r.tactic in critical_tactics for r in self.gaps)
 
+    @property
+    def hypothesis_validation_result(self) -> str | None:
+        """
+        Outcome of hypothesis validation for Phase 6 feedback.
+
+        Returns "detection_gap" when any technique was undetected (run.gaps exist),
+        "confirmed" when all executed techniques were detected, or "inconclusive"
+        when no clear signal is available. Returns None when no hypothesis was set.
+        """
+        if not self.hypothesis_id:
+            return None
+        if self.gaps:
+            return "detection_gap"
+        detected = [r for r in self.all_results if r.status.value == "detected"]
+        if detected:
+            return "confirmed"
+        return "inconclusive"
+
     def to_stix_note(self) -> dict[str, Any]:
         """
         Serialise as a STIX 2.1 Note object for GNAT ingestion.
 
-        The note content describes each gap and what intel GNAT should collect
-        to understand why the technique wasn't detected.
+        Investigation-scoped reports are stamped with x_gnat_investigation_*
+        properties and, when a hypothesis was set, x_gnat_hypothesis_validation.
         """
         mapper = TTPMapper()
         gap_lines = []
@@ -92,7 +120,7 @@ class GapReport:
             "these techniques completed without triggering any detection alert."
         )
 
-        return {
+        note: dict[str, Any] = {
             "type": "note",
             "spec_version": "2.1",
             "id": f"note--{self.gap_id}",
@@ -111,6 +139,22 @@ class GapReport:
                 "gap_id": self.gap_id,
             },
         }
+
+        if self.investigation_id:
+            from redgnat.feedback.investigation_context import apply_investigation_context
+
+            apply_investigation_context(
+                note,
+                self.investigation_id,
+                hypothesis_id=self.hypothesis_id,
+                link_type="confirmed",
+            )
+
+        validation_result = self.hypothesis_validation_result
+        if validation_result is not None:
+            note["x_gnat_hypothesis_validation"] = validation_result
+
+        return note
 
     @staticmethod
     def _summarise_findings(result: TechniqueResult) -> str:
@@ -196,14 +240,29 @@ class GapReporter:
         run_id: str,
         scenario_id: str,
         results: list[TechniqueResult],
+        *,
+        investigation_id: str | None = None,
+        hypothesis_id: str | None = None,
     ) -> GapReport:
         """Build a GapReport from a completed run's results."""
         gaps = [r for r in results if r.status == ResultStatus.SUCCESS]
-        return GapReport(run_id=run_id, scenario_id=scenario_id, gaps=gaps)
+        return GapReport(
+            run_id=run_id,
+            scenario_id=scenario_id,
+            gaps=gaps,
+            investigation_id=investigation_id,
+            hypothesis_id=hypothesis_id,
+            all_results=results,
+        )
 
     def push_to_gnat(self, report: GapReport) -> bool:
         """
-        Push the gap report to GNAT as a STIX Note via GNATClient.
+        Push the gap report to GNAT as a STIX Note.
+
+        When the report is investigation-scoped, the bundle is POSTed to GNAT's
+        ``/api/investigations/{id}/evidence`` endpoint so it surfaces directly in
+        the investigation's evidence graph. Otherwise the existing GNATClient
+        upsert path is used.
 
         Returns True if push succeeded, False otherwise.
         """
@@ -213,6 +272,49 @@ class GapReporter:
 
         stix_note = report.to_stix_note()
 
+        if report.investigation_id and self.config.gnat_api_base_url:
+            return self._push_to_investigation(report, stix_note)
+
+        return self._push_via_gnat_client(report, stix_note)
+
+    def _push_to_investigation(self, report: GapReport, stix_note: dict) -> bool:
+        """POST bundle to GNAT's investigation evidence endpoint."""
+        from redgnat.feedback.investigation_context import (
+            build_grouping,
+            push_investigation_bundle,
+        )
+
+        grouping = build_grouping(
+            report.run_id,
+            report.investigation_id,  # type: ignore[arg-type]
+            [f"note--{report.gap_id}", f"course-of-action--{report.run_id}"],
+            hypothesis_id=report.hypothesis_id,
+            created=report.created_at,
+        )
+        bundle = {
+            "type": "bundle",
+            "spec_version": "2.1",
+            "id": f"bundle--{report.gap_id}",
+            "objects": [stix_note, grouping],
+        }
+
+        ok, error_type = push_investigation_bundle(
+            self.config.gnat_api_base_url,
+            self.config.gnat_api_key,
+            report.investigation_id,  # type: ignore[arg-type]
+            bundle,
+        )
+        if ok:
+            logger.info(
+                "GapReporter: pushed gap bundle for run %s to investigation %s (%d gaps)",
+                report.run_id,
+                report.investigation_id,
+                len(report.gaps),
+            )
+        return ok
+
+    def _push_via_gnat_client(self, report: GapReport, stix_note: dict) -> bool:
+        """Fall back to GNATClient.upsert_object for non-investigation runs."""
         try:
             from gnat import GNATClient  # type: ignore[import]
 

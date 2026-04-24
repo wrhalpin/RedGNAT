@@ -197,6 +197,15 @@ class EmulationRun(RedGNATBase):
     completed_at : datetime | None
     triggered_by : str
         "scheduler" | "manual" | "intel_event"
+    investigation_id : str | None
+        GNAT investigation ID this run was launched to validate.
+    hypothesis_id : str | None
+        GNAT Hypothesis ID this run was scoped to (optional).
+    investigation_tenant_id : str | None
+        GNAT tenant ID for multi-tenant deployments.
+    investigation_validation_pending : bool
+        True when hypothesis validation against GNAT could not be completed
+        at engagement creation time (GNAT was unreachable).
     """
 
     run_id: str = field(default_factory=new_uuid)
@@ -206,6 +215,10 @@ class EmulationRun(RedGNATBase):
     started_at: datetime | None = None
     completed_at: datetime | None = None
     triggered_by: str = "scheduler"
+    investigation_id: str | None = None
+    hypothesis_id: str | None = None
+    investigation_tenant_id: str | None = None
+    investigation_validation_pending: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -216,6 +229,10 @@ class EmulationRun(RedGNATBase):
             "started_at": self.started_at.isoformat() if self.started_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
             "triggered_by": self.triggered_by,
+            "investigation_id": self.investigation_id,
+            "hypothesis_id": self.hypothesis_id,
+            "investigation_tenant_id": self.investigation_tenant_id,
+            "investigation_validation_pending": self.investigation_validation_pending,
         }
 
     @classmethod
@@ -232,6 +249,12 @@ class EmulationRun(RedGNATBase):
             if data.get("completed_at")
             else None,
             triggered_by=data.get("triggered_by", "scheduler"),
+            investigation_id=data.get("investigation_id"),
+            hypothesis_id=data.get("hypothesis_id"),
+            investigation_tenant_id=data.get("investigation_tenant_id"),
+            investigation_validation_pending=bool(
+                data.get("investigation_validation_pending", False)
+            ),
         )
 
 
