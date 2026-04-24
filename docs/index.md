@@ -6,6 +6,7 @@ description: Continuous Automated Readiness Testing addon for GNAT. Safe red tea
 
 <div style="display:flex;align-items:flex-start;gap:2rem;">
 <div style="flex:1">
+<p style=“margin: 0 0 .35rem 0; font-size: .95rem; color: #606c71; text-transform: uppercase; letter-spacing: .06em;”>GNAT-o-sphere / readiness testing</p>
 <h1>RedGNAT</h1>
 <p>Continuous Automated Readiness Testing (CART) addon for the <strong>GNAT-o-sphere</strong>: ingest live threat intelligence from GNAT and SandGNAT, build scoped adversary-emulation scenarios, execute them under layered safety controls, and feed detection gaps back into GNAT as structured intelligence requirements.</p>
 <p>Source: <a href="https://github.com/wrhalpin/RedGNAT"><code>github.com/wrhalpin/RedGNAT</code></a>.</p>
