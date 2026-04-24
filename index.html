@@ -24,7 +24,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#8b0000">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=51f49b9d914713460a398006721fc6539e0e517b">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=466b3dde3b660e4d2c59cf0bb7b74a0e3fd3abb8">
 <!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
 <link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
@@ -134,8 +134,6 @@
 
 <p>RedGNAT is one part of a family of standalone capabilities that extend GNAT without modifying it.</p>
 
-<p><a href="https://wrhalpin.github.io/gnat-o-sphere/workflow.html">Canonical workflow documentation →</a></p>
-
 <div class="gnatophere-grid">
 
   <div class="gnat-card gnat-card-gnat">
@@ -159,6 +157,54 @@
     <a class="gnat-card-link gnat-link-sense" href="https://wrhalpin.github.io/SenseGNAT/">Learn more</a>
   </div>
 
+</div>
+
+<h3 id="canonical-workflow">Canonical Workflow</h3>
+
+<div class="flow-teaser">
+  <div class="flow-stage">
+    <div class="flow-node flow-node--neutral">
+      <span class="flow-step">Collect</span>
+      <strong>Telemetry &amp; Sources</strong>
+      <p>External indicators and raw network telemetry enter the ecosystem</p>
+    </div>
+  </div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-stage">
+    <div class="flow-node flow-node--gnat">
+      <span class="flow-step">Process</span>
+      <strong>GNAT</strong>
+      <p>Ingest, normalize, convert to STIX, and route to addons</p>
+    </div>
+  </div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-stage flow-stage--addons">
+    <div class="flow-node flow-node--sense">
+      <strong>SenseGNAT</strong>
+      <p>Behavioral profiling &amp; anomaly detection</p>
+    </div>
+    <div class="flow-node flow-node--sand">
+      <strong>SandGNAT</strong>
+      <p>Malware detonation &amp; artifact enrichment</p>
+    </div>
+    <div class="flow-node flow-node--red">
+      <strong>RedGNAT</strong>
+      <p>Adversary emulation &amp; validation</p>
+    </div>
+  </div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-stage">
+    <div class="flow-node flow-node--neutral">
+      <span class="flow-step">Report</span>
+      <strong>Investigate &amp; Act</strong>
+      <p>Unified investigation graph, reporting, and operator action</p>
+    </div>
+  </div>
+</div>
+
+<div class="flow-actions">
+  <a href="https://wrhalpin.github.io/GNAT/diagram.html">View full diagram &rarr;</a>
+  <a href="https://wrhalpin.github.io/GNAT/workflow.html">Read the workflow doc &rarr;</a>
 </div>
 
 <h2 id="status">Status</h2>

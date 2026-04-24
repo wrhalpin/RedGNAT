@@ -130,6 +130,103 @@
 .gnat-link-sense { background-color: #5b2da8; }
 .gnat-link-sense:hover { background-color: #472090 !important; color: #fff !important; }
 
+/* Canonical workflow flow diagram */
+.flow-teaser {
+  display: flex;
+  align-items: stretch;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  color: #aaa;
+  flex-shrink: 0;
+  padding-top: .5rem;
+}
+
+.flow-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+
+.flow-stage--addons { flex: 1.2; }
+
+.flow-node {
+  background: #fff;
+  border: 1px solid #f7e6e6;
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  flex: 1;
+  box-shadow: 0 1px 4px rgba(204, 0, 0, 0.05);
+}
+
+.flow-node strong {
+  display: block;
+  font-size: .95rem;
+  font-weight: 600;
+  margin-bottom: .2rem;
+  color: #111;
+}
+
+.flow-node p {
+  margin: 0;
+  font-size: .78rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.flow-step {
+  display: block;
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: #aaa;
+  margin-bottom: .3rem;
+}
+
+.flow-node--gnat { border-color: #c41e2a; }
+.flow-node--gnat strong { color: #c41e2a; }
+
+.flow-node--sand { border-color: #d4a017; }
+.flow-node--sand strong { color: #a07a10; }
+
+.flow-node--sense { border-color: #5b2da8; }
+.flow-node--sense strong { color: #5b2da8; }
+
+.flow-node--red { border-color: #cc0000; }
+.flow-node--red strong { color: #cc0000; }
+
+.flow-node--neutral { border-color: #f7e6e6; }
+.flow-node--neutral strong { color: #111; }
+
+.flow-actions {
+  display: flex;
+  gap: 1.5rem;
+  font-size: .875rem;
+  justify-content: flex-end;
+  margin-top: .5rem;
+}
+
+.flow-actions a {
+  color: #9e1b1b;
+  text-decoration: none;
+}
+
+.flow-actions a:hover {
+  color: #cc0000;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .flow-teaser { flex-direction: column; }
+  .flow-arrow { justify-content: center; transform: rotate(90deg); }
+}
+
 /* Button overrides on header */
 .btn {
   background-color: rgba(255, 255, 255, 0.12);
