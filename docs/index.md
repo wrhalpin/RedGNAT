@@ -59,8 +59,6 @@ Full architecture diagrams and component breakdown in [explanation/architecture]
 
 RedGNAT is one part of a family of standalone capabilities that extend GNAT without modifying it.
 
-[Canonical workflow documentation →](https://wrhalpin.github.io/gnat-o-sphere/workflow.html)
-
 <div class="gnatophere-grid">
 
   <div class="gnat-card gnat-card-gnat">
@@ -84,6 +82,54 @@ RedGNAT is one part of a family of standalone capabilities that extend GNAT with
     <a class="gnat-card-link gnat-link-sense" href="https://wrhalpin.github.io/SenseGNAT/">Learn more</a>
   </div>
 
+</div>
+
+### Canonical Workflow
+
+<div class="flow-teaser">
+  <div class="flow-stage">
+    <div class="flow-node flow-node--neutral">
+      <span class="flow-step">Collect</span>
+      <strong>Telemetry &amp; Sources</strong>
+      <p>External indicators and raw network telemetry enter the ecosystem</p>
+    </div>
+  </div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-stage">
+    <div class="flow-node flow-node--gnat">
+      <span class="flow-step">Process</span>
+      <strong>GNAT</strong>
+      <p>Ingest, normalize, convert to STIX, and route to addons</p>
+    </div>
+  </div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-stage flow-stage--addons">
+    <div class="flow-node flow-node--sense">
+      <strong>SenseGNAT</strong>
+      <p>Behavioral profiling &amp; anomaly detection</p>
+    </div>
+    <div class="flow-node flow-node--sand">
+      <strong>SandGNAT</strong>
+      <p>Malware detonation &amp; artifact enrichment</p>
+    </div>
+    <div class="flow-node flow-node--red">
+      <strong>RedGNAT</strong>
+      <p>Adversary emulation &amp; validation</p>
+    </div>
+  </div>
+  <div class="flow-arrow">&rarr;</div>
+  <div class="flow-stage">
+    <div class="flow-node flow-node--neutral">
+      <span class="flow-step">Report</span>
+      <strong>Investigate &amp; Act</strong>
+      <p>Unified investigation graph, reporting, and operator action</p>
+    </div>
+  </div>
+</div>
+
+<div class="flow-actions">
+  <a href="https://wrhalpin.github.io/GNAT/diagram.html">View full diagram &rarr;</a>
+  <a href="https://wrhalpin.github.io/GNAT/workflow.html">Read the workflow doc &rarr;</a>
 </div>
 
 ## Status
