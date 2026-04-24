@@ -56,6 +56,8 @@ Full architecture diagrams and component breakdown in [explanation/architecture]
 
 RedGNAT is one part of a family of standalone capabilities that extend GNAT without modifying it.
 
+[Canonical workflow documentation →](https://wrhalpin.github.io/gnat-o-sphere/workflow.html)
+
 <div class="gnatophere-grid">
 
   <div class="gnat-card gnat-card-gnat">
