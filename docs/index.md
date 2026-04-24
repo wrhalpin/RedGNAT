@@ -78,7 +78,7 @@ RedGNAT is one part of a family of standalone capabilities that extend GNAT with
   <div class="gnat-card gnat-card-sense">
     <span class="gnat-card-tag">Addon</span>
     <h3>SenseGNAT</h3>
-    <p>Behavior analytics companion — build per-entity baselines from network telemetry, run explainable detectors, push STIX 2.1 findings into GNAT.</p>
+    <p>Network profiling and behavior analysis that surfaces anomalies and enriches GNAT investigations with traffic-layer context using network sensor and honeypot telemetry — high-volume ingestion from Kafka topics, Redis dedup, automatic campaign linking.</p>
     <a class="gnat-card-link gnat-link-sense" href="https://wrhalpin.github.io/SenseGNAT/">Learn more</a>
   </div>
 
