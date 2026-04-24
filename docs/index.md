@@ -4,14 +4,16 @@ title: RedGNAT
 description: Continuous Automated Readiness Testing addon for GNAT. Safe red teaming made simple.
 ---
 
-<div style="display:flex;align-items:flex-start;gap:2rem;">
-<div style="flex:1">
-<p style=“margin: 0 0 .35rem 0; font-size: .95rem; color: #606c71; text-transform: uppercase; letter-spacing: .06em;”>GNAT-o-sphere / readiness testing</p>
-<h1>RedGNAT</h1>
-<p>Continuous Automated Readiness Testing (CART) addon for the <strong>GNAT-o-sphere</strong>: ingest live threat intelligence from GNAT and SandGNAT, build scoped adversary-emulation scenarios, execute them under layered safety controls, and feed detection gaps back into GNAT as structured intelligence requirements.</p>
-<p>Source: <a href="https://github.com/wrhalpin/RedGNAT"><code>github.com/wrhalpin/RedGNAT</code></a>.</p>
-</div>
-<img src="assets/logo-256.png" alt="RedGNAT logo" style="width:288px;height:288px;flex-shrink:0;border-radius:8px;">
+<div style=”display: flex; align-items: center; gap: 2.5rem; margin-bottom: 2rem;”>
+  <div style=”flex: 1; min-width: 0;”>
+    <p style=”margin: 0 0 .35rem 0; font-size: .95rem; color: #606c71; text-transform: uppercase; letter-spacing: .06em;”>GNAT-o-sphere / readiness testing</p>
+    <h1 style=”margin-top: 0;”>RedGNAT</h1>
+    <p>Continuous Automated Readiness Testing (CART) addon for the <strong>GNAT-o-sphere</strong>: ingest live threat intelligence from GNAT and SandGNAT, build scoped adversary-emulation scenarios, execute them under layered safety controls, and feed detection gaps back into GNAT as structured intelligence requirements.</p>
+    <p>Source: <a href=”https://github.com/wrhalpin/RedGNAT”><code>github.com/wrhalpin/RedGNAT</code></a>.</p>
+  </div>
+  <div style=”flex-shrink: 0;”>
+    <img src=”assets/logo-256.png” alt=”RedGNAT logo” width=”288” style=”border-radius: 8px;”>
+  </div>
 </div>
 
 ---
