@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Run an engagement for a GNAT investigation | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Run an engagement for a GNAT investigation" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="How to link a RedGNAT emulation run to a GNAT investigation and optional hypothesis." />
+<meta property="og:description" content="How to link a RedGNAT emulation run to a GNAT investigation and optional hypothesis." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/how-to/run-engagement-for-investigation.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/how-to/run-engagement-for-investigation.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Run an engagement for a GNAT investigation" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"How to link a RedGNAT emulation run to a GNAT investigation and optional hypothesis.","headline":"Run an engagement for a GNAT investigation","url":"https://wrhalpin.github.io/RedGNAT/how-to/run-engagement-for-investigation.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=669948cc20e1e20e5e9c2e8c80406d14c243c8a3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Run an engagement for a GNAT investigation">
+<meta property="og:description" content="How to link a RedGNAT emulation run to a GNAT investigation and optional hypothesis.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <h1 class="project-name">Run an engagement for a GNAT investigation</h1>
+  <h2 class="project-tagline">How to link a RedGNAT emulation run to a GNAT investigation and optional hypothesis.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="run-an-engagement-for-a-gnat-investigation">Run an engagement for a GNAT investigation</h1>
+
+<p>RedGNAT can attach emulation results directly to a GNAT investigation so that findings appear in the investigation’s evidence graph with <code class="language-plaintext highlighter-rouge">link_type = "confirmed"</code>. When a run is scoped to a specific hypothesis, the hypothesis validation result is also reported back.</p>
+
+<hr />
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<ul>
+  <li>RedGNAT 0.1.0+ with migration 003 applied (<code class="language-plaintext highlighter-rouge">make migrate</code>)</li>
+  <li>A GNAT investigation ID (e.g. <code class="language-plaintext highlighter-rouge">IC-2026-0001</code>) — create one in GNAT first</li>
+  <li>(Optional) A GNAT Hypothesis ID within that investigation (e.g. <code class="language-plaintext highlighter-rouge">HYP-2026-0001-01</code>)</li>
+  <li><code class="language-plaintext highlighter-rouge">gnat.api_base_url</code> and <code class="language-plaintext highlighter-rouge">gnat.api_key</code> set in <code class="language-plaintext highlighter-rouge">redgnat.ini</code> if you want automatic hypothesis validation:</li>
+</ul>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[gnat]</span>
+<span class="py">api_base_url</span> <span class="p">=</span> <span class="s">http://gnat-host:8000</span>
+<span class="py">api_key</span>      <span class="p">=</span> <span class="s">&lt;your-gnat-api-key&gt;</span>
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="launch-an-investigation-scoped-run">Launch an investigation-scoped run</h2>
+
+<p>Pass the investigation context in the <code class="language-plaintext highlighter-rouge">POST /scenarios/{id}/run</code> body:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-X</span> POST http://redgnat-host:8000/api/v1/scenarios/SCENARIO_ID/run <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{
+    "investigation_id": "IC-2026-0001",
+    "hypothesis_id":    "HYP-2026-0001-01",
+    "triggered_by":     "manual"
+  }'</span>
+</code></pre></div></div>
+
+<h3 id="what-happens-next">What happens next</h3>
+
+<ol>
+  <li>RedGNAT validates <code class="language-plaintext highlighter-rouge">hypothesis_id</code> against GNAT’s <code class="language-plaintext highlighter-rouge">GET /api/investigations/{id}/hypotheses</code>.
+    <ul>
+      <li>If the hypothesis is not found → <code class="language-plaintext highlighter-rouge">400 Bad Request</code>.</li>
+      <li>If GNAT is unreachable → run is accepted with <code class="language-plaintext highlighter-rouge">investigation_validation_pending: true</code> (see response).</li>
+    </ul>
+  </li>
+  <li>The run executes normally under all existing scope and safety controls.</li>
+  <li>On completion, the gap report bundle is POSTed to <code class="language-plaintext highlighter-rouge">POST /api/investigations/IC-2026-0001/evidence</code> on GNAT.</li>
+  <li>Every emitted STIX object is stamped with <code class="language-plaintext highlighter-rouge">x_gnat_investigation_id</code>, <code class="language-plaintext highlighter-rouge">x_gnat_investigation_origin</code>, <code class="language-plaintext highlighter-rouge">x_gnat_investigation_link_type</code>, and (when a hypothesis was set) <code class="language-plaintext highlighter-rouge">x_gnat_hypothesis_id</code>.</li>
+  <li>A STIX <code class="language-plaintext highlighter-rouge">Grouping</code> enveloping all run objects is created and available via <code class="language-plaintext highlighter-rouge">GET /api/v1/stix/groupings</code>.</li>
+</ol>
+
+<h3 id="sample-response">Sample response</h3>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"scenario_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"queued"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"investigation_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IC-2026-0001"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"hypothesis_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HYP-2026-0001-01"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"investigation_validation_pending"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"triggered_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"manual"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="query-runs-by-investigation">Query runs by investigation</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="s2">"http://redgnat-host:8000/api/v1/runs?investigation_id=IC-2026-0001"</span>
+</code></pre></div></div>
+
+<p>Returns all runs tagged with that investigation, including their status and technique counts.</p>
+
+<hr />
+
+<h2 id="post-hoc-tagging">Post-hoc tagging</h2>
+
+<p>To associate an existing completed run with an investigation after the fact:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-X</span> POST http://redgnat-host:8000/api/v1/runs/RUN_ID/investigation <span class="se">\</span>
+  <span class="nt">-H</span> <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  <span class="nt">-d</span> <span class="s1">'{
+    "investigation_id": "IC-2026-0001",
+    "hypothesis_id":    "HYP-2026-0001-01",
+    "link_type":        "inferred"
+  }'</span>
+</code></pre></div></div>
+
+<p>The stored STIX bundle is not retroactively mutated. GNAT can re-pull updated objects from the STIX endpoints once the tag is applied.</p>
+
+<hr />
+
+<h2 id="hypothesis-feedback-phase-6">Hypothesis feedback (Phase 6)</h2>
+
+<p>When a run includes a <code class="language-plaintext highlighter-rouge">hypothesis_id</code>, the gap Note carries an additional <code class="language-plaintext highlighter-rouge">x_gnat_hypothesis_validation</code> property:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">detection_gap</code></td>
+      <td>At least one technique went undetected — hypothesis that defenses would catch it was <strong>not</strong> confirmed.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">confirmed</code></td>
+      <td>All executed techniques triggered detection — defenses behaved as expected.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">inconclusive</code></td>
+      <td>No clear signal either way (e.g. all techniques were BLOCKED or DRY_RUN).</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="see-also">See also</h2>
+
+<ul>
+  <li><a href="/RedGNAT/reference/investigation-context.html">Reference: investigation context schema</a></li>
+  <li><a href="/RedGNAT/explanation/engagement/safe-harbor.html">Safe-harbor design</a> — scope controls are unchanged by investigation context.</li>
+  <li><a href="/RedGNAT/explanation/automation/feedback-loop.html">The feedback loop</a></li>
+</ul>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>

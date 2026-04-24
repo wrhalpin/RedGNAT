@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Investigation context schema | RedGNAT</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Investigation context schema" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The shared STIX properties that link RedGNAT emulation results to GNAT investigations and hypotheses." />
+<meta property="og:description" content="The shared STIX properties that link RedGNAT emulation results to GNAT investigations and hypotheses." />
+<link rel="canonical" href="https://wrhalpin.github.io/RedGNAT/reference/investigation-context.html" />
+<meta property="og:url" content="https://wrhalpin.github.io/RedGNAT/reference/investigation-context.html" />
+<meta property="og:site_name" content="RedGNAT" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Investigation context schema" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"The shared STIX properties that link RedGNAT emulation results to GNAT investigations and hypotheses.","headline":"Investigation context schema","url":"https://wrhalpin.github.io/RedGNAT/reference/investigation-context.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" as="style" type="text/css" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8b0000">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="/RedGNAT/assets/css/style.css?v=669948cc20e1e20e5e9c2e8c80406d14c243c8a3">
+<!-- Favicon kit — browsers pick the best match; ICO is the legacy fallback. -->
+<link rel="icon" type="image/png" sizes="32x32" href="/RedGNAT/assets/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/RedGNAT/assets/logo-16.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/RedGNAT/assets/logo-64.png">
+<link rel="icon" type="image/x-icon" href="/RedGNAT/assets/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/RedGNAT/assets/logo-128.png">
+
+<!-- Open Graph / social cards -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RedGNAT">
+<meta property="og:title" content="Investigation context schema">
+<meta property="og:description" content="The shared STIX properties that link RedGNAT emulation results to GNAT investigations and hypotheses.">
+<meta property="og:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://wrhalpin.github.io/RedGNAT/assets/logo-512.png">
+
+<!-- RedGNAT palette — overrides Cayman's default green gradient -->
+<link rel="stylesheet" href="/RedGNAT/assets/css/redgnat.css">
+
+</head>
+<body>
+<a id="skip-to-content" href="#content">Skip to the content.</a>
+<header class="page-header" role="banner">
+  <h1 class="project-name">Investigation context schema</h1>
+  <h2 class="project-tagline">The shared STIX properties that link RedGNAT emulation results to GNAT investigations and hypotheses.</h2>
+  
+  <a href="https://github.com/wrhalpin/RedGNAT" class="btn">View on GitHub</a>
+  
+  
+</header>
+<main id="content" class="main-content" role="main">
+<h1 id="investigation-context-schema">Investigation context schema</h1>
+
+<p>RedGNAT implements a shared cross-tool STIX contract that lets emulation results surface directly inside GNAT investigations. The canonical specification lives in the GNAT repo at <code class="language-plaintext highlighter-rouge">docs/reference/investigation-context-schema.md</code>. This page documents the RedGNAT-specific additions and how to consume them.</p>
+
+<hr />
+
+<h2 id="shared-custom-properties">Shared custom properties</h2>
+
+<p>Every STIX object emitted by an investigation-scoped run carries these properties:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>Type</th>
+      <th>Always present</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">x_gnat_investigation_id</code></td>
+      <td><code class="language-plaintext highlighter-rouge">string</code></td>
+      <td>Yes</td>
+      <td>GNAT investigation ID (e.g. <code class="language-plaintext highlighter-rouge">"IC-2026-0001"</code>)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">x_gnat_investigation_origin</code></td>
+      <td><code class="language-plaintext highlighter-rouge">string</code></td>
+      <td>Yes</td>
+      <td>Always <code class="language-plaintext highlighter-rouge">"redgnat"</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">x_gnat_investigation_link_type</code></td>
+      <td><code class="language-plaintext highlighter-rouge">string</code></td>
+      <td>Yes</td>
+      <td><code class="language-plaintext highlighter-rouge">"confirmed"</code> for engagement-driven runs; <code class="language-plaintext highlighter-rouge">"inferred"</code> for post-hoc tagging</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">x_gnat_hypothesis_id</code></td>
+      <td><code class="language-plaintext highlighter-rouge">string</code></td>
+      <td>When hypothesis was provided</td>
+      <td>GNAT Hypothesis ID (e.g. <code class="language-plaintext highlighter-rouge">"HYP-2026-0001-01"</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code class="language-plaintext highlighter-rouge">"confirmed"</code> is the common case for RedGNAT: an emulation run was <strong>intentionally scoped</strong> to validate something, so the link to the investigation is confirmed by construction.</p>
+
+<hr />
+
+<h2 id="redgnat-specific-additions">RedGNAT-specific additions</h2>
+
+<h3 id="x_gnat_hypothesis_validation-on-gap-note-objects"><code class="language-plaintext highlighter-rouge">x_gnat_hypothesis_validation</code> (on gap Note objects)</h3>
+
+<p>When a run is hypothesis-scoped, the STIX gap Note carries:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"x_gnat_hypothesis_validation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"detection_gap"</span><span class="w">
+</span></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Value</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">"detection_gap"</code></td>
+      <td>Technique(s) ran without triggering detection — the hypothesis that the attack would be caught was <strong>not</strong> confirmed.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">"confirmed"</code></td>
+      <td>All executed techniques were detected — defensive controls behaved as the hypothesis predicted.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">"inconclusive"</code></td>
+      <td>No clear signal (e.g. all techniques were BLOCKED or DRY_RUN).</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="stix-object-types-emitted-per-run">STIX object types emitted per run</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>STIX type</th>
+      <th>ID pattern</th>
+      <th>Stamped?</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">course-of-action</code></td>
+      <td><code class="language-plaintext highlighter-rouge">course-of-action--{run_id}</code></td>
+      <td>Yes</td>
+      <td>Run-level summary</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">sighting</code></td>
+      <td><code class="language-plaintext highlighter-rouge">sighting--{result_id}</code></td>
+      <td>Yes</td>
+      <td>Per-technique outcome</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">note</code></td>
+      <td><code class="language-plaintext highlighter-rouge">note--{gap_id}</code></td>
+      <td>Yes</td>
+      <td>Gap intelligence requirements</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">grouping</code></td>
+      <td><code class="language-plaintext highlighter-rouge">grouping--{run_id}</code></td>
+      <td>N/A (is the envelope)</td>
+      <td>Wraps all of the above</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="grouping-envelope">Grouping envelope</h2>
+
+<p>When a run has an <code class="language-plaintext highlighter-rouge">investigation_id</code>, RedGNAT emits a STIX 2.1 <code class="language-plaintext highlighter-rouge">Grouping</code> that envelopes all objects from the run. Retrieve it via:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GET /api/v1/stix/groupings
+</code></pre></div></div>
+
+<p>Example Grouping:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"grouping"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"spec_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"grouping--{run_id}"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RedGNAT engagement {run_id}"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"suspicious-activity"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"object_refs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"course-of-action--{run_id}"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"sighting--{result_id}"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"note--{gap_id}"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"x_gnat_investigation_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IC-2026-0001"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"x_gnat_investigation_origin"</span><span class="p">:</span><span class="w"> </span><span class="s2">"redgnat"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"x_gnat_investigation_link_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"confirmed"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"x_gnat_hypothesis_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HYP-2026-0001-01"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<hr />
+
+<h2 id="stix-api-endpoints-investigation-aware">STIX API endpoints (investigation-aware)</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Path</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/api/v1/stix/results</code></td>
+      <td>CourseOfAction objects, stamped when investigation-scoped</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/api/v1/stix/sightings</code></td>
+      <td>Sighting objects, stamped when investigation-scoped</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/api/v1/stix/gaps</code></td>
+      <td>Gap Note objects, stamped + hypothesis validation when scoped</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">GET</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/api/v1/stix/groupings</code></td>
+      <td>Grouping objects (investigation-scoped runs only)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="database-schema">Database schema</h2>
+
+<p>Migration <code class="language-plaintext highlighter-rouge">003_investigation_context.sql</code> adds four nullable columns to <code class="language-plaintext highlighter-rouge">emulation_runs</code>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">investigation_id</code></td>
+      <td><code class="language-plaintext highlighter-rouge">TEXT</code></td>
+      <td>GNAT investigation ID</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">hypothesis_id</code></td>
+      <td><code class="language-plaintext highlighter-rouge">TEXT</code></td>
+      <td>GNAT Hypothesis ID</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">investigation_tenant_id</code></td>
+      <td><code class="language-plaintext highlighter-rouge">TEXT</code></td>
+      <td>GNAT tenant (multi-tenant deployments)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">investigation_validation_pending</code></td>
+      <td><code class="language-plaintext highlighter-rouge">BOOLEAN</code></td>
+      <td>True when hypothesis validation couldn’t be completed at creation time</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="configuration">Configuration</h2>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[gnat]</span>
+<span class="py">api_base_url</span> <span class="p">=</span> <span class="s">http://gnat-host:8000   # Enables hypothesis validation + evidence push</span>
+<span class="py">api_key</span>      <span class="p">=</span> <span class="s">&lt;gnat-api-key&gt;</span>
+</code></pre></div></div>
+
+<p>If <code class="language-plaintext highlighter-rouge">api_base_url</code> is not set, hypothesis validation is skipped and the gap report falls back to the existing <code class="language-plaintext highlighter-rouge">GNATClient.upsert_object()</code> path.</p>
+
+<hr />
+
+<h2 id="see-also">See also</h2>
+
+<ul>
+  <li><a href="/RedGNAT/how-to/run-engagement-for-investigation.html">How to: run an engagement for an investigation</a></li>
+  <li><a href="/RedGNAT/explanation/engagement/safe-harbor.html">Safe-harbor design</a></li>
+</ul>
+
+<footer class="site-footer">
+  
+  <span class="site-footer-owner">
+    <a href="https://github.com/wrhalpin/RedGNAT">RedGNAT</a>
+    is maintained by <a href="https://github.com/wrhalpin">wrhalpin</a>.
+  </span>
+  
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+</footer>
+</main>
+</body>
+</html>
