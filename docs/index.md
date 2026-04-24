@@ -1,7 +1,7 @@
 ---
 layout: default
 title: RedGNAT
-description: Continuous Automated Red Teaming addon for GNAT. Safe red teaming made simple.
+description: Continuous Automated Readiness Testing addon for GNAT. Safe red teaming made simple.
 ---
 
 <div style="display:flex;align-items:flex-start;gap:2rem;">
