@@ -68,6 +68,13 @@ RedGNAT is one part of a family of standalone capabilities that extend GNAT with
     <a class="gnat-card-link gnat-link-gnat" href="https://wrhalpin.github.io/GNAT/">Learn more</a>
   </div>
 
+  <div class="gnat-card gnat-card-gui">
+    <span class="gnat-card-tag">Interface</span>
+    <h3>GNAT-gui</h3>
+    <p>Analyst-facing React SPA for GNAT — investigation management, seed-driven evidence graphs, Hy/YAML/Prolog rules, full RBAC, and real-time SSE streaming.</p>
+    <a class="gnat-card-link gnat-link-gui" href="https://wrhalpin.github.io/GNAT-gui/">Learn more</a>
+  </div>
+
   <div class="gnat-card gnat-card-sand">
     <span class="gnat-card-tag">Addon</span>
     <h3>SandGNAT</h3>

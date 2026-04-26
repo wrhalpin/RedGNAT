@@ -118,6 +118,12 @@
 .gnat-link-gnat { background-color: #c41e2a; }
 .gnat-link-gnat:hover { background-color: #9e1520 !important; color: #fff !important; }
 
+/* GNAT-gui — slate blue */
+.gnat-card-gui { border-color: #3b6ea8; }
+.gnat-card-gui h3 { color: #1e3355; }
+.gnat-link-gui { background-color: #3b6ea8; }
+.gnat-link-gui:hover { background-color: #1e3355 !important; color: #fff !important; }
+
 /* SandGNAT — amber */
 .gnat-card-sand { border-color: #d4a017; }
 .gnat-card-sand h3 { color: #a07a10; }
