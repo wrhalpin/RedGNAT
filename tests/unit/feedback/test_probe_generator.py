@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import json
-import pytest
 
 from redgnat.feedback.gap_reporter import GapReport
 from redgnat.feedback.probe_generator import ProbeGenerator, ProbeRequest

@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import pytest
 
-from redgnat.techniques.base import OutOfScopeError, Scope, Technique, TechniqueContext
 from redgnat.orm.models import ResultStatus
+from redgnat.techniques.base import OutOfScopeError, Scope, Technique, TechniqueContext
 
 
 class _TestTechnique(Technique):

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from redgnat.scenarios.ttp_mapper import TTPMapper
-from redgnat.techniques.identity.token_theft import _minutes_apart, _IMPOSSIBLE_TRAVEL_MINUTES
+from redgnat.techniques.identity.token_theft import _IMPOSSIBLE_TRAVEL_MINUTES, _minutes_apart
 
 
 class TestMapperParentFallback:

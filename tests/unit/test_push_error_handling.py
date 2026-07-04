@@ -6,8 +6,6 @@ from __future__ import annotations
 import urllib.error
 from unittest.mock import patch
 
-import pytest
-
 from redgnat.feedback.investigation_context import push_investigation_bundle
 
 GNAT_URL = "http://gnat.test:8000"

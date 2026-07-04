@@ -3,10 +3,8 @@
 """Unit tests for the technique registry."""
 from __future__ import annotations
 
-import pytest
-
-from redgnat.techniques.registry import TECHNIQUE_REGISTRY, get_technique, list_technique_ids
 from redgnat.techniques.base import Technique
+from redgnat.techniques.registry import TECHNIQUE_REGISTRY, get_technique, list_technique_ids
 
 
 def test_registry_not_empty():

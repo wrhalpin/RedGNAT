@@ -3,9 +3,9 @@
 """Regression tests for Batch D STIX/feedback correctness fixes."""
 from __future__ import annotations
 
-from redgnat.orm.base import deterministic_id
 from redgnat.emulation.tasks import _parse_probe_depth
 from redgnat.feedback.probe_generator import ProbeRequest
+from redgnat.orm.base import deterministic_id
 
 
 class TestDeterministicId:

@@ -3,10 +3,6 @@
 """Unit tests for ORM model serialisation."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
-import pytest
-
 from redgnat.orm.models import (
     EmulationRun,
     EmulationScenario,

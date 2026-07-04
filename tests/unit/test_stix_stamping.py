@@ -3,8 +3,6 @@
 """Tests — Phase 2.1: STIX investigation context stamping."""
 from __future__ import annotations
 
-import pytest
-
 from redgnat.feedback.investigation_context import apply_investigation_context
 
 INV_ID = "IC-2026-0001"
@@ -47,8 +45,6 @@ class TestGapReportStixStamping:
     """Gap Note gets stamped when investigation context is present."""
 
     def _make_report(self, investigation_id=None, hypothesis_id=None):
-        from datetime import datetime, timezone
-        from unittest.mock import MagicMock
 
         from redgnat.feedback.gap_reporter import GapReport
         from redgnat.orm.models import ResultStatus, TechniqueResult

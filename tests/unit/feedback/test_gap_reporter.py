@@ -3,8 +3,6 @@
 """Unit tests for GapReporter and GapReport."""
 from __future__ import annotations
 
-import pytest
-
 from redgnat.feedback.gap_reporter import GapReport, GapReporter
 from redgnat.orm.models import ResultStatus, TechniqueResult
 

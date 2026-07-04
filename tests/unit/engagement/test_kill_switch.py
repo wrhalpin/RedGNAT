@@ -3,16 +3,14 @@
 """Unit tests for KillSwitch."""
 from __future__ import annotations
 
-from unittest.mock import MagicMock, call, patch
-
-import pytest
+from unittest.mock import MagicMock, patch
 
 from redgnat.engagement.kill_switch import (
-    KillSwitch,
     _REDIS_KEY_ACTIVE,
     _REDIS_KEY_OPERATOR,
     _REDIS_KEY_REASON,
     _REDIS_KEY_TS,
+    KillSwitch,
 )
 
 
@@ -72,11 +70,10 @@ class TestKillSwitchIsActive:
         from redgnat.engagement.kill_switch import _KillStateUnavailable
 
         ks = _make_ks()
-        with patch.object(ks, "_redis", side_effect=ConnectionError("down")):
-            with patch.object(
-                ks, "_postgres_is_active", side_effect=_KillStateUnavailable("no db")
-            ):
-                assert ks.is_active() is True
+        with patch.object(ks, "_redis", side_effect=ConnectionError("down")), patch.object(
+            ks, "_postgres_is_active", side_effect=_KillStateUnavailable("no db")
+        ):
+            assert ks.is_active() is True
 
 
 class TestKillSwitchActivate:

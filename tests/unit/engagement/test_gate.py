@@ -3,13 +3,12 @@
 """Unit tests for EngagementGate."""
 from __future__ import annotations
 
-import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from redgnat.engagement.gate import EngagementGate, _UNLOCK_ENV_VAR
+from redgnat.engagement.gate import _UNLOCK_ENV_VAR, EngagementGate
 from redgnat.engagement.token import EngagementToken
 
 
@@ -27,7 +26,7 @@ def _valid_token() -> EngagementToken:
 
 def _expired_token() -> EngagementToken:
     t = EngagementToken.create(operator="test-op", duration_hours=1.0)
-    t.expires_at = datetime.now(timezone.utc) - timedelta(seconds=10)
+    t.expires_at = datetime.now(UTC) - timedelta(seconds=10)
     return t
 
 

@@ -3,8 +3,6 @@
 """Tests — Phase 2.3: STIX Grouping envelope for investigation-scoped runs."""
 from __future__ import annotations
 
-import pytest
-
 from redgnat.feedback.investigation_context import build_grouping
 
 RUN_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"

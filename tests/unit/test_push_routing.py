@@ -3,7 +3,6 @@
 """Tests — Phase 3.1: Gap report push routing based on investigation context."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 from redgnat.feedback.gap_reporter import GapReport, GapReporter
