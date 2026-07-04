@@ -120,3 +120,33 @@ class TestTechniqueScopeGuard:
         )
         result = t._blocked_result(ctx, "no targets")
         assert result.status == ResultStatus.BLOCKED
+
+
+class TestScopeCIDR:
+    def test_exact_range_is_allowed(self):
+        scope = make_scope(target_ranges=["10.50.0.0/16"], excluded_ranges=[])
+        assert scope.allows_cidr("10.50.0.0/16") is True
+
+    def test_subnet_of_target_is_allowed(self):
+        scope = make_scope(target_ranges=["10.50.0.0/16"], excluded_ranges=[])
+        assert scope.allows_cidr("10.50.1.0/24") is True
+
+    def test_supernet_of_target_is_rejected(self):
+        # Regression: a broad CIDR must NOT pass just because it overlaps a
+        # narrow target range — it would otherwise be scanned in full.
+        scope = make_scope(target_ranges=["10.50.0.0/16"], excluded_ranges=[])
+        assert scope.allows_cidr("10.0.0.0/8") is False
+
+    def test_partial_overlap_is_rejected(self):
+        scope = make_scope(target_ranges=["10.50.0.0/16"], excluded_ranges=[])
+        assert scope.allows_cidr("10.49.0.0/15") is False
+
+    def test_excluded_overlap_is_rejected(self):
+        scope = make_scope(
+            target_ranges=["10.50.0.0/16"], excluded_ranges=["10.50.5.0/24"]
+        )
+        assert scope.allows_cidr("10.50.0.0/16") is False
+
+    def test_bogus_cidr_is_rejected(self):
+        scope = make_scope()
+        assert scope.allows_cidr("not-a-cidr") is False

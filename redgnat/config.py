@@ -134,6 +134,16 @@ class RedGNATConfig:
     def gophish_default_campaign_hours(self) -> int:
         return int(self._get("gophish", "default_campaign_hours", "72"))
 
+    @property
+    def max_inline_poll_seconds(self) -> int:
+        """
+        Upper bound on how long a technique may block a worker waiting for
+        campaign results inline. Longer campaigns keep running in GoPhish;
+        only the initial in-worker poll is capped so a handful of concurrent
+        phishing runs cannot starve the Celery worker pool.
+        """
+        return int(self._get("gophish", "max_inline_poll_seconds", "60"))
+
     # ------------------------------------------------------------------
     # [scope]
     # ------------------------------------------------------------------

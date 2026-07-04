@@ -21,7 +21,7 @@ from typing import Any
 
 from redgnat.orm.models import ResultStatus
 from redgnat.techniques.base import Technique, TechniqueContext
-from redgnat.techniques.phishing.base import GoPhishClient
+from redgnat.techniques.phishing.base import GoPhishClient, teardown_resources
 
 logger = logging.getLogger(__name__)
 
@@ -149,8 +149,10 @@ class SpearphishingLinkTechnique(Technique):
 
             # Create and launch campaign
             import datetime as dt
-            now = dt.datetime.utcnow()
+            now = dt.datetime.now(dt.timezone.utc)
             launch_date = now.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+            send_by = now + dt.timedelta(hours=campaign_hours)
+            send_by_date = send_by.strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
             campaign_payload = {
                 "name": campaign_name,
@@ -158,7 +160,7 @@ class SpearphishingLinkTechnique(Technique):
                 "landing_page": {"name": page_dict["name"]},
                 "url": cfg.gophish_landing_page_base_url or "https://click.example.com",
                 "launch_date": launch_date,
-                "send_by_date": "",
+                "send_by_date": send_by_date,
                 "smtp": {"id": smtp_id},
                 "groups": [{"name": f"{campaign_name}-targets"}],
             }
@@ -174,8 +176,9 @@ class SpearphishingLinkTechnique(Technique):
                 ctx.run_id,
             )
 
-            # Poll for initial results
-            time.sleep(wait_minutes * 60)
+            # Poll for initial results (bounded so the worker is not held for
+            # the full campaign window — the campaign keeps running in GoPhish).
+            time.sleep(min(wait_minutes * 60, cfg.max_inline_poll_seconds))
             results = client.get_campaign_summary(campaign_id)
 
             stats = results.get("stats", {})
@@ -197,9 +200,10 @@ class SpearphishingLinkTechnique(Technique):
 
         except Exception as exc:
             logger.exception("SpearphishingLink campaign failed: %s", exc)
+            teardown_resources(client, created_resources, logger)
             return self._make_result(
                 ctx,
                 ResultStatus.ERROR,
-                findings=[{"created_resources": created_resources}],
+                findings=[{"created_resources": created_resources, "cleanup_attempted": True}],
                 error=str(exc),
             )

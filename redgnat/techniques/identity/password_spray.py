@@ -33,6 +33,7 @@ from redgnat.techniques.identity.base import (
     LDAPAuthClient,
     OktaAuthClient,
     _jitter_sleep,
+    _rate_delay_seconds,
 )
 
 logger = logging.getLogger(__name__)
@@ -138,7 +139,7 @@ class PasswordSprayTechnique(Technique):
                             ctx.run_id,
                         )
 
-                    _jitter_sleep(60.0 / ctx.scope.max_rate_per_minute)
+                    _jitter_sleep(_rate_delay_seconds(ctx.scope.max_rate_per_minute))
 
             # Wait between password rounds to avoid smart lockout
             if i < len(passwords) - 1:

@@ -125,3 +125,32 @@ class GoPhishClient:
     # ------------------------------------------------------------------
     def list_smtp(self) -> list[dict]:
         return self._request("GET", "/api/smtp/") or []
+
+
+def teardown_resources(client: "GoPhishClient", created: dict, log: Any) -> None:
+    """
+    Best-effort cleanup of GoPhish resources after a failed campaign run.
+
+    Completes any launched campaign (stops further sending) and deletes the
+    landing page, template, and target group so a partial failure does not
+    leave a live campaign or orphaned artifacts behind. Every step is
+    independently guarded — cleanup never masks the original error.
+    """
+    campaign_id = created.get("campaign_id")
+    if campaign_id is not None:
+        try:
+            client.complete_campaign(campaign_id)
+        except Exception as exc:  # noqa: BLE001 - best-effort teardown
+            log.warning("teardown: could not complete campaign %s: %s", campaign_id, exc)
+
+    for key, deleter in (
+        ("page_id", client.delete_page),
+        ("template_id", client.delete_template),
+        ("group_id", client.delete_group),
+    ):
+        rid = created.get(key)
+        if rid is not None:
+            try:
+                deleter(rid)
+            except Exception as exc:  # noqa: BLE001 - best-effort teardown
+                log.warning("teardown: could not delete %s=%s: %s", key, rid, exc)

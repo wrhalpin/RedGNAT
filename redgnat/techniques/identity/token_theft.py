@@ -88,7 +88,19 @@ class TokenTheftTechnique(Technique):
         errors: list[str] = []
         since = datetime.now(timezone.utc) - timedelta(hours=lookback_hours)
 
-        if "entra" in providers and cfg.entra_tenant_id:
+        def _domain_allowed(host: str) -> bool:
+            # Safe-harbor: enforce domain scope when configured; fall back to
+            # config gating when no domain scope is set.
+            if not ctx.scope.target_domains:
+                return True
+            return bool(host) and ctx.scope.allows_domain(host)
+
+        entra_domain = cfg.entra_tenant_id if "." in (cfg.entra_tenant_id or "") else ""
+        okta_host = (cfg.okta_base_url or "").split("://")[-1].split("/")[0]
+
+        if "entra" in providers and cfg.entra_tenant_id and not _domain_allowed(entra_domain):
+            errors.append(f"entra: tenant {entra_domain!r} not in scope")
+        elif "entra" in providers and cfg.entra_tenant_id:
             try:
                 entra_findings = self._analyze_entra(cfg, since, long_session_hours)
                 findings.extend(entra_findings)
@@ -96,7 +108,9 @@ class TokenTheftTechnique(Technique):
                 logger.warning("TokenTheft Entra analysis failed: %s", exc)
                 errors.append(f"entra: {exc}")
 
-        if "okta" in providers and cfg.okta_base_url:
+        if "okta" in providers and cfg.okta_base_url and not _domain_allowed(okta_host):
+            errors.append(f"okta: host {okta_host!r} not in scope")
+        elif "okta" in providers and cfg.okta_base_url:
             try:
                 okta_findings = self._analyze_okta(cfg, since, long_session_hours)
                 findings.extend(okta_findings)

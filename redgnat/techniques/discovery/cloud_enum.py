@@ -67,7 +67,22 @@ class CloudEnumTechnique(Technique):
         evidence: list[dict] = []
         errors: list[str] = []
 
-        if "entra" in providers and cfg.entra_tenant_id:
+        def _domain_allowed(host: str) -> bool:
+            # Safe-harbor: when domain scope is configured, the provider's
+            # tenant/host must be in scope. When target_domains is empty we
+            # cannot validate a cloud tenant, so fall back to config gating.
+            if not ctx.scope.target_domains:
+                return True
+            return bool(host) and ctx.scope.allows_domain(host)
+
+        # Entra tenant may be a verified domain or an opaque GUID; only a
+        # domain-form tenant can be scope-checked.
+        entra_domain = cfg.entra_tenant_id if "." in (cfg.entra_tenant_id or "") else ""
+        okta_host = (cfg.okta_base_url or "").split("://")[-1].split("/")[0]
+
+        if "entra" in providers and cfg.entra_tenant_id and not _domain_allowed(entra_domain):
+            errors.append(f"entra: tenant {entra_domain!r} not in scope")
+        elif "entra" in providers and cfg.entra_tenant_id:
             try:
                 entra_findings = self._enum_entra(cfg, max_users, max_groups)
                 findings.extend(entra_findings)
@@ -75,7 +90,9 @@ class CloudEnumTechnique(Technique):
                 logger.warning("Entra enumeration failed: %s", exc)
                 errors.append(f"entra: {exc}")
 
-        if "okta" in providers and cfg.okta_base_url:
+        if "okta" in providers and cfg.okta_base_url and not _domain_allowed(okta_host):
+            errors.append(f"okta: host {okta_host!r} not in scope")
+        elif "okta" in providers and cfg.okta_base_url:
             try:
                 okta_findings = self._enum_okta(cfg, max_users, max_groups)
                 findings.extend(okta_findings)

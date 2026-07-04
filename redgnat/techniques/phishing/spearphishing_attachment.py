@@ -23,7 +23,7 @@ from typing import Any
 
 from redgnat.orm.models import ResultStatus
 from redgnat.techniques.base import Technique, TechniqueContext
-from redgnat.techniques.phishing.base import GoPhishClient
+from redgnat.techniques.phishing.base import GoPhishClient, teardown_resources
 
 logger = logging.getLogger(__name__)
 
@@ -179,7 +179,7 @@ class SpearphishingAttachmentTechnique(Technique):
                 ctx.run_id,
             )
 
-            time.sleep(wait_minutes * 60)
+            time.sleep(min(wait_minutes * 60, cfg.max_inline_poll_seconds))
             results = client.get_campaign_summary(campaign_id)
             stats = results.get("stats", {})
 
@@ -199,9 +199,10 @@ class SpearphishingAttachmentTechnique(Technique):
 
         except Exception as exc:
             logger.exception("SpearphishingAttachment campaign failed: %s", exc)
+            teardown_resources(client, created_resources, logger)
             return self._make_result(
                 ctx,
                 ResultStatus.ERROR,
-                findings=[{"created_resources": created_resources}],
+                findings=[{"created_resources": created_resources, "cleanup_attempted": True}],
                 error=str(exc),
             )

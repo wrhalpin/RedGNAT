@@ -20,6 +20,33 @@ from redgnat.techniques.base import Technique, TechniqueContext
 
 logger = logging.getLogger(__name__)
 
+
+def _extract_host(server: str) -> str:
+    """Extract the bare hostname/IP from an LDAP URL or ``host:port`` string."""
+    s = server.strip()
+    if "://" in s:
+        s = s.split("://", 1)[1]
+    s = s.split("/", 1)[0]  # strip any path
+    if s.startswith("["):  # bracketed IPv6
+        return s[1 : s.index("]")] if "]" in s else s
+    if ":" in s:
+        s = s.rsplit(":", 1)[0]
+    return s
+
+
+def _host_in_scope(scope: Any, host: str) -> bool:
+    """Return True if the LDAP host is an in-scope IP or domain."""
+    import ipaddress
+
+    if not host:
+        return False
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        return scope.allows_domain(host)
+    return scope.allows_ip(host)
+
+
 # LDAP search filters
 _USER_FILTER = "(&(objectClass=user)(objectCategory=person)(!userAccountControl:1.2.840.113556.1.4.803:=2))"
 _GROUP_FILTER = "(&(objectClass=group))"
@@ -49,16 +76,14 @@ class ADEnumTechnique(Technique):
     - Domain trusts
     - Group Policy Objects
 
+    The LDAP server and bind credentials are read from trusted config only
+    (never from ``ctx.params``) and the server host is validated against the
+    engagement scope before any bind.
+
     Parameters (ctx.params)
     -----------------------
-    ldap_server : str
-        Override config ldap.server.
     base_dn : str
-        Override config ldap.base_dn.
-    bind_dn : str
-        Override config ldap.bind_dn.
-    bind_password : str
-        Override config ldap.bind_password.
+        Override config ldap.base_dn (search base only).
     max_users : int
         Maximum number of user records to return (default 500).
     """
@@ -88,14 +113,24 @@ class ADEnumTechnique(Technique):
         from redgnat.config import RedGNATConfig
 
         cfg = RedGNATConfig()
-        server_addr = ctx.params.get("ldap_server", cfg.ldap_server)
+        # Server and bind credentials come from trusted config ONLY — never
+        # from ctx.params — so intel-driven parameters can never redirect the
+        # LDAP bind (and the service-account credentials) to an arbitrary host.
+        server_addr = cfg.ldap_server
+        bind_dn = cfg.ldap_bind_dn
+        bind_pw = cfg.ldap_bind_password
         base_dn = ctx.params.get("base_dn", cfg.ldap_base_dn)
-        bind_dn = ctx.params.get("bind_dn", cfg.ldap_bind_dn)
-        bind_pw = ctx.params.get("bind_password", cfg.ldap_bind_password)
         max_users = int(ctx.params.get("max_users", 500))
 
         if not server_addr or not base_dn:
             return self._blocked_result(ctx, "ldap.server or ldap.base_dn not configured")
+
+        # Safe-harbor: the LDAP host must be in scope before any bind.
+        ldap_host = _extract_host(server_addr)
+        if not _host_in_scope(ctx.scope, ldap_host):
+            return self._blocked_result(
+                ctx, f"LDAP server host {ldap_host!r} is not in scope"
+            )
 
         try:
             server = ldap3.Server(

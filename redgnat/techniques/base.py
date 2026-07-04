@@ -89,15 +89,35 @@ class Scope:
         return upn.lower() in {a.lower() for a in self.target_accounts}
 
     def allows_cidr(self, cidr: str) -> bool:
-        """Return True if any IP in the CIDR is in scope (conservative: requires full overlap)."""
+        """
+        Return True only if the CIDR is fully contained in scope.
+
+        Conservative by design: every address in ``cidr`` must fall inside a
+        single ``target_ranges`` entry (containment, not mere overlap) and the
+        CIDR must not overlap any excluded range. This prevents a broad range
+        (e.g. 10.0.0.0/8) from passing validation against a narrow target
+        (10.50.0.0/16) and then being scanned in full.
+        """
         try:
             net = ipaddress.ip_network(cidr, strict=False)
         except ValueError:
             return False
-        return any(
-            net.overlaps(ipaddress.ip_network(r, strict=False)) for r in self.target_ranges
-        ) and not any(
-            net.overlaps(ipaddress.ip_network(r, strict=False)) for r in self.excluded_ranges
+
+        def _contained(target: str) -> bool:
+            try:
+                return net.subnet_of(ipaddress.ip_network(target, strict=False))
+            except (ValueError, TypeError):
+                # TypeError: mismatched IP versions -> not contained.
+                return False
+
+        def _overlaps(target: str) -> bool:
+            try:
+                return net.overlaps(ipaddress.ip_network(target, strict=False))
+            except (ValueError, TypeError):
+                return False
+
+        return any(_contained(r) for r in self.target_ranges) and not any(
+            _overlaps(r) for r in self.excluded_ranges
         )
 
 

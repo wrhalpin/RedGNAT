@@ -56,6 +56,18 @@ def _jitter_sleep(base_seconds: float, jitter_fraction: float = 0.3) -> None:
     time.sleep(max(0.5, base_seconds + jitter))
 
 
+def _rate_delay_seconds(max_rate_per_minute: int) -> float:
+    """
+    Per-attempt delay for the configured rate limit.
+
+    Guards against ``max_rate_per_minute <= 0`` (division by zero); returns
+    0.0 when the rate is unbounded so callers can still apply a jitter floor.
+    """
+    if max_rate_per_minute <= 0:
+        return 0.0
+    return 60.0 / max_rate_per_minute
+
+
 class EntraAuthClient:
     """
     Entra ID (Azure AD) authentication test client.
