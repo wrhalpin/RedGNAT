@@ -21,10 +21,18 @@ log_level = INFO
 # Default: false (Phase 2 disabled).  Change only after design review.
 # ---------------------------------------------------------------------------
 phase2_enabled = false
+# Optional Gate-2 shared secret. When set, REDGNAT_PHASE2_UNLOCK must equal
+# this exact value (a real secret, not just a present env var). Leave blank
+# to keep the presence-only check.
+# phase2_unlock_secret =
 
 [gnat]
 # Path to existing GNAT config file (gnat.ini)
 config_path = ~/.gnat/config.ini
+# Direct GNAT REST API (enables hypothesis validation + investigation
+# evidence push). Leave blank to fall back to the GNATClient upsert path.
+# api_base_url = http://gnat-host:8000
+# api_key =
 # How often to poll GNAT for new campaigns/TTPs (seconds)
 poll_interval_seconds = 300
 # Minimum GNAT confidence score to consider intel actionable (0.0–1.0)
@@ -51,6 +59,9 @@ sending_profile_id = 1
 landing_page_base_url = https://click.redteam.internal
 # Default campaign duration in hours
 default_campaign_hours = 72
+# Max seconds a technique may block a Celery worker waiting for initial
+# campaign results inline (the campaign keeps running in GoPhish regardless).
+max_inline_poll_seconds = 60
 
 # ---------------------------------------------------------------------------
 # SAFE HARBOR SCOPE
@@ -129,3 +140,6 @@ probe_generation_enabled = true
 probe_model = claude-3-5-sonnet-20241022
 # Maximum follow-on probes to generate per gap report
 max_probes_per_report = 10
+# Max generations in the gap->probe->emulate loop before it stops spawning
+# further probes (runaway guard). 0 disables follow-on probes entirely.
+max_probe_depth = 3
