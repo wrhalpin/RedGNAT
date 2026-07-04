@@ -38,12 +38,26 @@ class TestKillSwitchIsActive:
         with patch.object(ks, "_redis", return_value=mock_redis):
             assert ks.is_active() is True
 
-    def test_returns_false_when_no_flag(self):
+    def test_returns_false_when_redis_clear_and_postgres_clear(self):
+        # Fail-closed design: a missing Redis flag is not proof of "clear";
+        # the durable Postgres record is authoritative and must confirm it.
         ks = _make_ks()
         mock_redis = MagicMock()
         mock_redis.get.return_value = None
         with patch.object(ks, "_redis", return_value=mock_redis):
-            assert ks.is_active() is False
+            with patch.object(ks, "_postgres_is_active", return_value=False) as pg:
+                assert ks.is_active() is False
+        pg.assert_called_once()
+
+    def test_returns_true_when_redis_evicted_but_postgres_active(self):
+        # Regression: a kill record survives in Postgres after the volatile
+        # Redis flag is evicted/restarted. The switch must still read active.
+        ks = _make_ks()
+        mock_redis = MagicMock()
+        mock_redis.get.return_value = None
+        with patch.object(ks, "_redis", return_value=mock_redis):
+            with patch.object(ks, "_postgres_is_active", return_value=True):
+                assert ks.is_active() is True
 
     def test_falls_back_to_postgres_when_redis_unavailable(self):
         ks = _make_ks()
@@ -52,6 +66,17 @@ class TestKillSwitchIsActive:
                 result = ks.is_active()
         assert result is True
         pg.assert_called_once()
+
+    def test_fails_closed_when_durable_store_unreachable(self):
+        # If neither Redis nor Postgres can confirm state, halt (return True).
+        from redgnat.engagement.kill_switch import _KillStateUnavailable
+
+        ks = _make_ks()
+        with patch.object(ks, "_redis", side_effect=ConnectionError("down")):
+            with patch.object(
+                ks, "_postgres_is_active", side_effect=_KillStateUnavailable("no db")
+            ):
+                assert ks.is_active() is True
 
 
 class TestKillSwitchActivate:

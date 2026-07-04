@@ -77,6 +77,32 @@ class EmulationRunner:
 
         try:
             for i, step in enumerate(steps):
+                # Safety gate BEFORE every technique — including the first and
+                # single-step plans (e.g. probe runs). Fail-closed: if the gate
+                # cannot confirm it is safe to proceed it returns a stop reason.
+                stop_reason = self._safety_check(plan)
+                if stop_reason:
+                    logger.warning(
+                        "run=%s halted before technique=%s reason=%s",
+                        run.run_id,
+                        step.technique_id,
+                        stop_reason,
+                    )
+                    # Record this step and all remaining steps as unexecuted
+                    # so the run is fully accounted for.
+                    killed_status = (
+                        ResultStatus.EXPIRED
+                        if stop_reason.startswith("expired")
+                        else ResultStatus.KILLED
+                    )
+                    for remaining in steps[i:]:
+                        killed = self._make_unexecuted_result(
+                            plan, remaining, killed_status, stop_reason
+                        )
+                        results.append(killed)
+                        store.insert_result(killed)
+                    break
+
                 result = self._execute_step(step, plan)
                 results.append(result)
                 store.insert_result(result)
@@ -88,43 +114,40 @@ class EmulationRunner:
                     len(result.findings),
                 )
 
-                # Check safety gates between techniques; finish the last step cleanly
+                # Pace before the next step (rate limit only — the safety gate
+                # is re-checked at the top of the next iteration).
                 if i < len(steps) - 1:
-                    stop_reason = self._inter_technique_pause(plan)
-                    if stop_reason:
-                        logger.warning(
-                            "run=%s halted after technique=%s reason=%s",
-                            run.run_id,
-                            step.technique_id,
-                            stop_reason,
-                        )
-                        # Record unexecuted steps so the run is fully accounted for
-                        killed_status = (
-                            ResultStatus.EXPIRED
-                            if stop_reason.startswith("expired")
-                            else ResultStatus.KILLED
-                        )
-                        for remaining in steps[i + 1 :]:
-                            killed = self._make_unexecuted_result(
-                                plan, remaining, killed_status, stop_reason
-                            )
-                            results.append(killed)
-                            store.insert_result(killed)
-                        break
-                else:
-                    self._inter_technique_pause(plan)
+                    self._rate_limit_pause(plan)
 
         except Exception as exc:
             logger.exception("Unhandled error during run %s: %s", run.run_id, exc)
             run.status = RunStatus.FAILED
         else:
-            run.status = RunStatus.KILLED if stop_reason else RunStatus.COMPLETED
+            run.status = self._aggregate_status(stop_reason, results)
         finally:
             run.completed_at = datetime.now(timezone.utc)
             store.upsert_run(run)
             store.close()
 
         return results
+
+    @staticmethod
+    def _aggregate_status(
+        stop_reason: str | None, results: list[TechniqueResult]
+    ) -> RunStatus:
+        """Roll technique outcomes up into a single run status."""
+        if stop_reason:
+            return RunStatus.EXPIRED if stop_reason.startswith("expired") else RunStatus.KILLED
+        executed = [
+            r
+            for r in results
+            if r.status not in (ResultStatus.KILLED, ResultStatus.EXPIRED)
+        ]
+        # A run whose every executed technique errored is a failed run, not a
+        # clean completion — downstream consumers rely on run.status.
+        if executed and all(r.status == ResultStatus.ERROR for r in executed):
+            return RunStatus.FAILED
+        return RunStatus.COMPLETED
 
     def _execute_step(self, step: "object", plan: EmulationPlan) -> TechniqueResult:
         from redgnat.orm.base import new_uuid  # noqa: F401
@@ -159,27 +182,38 @@ class EmulationRunner:
 
         return result
 
-    def _inter_technique_pause(self, plan: EmulationPlan) -> str | None:
+    # Upper bound on a single inter-step pause so a pathologically low rate
+    # limit cannot hang a worker indefinitely, while still honouring the
+    # configured spacing for any realistic rate.
+    _MAX_STEP_PAUSE_SECONDS = 300.0
+
+    def _rate_limit_pause(self, plan: EmulationPlan) -> None:
+        """Sleep to respect ``scope.max_rate_per_minute`` between steps."""
+        if plan.scope.max_rate_per_minute > 0:
+            seconds_per_step = 60.0 / plan.scope.max_rate_per_minute
+            time.sleep(min(seconds_per_step, self._MAX_STEP_PAUSE_SECONDS))
+
+    def _safety_check(self, plan: EmulationPlan) -> str | None:
         """
-        Sleep to respect the rate limit, then check the kill switch.
+        Check the kill switch. Fail-closed.
 
         Returns
         -------
         str | None
-            None to continue; a non-empty string to halt the run.
-            The string value describes the stop reason (e.g. "kill").
+            None to continue; a non-empty string to halt the run. The string
+            value describes the stop reason (e.g. "kill").
         """
-        if plan.scope.max_rate_per_minute > 0:
-            seconds_per_step = 60.0 / plan.scope.max_rate_per_minute
-            time.sleep(min(seconds_per_step, 2.0))
-
         try:
             from redgnat.engagement.kill_switch import KillSwitch
 
             if KillSwitch(self.config).is_active():
                 return "kill"
         except Exception as exc:
-            logger.warning("Runner: kill switch check failed (non-fatal): %s", exc)
+            # Cannot confirm it is safe to proceed → halt.
+            logger.critical(
+                "Runner: kill switch check errored — failing closed (halt): %s", exc
+            )
+            return "kill:check-error"
 
         return None
 
@@ -213,13 +247,14 @@ class EngagementRunner(EmulationRunner):
     as EXPIRED and the run is halted cleanly.
     """
 
-    def _inter_technique_pause(self, plan: EmulationPlan) -> str | None:
-        # Kill switch check from parent
-        stop = super()._inter_technique_pause(plan)
+    def _safety_check(self, plan: EmulationPlan) -> str | None:
+        # Kill switch check from parent (fail-closed)
+        stop = super()._safety_check(plan)
         if stop:
             return stop
 
-        # Additional gate: engagement token validity
+        # Additional gate: full three-factor engagement authorization must
+        # still hold before each Phase 2 step. Fail-closed on any error.
         try:
             from redgnat.engagement.gate import EngagementGate
 
@@ -227,6 +262,9 @@ class EngagementRunner(EmulationRunner):
             if not authorized:
                 return f"expired:{reason}"
         except Exception as exc:
-            logger.warning("EngagementRunner: gate check failed (non-fatal): %s", exc)
+            logger.critical(
+                "EngagementRunner: gate check errored — failing closed (halt): %s", exc
+            )
+            return f"expired:gate-check-error:{exc}"
 
         return None

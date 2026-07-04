@@ -35,6 +35,7 @@ class RunStatus(str, Enum):
     FAILED = "failed"
     CANCELLED = "cancelled"
     KILLED = "killed"       # stopped by kill switch mid-run
+    EXPIRED = "expired"     # Phase 2 engagement token expired mid-run
 
 
 class ResultStatus(str, Enum):

@@ -27,6 +27,11 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+
+class _KillStateUnavailable(RuntimeError):
+    """Raised when the durable kill-switch store cannot be reached."""
+
+
 _REDIS_KEY_ACTIVE = "redgnat:kill:active"
 _REDIS_KEY_REASON = "redgnat:kill:reason"
 _REDIS_KEY_OPERATOR = "redgnat:kill:operator"
@@ -54,17 +59,32 @@ class KillSwitch:
         """
         Return True if the kill switch is active.
 
-        Checks Redis first (fast path); falls back to Postgres if Redis
-        is unavailable so a restarted worker still respects a prior kill.
+        Fail-closed design. Redis is only a *fast path* for the positive
+        (killed) answer: an affirmative flag short-circuits to True. A
+        missing Redis flag is NOT proof the switch is clear — the volatile
+        cache can be evicted or restarted while a durable kill record still
+        stands — so the authoritative "not killed" decision always comes
+        from the durable Postgres record. If that durable store cannot be
+        reached we halt (return True) rather than risk running while a kill
+        is in effect.
         """
+        # Fast path: an affirmative Redis flag means killed.
         try:
             redis = self._redis()
             if redis.get(_REDIS_KEY_ACTIVE):
                 return True
         except Exception as exc:
-            logger.warning("KillSwitch: Redis unavailable, checking Postgres: %s", exc)
+            logger.warning("KillSwitch: Redis unavailable, consulting Postgres: %s", exc)
+
+        # Authoritative check: the durable Postgres record decides "clear".
+        try:
             return self._postgres_is_active()
-        return False
+        except _KillStateUnavailable as exc:
+            logger.critical(
+                "KillSwitch: durable kill state UNREACHABLE — failing closed (halt): %s",
+                exc,
+            )
+            return True
 
     def status(self) -> dict:
         """Return a dict describing the current kill state."""
@@ -191,6 +211,15 @@ class KillSwitch:
         return redis_lib.from_url(self.config.redis_url)
 
     def _postgres_is_active(self) -> bool:
+        """
+        Return True if an uncleared kill record exists in Postgres.
+
+        Raises
+        ------
+        _KillStateUnavailable
+            If the durable store cannot be reached. Callers must treat this
+            as "state unknown" and fail closed — never as "not killed".
+        """
         try:
             import psycopg
 
@@ -200,8 +229,8 @@ class KillSwitch:
                 ).fetchone()
                 return row is not None
         except Exception as exc:
-            logger.error("KillSwitch: Postgres fallback failed: %s", exc)
-            return False
+            logger.error("KillSwitch: durable Postgres check failed: %s", exc)
+            raise _KillStateUnavailable(str(exc)) from exc
 
     def _postgres_record(self, reason: str, operator: str, activated_at: str) -> None:
         import psycopg
