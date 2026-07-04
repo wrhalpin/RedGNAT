@@ -90,5 +90,13 @@ class TestTechniqueResult:
         )
         sighting = r.to_stix_sighting()
         assert sighting["type"] == "sighting"
-        assert "T1046" in sighting["sighting_of_ref"]
+        # sighting_of_ref must be a valid STIX id (attack-pattern--<UUID>), not
+        # the raw ATT&CK id; the ATT&CK id is preserved in metadata.
+        ref = sighting["sighting_of_ref"]
+        assert ref.startswith("attack-pattern--")
+        uuid_part = ref.split("--", 1)[1]
+        import uuid as _uuid
+
+        assert _uuid.UUID(uuid_part)  # parses as a real UUID
+        assert sighting["x_redgnat_metadata"]["attack_technique_id"] == "T1046"
         assert sighting["x_redgnat_metadata"]["run_id"] == "run-1"

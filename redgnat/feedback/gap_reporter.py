@@ -245,8 +245,14 @@ class GapReporter:
         hypothesis_id: str | None = None,
     ) -> GapReport:
         """Build a GapReport from a completed run's results."""
+        from redgnat.orm.base import deterministic_id
+
         gaps = [r for r in results if r.status == ResultStatus.SUCCESS]
         return GapReport(
+            # Deterministic per run so the Note id emitted by /stix/gaps matches
+            # the note--<gap_id> reference in the run's Grouping, and re-pulls
+            # do not create duplicate Notes in GNAT.
+            gap_id=deterministic_id("gap", run_id),
             run_id=run_id,
             scenario_id=scenario_id,
             gaps=gaps,
@@ -284,10 +290,13 @@ class GapReporter:
             push_investigation_bundle,
         )
 
+        # The grouping must only reference objects present in this bundle so
+        # GNAT's evidence endpoint sees no dangling refs. The run's CoA is
+        # pulled separately via /stix/results, so it is not referenced here.
         grouping = build_grouping(
             report.run_id,
             report.investigation_id,  # type: ignore[arg-type]
-            [f"note--{report.gap_id}", f"course-of-action--{report.run_id}"],
+            [f"note--{report.gap_id}"],
             hypothesis_id=report.hypothesis_id,
             created=report.created_at,
         )
@@ -304,12 +313,35 @@ class GapReporter:
             report.investigation_id,  # type: ignore[arg-type]
             bundle,
         )
+        if not ok and error_type == "conflict":
+            # Investigation was closed between run start and push (409) —
+            # retry once asking GNAT to reopen it for this evidence.
+            logger.warning(
+                "GapReporter: investigation %s is closed (409) — retrying push with reopen",
+                report.investigation_id,
+            )
+            ok, error_type = push_investigation_bundle(
+                self.config.gnat_api_base_url,
+                self.config.gnat_api_key,
+                report.investigation_id,  # type: ignore[arg-type]
+                bundle,
+                reopen=True,
+            )
+
         if ok:
             logger.info(
                 "GapReporter: pushed gap bundle for run %s to investigation %s (%d gaps)",
                 report.run_id,
                 report.investigation_id,
                 len(report.gaps),
+            )
+        else:
+            logger.error(
+                "GapReporter: FAILED to push gap bundle for run %s to investigation %s "
+                "(error=%s) — gap intelligence was NOT delivered",
+                report.run_id,
+                report.investigation_id,
+                error_type,
             )
         return ok
 

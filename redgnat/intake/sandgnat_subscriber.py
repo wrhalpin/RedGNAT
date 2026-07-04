@@ -16,6 +16,7 @@ from typing import Iterator
 
 from redgnat.config import RedGNATConfig
 from redgnat.intake.base import IntelSubscriber
+from redgnat.orm.base import deterministic_id
 from redgnat.orm.models import IntelFeed, IntelSource
 
 logger = logging.getLogger(__name__)
@@ -122,6 +123,9 @@ class SandGNATSubscriber(IntelSubscriber):
         sample_name: str = analysis.get("sample_name", "unknown")
 
         yield IntelFeed(
+            # Deterministic feed_id so re-polling the same analysis upserts the
+            # same row instead of accumulating duplicate feeds/scenarios/runs.
+            feed_id=deterministic_id("sandgnat", analysis_id),
             source=IntelSource.SANDGNAT,
             source_ref_id=analysis_id,
             stix_bundle=bundle,

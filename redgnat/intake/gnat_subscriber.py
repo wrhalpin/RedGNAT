@@ -13,6 +13,7 @@ from typing import Iterator
 
 from redgnat.config import RedGNATConfig
 from redgnat.intake.base import IntelSubscriber
+from redgnat.orm.base import deterministic_id
 from redgnat.orm.models import IntelFeed, IntelSource
 
 logger = logging.getLogger(__name__)
@@ -128,6 +129,9 @@ class GNATSubscriber(IntelSubscriber):
             stix_bundle = {"type": "bundle", "objects": []}
 
         yield IntelFeed(
+            # Deterministic feed_id so re-polling the same campaign upserts the
+            # same row instead of accumulating duplicate feeds/scenarios/runs.
+            feed_id=deterministic_id("gnat", campaign_id),
             source=IntelSource.GNAT,
             source_ref_id=campaign_id,
             stix_bundle=stix_bundle,

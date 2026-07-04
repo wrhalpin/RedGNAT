@@ -270,6 +270,17 @@ class RedGNATConfig:
     def feedback_max_probes(self) -> int:
         return int(self._get("feedback", "max_probes_per_report", "10"))
 
+    @property
+    def feedback_max_probe_depth(self) -> int:
+        """
+        Maximum generations in the gap->probe->emulate feedback loop.
+
+        A run triggered by a probe carries a depth; once it reaches this cap
+        no further probes are generated, bounding the self-amplifying loop
+        (which the rule-based follow-on table can otherwise cycle forever).
+        """
+        return int(self._get("feedback", "max_probe_depth", "3"))
+
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------

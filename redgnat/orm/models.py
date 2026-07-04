@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-from redgnat.orm.base import RedGNATBase, _utcnow, new_uuid
+from redgnat.orm.base import RedGNATBase, _utcnow, deterministic_id, new_uuid
 
 
 class IntelSource(str, Enum):
@@ -335,13 +335,18 @@ class TechniqueResult(RedGNATBase):
 
     def to_stix_sighting(self) -> dict[str, Any]:
         """Export as a minimal STIX 2.1 Sighting object for push-back to GNAT."""
+        # sighting_of_ref must be a valid STIX id (type--UUID). Derive a stable
+        # UUIDv5 from the ATT&CK id so every sighting of the same technique
+        # references the same attack-pattern id; the raw ATT&CK id is preserved
+        # in x_redgnat_metadata for lookup.
+        attack_pattern_id = f"attack-pattern--{deterministic_id('mitre-attack', self.technique_id)}"
         return {
             "type": "sighting",
             "spec_version": "2.1",
             "id": f"sighting--{self.result_id}",
             "created": self.executed_at.isoformat(),
             "modified": self.executed_at.isoformat(),
-            "sighting_of_ref": f"attack-pattern--{self.technique_id}",
+            "sighting_of_ref": attack_pattern_id,
             "count": len(self.findings),
             "x_redgnat_metadata": {
                 "run_id": self.run_id,
@@ -349,5 +354,6 @@ class TechniqueResult(RedGNATBase):
                 "feed_id": self.feed_id,
                 "status": self.status.value,
                 "tactic": self.tactic,
+                "attack_technique_id": self.technique_id,
             },
         }

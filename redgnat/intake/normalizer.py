@@ -13,6 +13,7 @@ from __future__ import annotations
 import logging
 
 from redgnat.config import RedGNATConfig
+from redgnat.orm.base import deterministic_id
 from redgnat.orm.models import EmulationScenario, IntelFeed, ScenarioStatus
 
 logger = logging.getLogger(__name__)
@@ -107,6 +108,10 @@ class IntelNormalizer:
         )
 
         return EmulationScenario(
+            # Deterministic scenario_id keyed on the feed so re-ingesting the
+            # same intel upserts the same scenario (and the existing-runs guard
+            # in ingest_intel_task then prevents re-emulation).
+            scenario_id=deterministic_id("scenario", feed.feed_id),
             name=feed.campaign_name or f"Auto: {feed.source_ref_id[:8]}",
             description=description,
             feed_id=feed.feed_id,

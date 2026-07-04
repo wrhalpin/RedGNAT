@@ -102,25 +102,26 @@ class RedGNATConnector:
         Parameters
         ----------
         object_type : str
-            "course-of-action" (run summaries) or "sighting" (technique results).
+            "course-of-action" (run summaries), "sighting" (technique results),
+            "note" (gap intelligence), or "grouping" (investigation envelopes).
 
         Returns
         -------
         list[dict]
             STIX-shaped dicts compatible with GNAT's ORM.
         """
-        if object_type == "course-of-action":
-            runs = self._get("/api/v1/stix/results")
-            return runs if isinstance(runs, list) else []
-        elif object_type == "sighting":
-            sightings = self._get("/api/v1/stix/sightings")
-            return sightings if isinstance(sightings, list) else []
-        elif object_type == "note":
-            notes = self._get("/api/v1/stix/gaps")
-            return notes if isinstance(notes, list) else []
-        else:
+        endpoints = {
+            "course-of-action": "/api/v1/stix/results",
+            "sighting": "/api/v1/stix/sightings",
+            "note": "/api/v1/stix/gaps",
+            "grouping": "/api/v1/stix/groupings",
+        }
+        endpoint = endpoints.get(object_type)
+        if endpoint is None:
             logger.debug("RedGNATConnector: unsupported object_type %s", object_type)
             return []
+        objs = self._get(endpoint)
+        return objs if isinstance(objs, list) else []
 
     def get_object(self, object_id: str) -> dict | None:
         try:

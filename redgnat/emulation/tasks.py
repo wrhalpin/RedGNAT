@@ -95,6 +95,20 @@ def run_scenario_task(self, run_id: str) -> dict:
         raise self.retry(exc=exc)
 
 
+def _parse_probe_depth(triggered_by: str) -> int:
+    """Extract the probe generation depth from a triggered_by tag.
+
+    Probe-driven runs are tagged ``probe:<id>:d<N>``; all other runs are
+    depth 0 (the root of a feedback chain).
+    """
+    if triggered_by and ":d" in triggered_by:
+        try:
+            return int(triggered_by.rsplit(":d", 1)[1])
+        except ValueError:
+            return 0
+    return 0
+
+
 def _run_feedback(config: Any, run: Any, results: list) -> None:
     """Build gap report, push to GNAT, and generate follow-on probes."""
     run_id: str = run.run_id
@@ -121,7 +135,16 @@ def _run_feedback(config: Any, run: Any, results: list) -> None:
         if config.feedback_push_to_gnat:
             reporter.push_to_gnat(report)
 
-        if config.feedback_probe_generation_enabled:
+        current_depth = _parse_probe_depth(getattr(run, "triggered_by", ""))
+        if current_depth >= config.feedback_max_probe_depth:
+            logger.info(
+                "_run_feedback: run %s at probe depth %d (max %d) — "
+                "not generating further probes (runaway guard)",
+                run_id,
+                current_depth,
+                config.feedback_max_probe_depth,
+            )
+        elif config.feedback_probe_generation_enabled:
             generator = ProbeGenerator(
                 config,
                 model=config.feedback_probe_model,
@@ -130,11 +153,13 @@ def _run_feedback(config: Any, run: Any, results: list) -> None:
             probes = generator.generate(report)
             if probes:
                 logger.info(
-                    "_run_feedback: queuing %d probe request(s) from gap report %s",
+                    "_run_feedback: queuing %d probe request(s) from gap report %s (depth %d)",
                     len(probes),
                     report.gap_id,
+                    current_depth + 1,
                 )
                 for probe in probes:
+                    probe.depth = current_depth + 1
                     run_probe_task.delay(probe.to_dict())
     except Exception as exc:
         logger.warning("_run_feedback: non-fatal error during feedback phase: %s", exc)
@@ -178,7 +203,11 @@ def run_probe_task(probe_dict: dict) -> dict:
     store = client._get_store()
     store.upsert_feed(feed)
     store.upsert_scenario(scenario)
-    run = client.run_scenario(scenario.scenario_id, triggered_by=f"probe:{probe.probe_id}", async_=False)
+    run = client.run_scenario(
+        scenario.scenario_id,
+        triggered_by=f"probe:{probe.probe_id}:d{probe.depth}",
+        async_=False,
+    )
     return {"probe_id": probe.probe_id, "run_id": run.run_id if run else None}
 
 

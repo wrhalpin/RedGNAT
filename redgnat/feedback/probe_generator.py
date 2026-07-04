@@ -90,6 +90,7 @@ class ProbeRequest:
     rationale: str = ""
     suggested_params: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    depth: int = 0  # generation depth in the gap->probe->emulate feedback loop
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -101,6 +102,7 @@ class ProbeRequest:
             "rationale": self.rationale,
             "suggested_params": self.suggested_params,
             "created_at": self.created_at.isoformat(),
+            "depth": self.depth,
         }
 
     @classmethod
@@ -113,6 +115,7 @@ class ProbeRequest:
             priority=d.get("priority", "high"),
             rationale=d.get("rationale", ""),
             suggested_params=d.get("suggested_params", {}),
+            depth=int(d.get("depth", 0)),
         )
         raw_ts = d.get("created_at")
         if raw_ts:
