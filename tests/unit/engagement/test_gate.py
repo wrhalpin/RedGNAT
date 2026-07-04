@@ -16,6 +16,7 @@ from redgnat.engagement.token import EngagementToken
 def _mock_config(phase2_enabled: bool = True) -> MagicMock:
     cfg = MagicMock()
     cfg.phase2_enabled = phase2_enabled
+    cfg.phase2_unlock_secret = ""
     cfg.redis_url = "redis://localhost:6379/0"
     return cfg
 
@@ -45,6 +46,28 @@ class TestEngagementGateCheck:
         assert authorized is False
         assert "Gate 2" in reason
         assert _UNLOCK_ENV_VAR in reason
+
+    def test_gate2_fails_when_secret_mismatch(self, monkeypatch):
+        monkeypatch.setenv(_UNLOCK_ENV_VAR, "wrong-value")
+        cfg = _mock_config()
+        cfg.phase2_unlock_secret = "the-real-secret"
+        gate = EngagementGate(cfg)
+        authorized, reason = gate.check()
+        assert authorized is False
+        assert "Gate 2" in reason
+        assert "does not match" in reason
+
+    def test_gate2_passes_when_secret_matches(self, monkeypatch):
+        monkeypatch.setenv(_UNLOCK_ENV_VAR, "the-real-secret")
+        cfg = _mock_config()
+        cfg.phase2_unlock_secret = "the-real-secret"
+        gate = EngagementGate(cfg)
+        mock_redis = MagicMock()
+        import json
+        mock_redis.get.return_value = json.dumps(_valid_token().to_dict()).encode()
+        with patch.object(gate, "_redis", return_value=mock_redis):
+            authorized, _ = gate.check()
+        assert authorized is True
 
     def test_gate3_fails_when_no_token(self, monkeypatch):
         monkeypatch.setenv(_UNLOCK_ENV_VAR, "unlocked")

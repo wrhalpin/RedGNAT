@@ -52,6 +52,17 @@ class RedGNATConfig:
         return self._cfg.getboolean("redgnat", "phase2_enabled", fallback=False)
 
     @property
+    def phase2_unlock_secret(self) -> str:
+        """
+        Expected value for the Gate 2 unlock env var (REDGNAT_PHASE2_UNLOCK).
+
+        When set, Gate 2 requires the env var to match this exact value — a
+        real shared secret rather than mere presence. Empty (default) keeps
+        the presence-only check for backward compatibility.
+        """
+        return self._get("redgnat", "phase2_unlock_secret", "")
+
+    @property
     def log_level(self) -> str:
         return self._get("redgnat", "log_level", "INFO").upper()
 
