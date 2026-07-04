@@ -131,3 +131,42 @@ class TestEngagementRunner:
             results = runner.execute(run, object())
         assert run.status == RunStatus.EXPIRED
         assert results[0].status == ResultStatus.EXPIRED
+
+    def test_gate_check_error_fails_closed(self):
+        # If the gate check itself raises, the engagement must halt (fail
+        # closed), not proceed.
+        runner = EngagementRunner(RedGNATConfig(path="/nope.ini"))
+        plan = _plan(_OkTechnique)
+        run = EmulationRun(run_id="r1", scenario_id="s1")
+        store = MagicMock()
+        builder = MagicMock()
+        builder.build_plan.return_value = plan
+        ks = MagicMock()
+        ks.is_active.return_value = False
+        gate = MagicMock()
+        gate.check.side_effect = RuntimeError("redis down")
+        with patch("redgnat.scenarios.store.ScenarioStore", return_value=store), \
+             patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder), \
+             patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks), \
+             patch("redgnat.engagement.gate.EngagementGate", return_value=gate):
+            results = runner.execute(run, object())
+        assert run.status == RunStatus.EXPIRED
+        assert results[0].status == ResultStatus.EXPIRED
+
+
+class TestRunnerTopLevelError:
+    def test_store_error_during_loop_marks_failed(self):
+        runner = EmulationRunner(RedGNATConfig(path="/nope.ini"))
+        run = EmulationRun(run_id="r1", scenario_id="s1")
+        store = MagicMock()
+        # persisting a result mid-loop blows up -> outer handler -> FAILED
+        store.insert_result.side_effect = RuntimeError("db gone")
+        builder = MagicMock()
+        builder.build_plan.return_value = _plan(_OkTechnique)
+        ks = MagicMock()
+        ks.is_active.return_value = False
+        with patch("redgnat.scenarios.store.ScenarioStore", return_value=store), \
+             patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder), \
+             patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks):
+            runner.execute(run, object())
+        assert run.status == RunStatus.FAILED
