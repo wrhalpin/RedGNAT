@@ -3,6 +3,7 @@
 """STIX export routes — consumed by the GNAT RedGNATConnector plugin."""
 from __future__ import annotations
 
+from datetime import UTC
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -165,7 +166,7 @@ def _stamp(stix_obj: dict[str, Any], run: Any) -> None:
 
 
 def _run_to_stix_coa(run: Any, scenario: Any, results: list[Any]) -> dict:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     status_counts: dict[str, int] = {}
     for r in results:
@@ -175,8 +176,8 @@ def _run_to_stix_coa(run: Any, scenario: Any, results: list[Any]) -> dict:
         "type": "course-of-action",
         "spec_version": "2.1",
         "id": f"course-of-action--{run.run_id}",
-        "created": (run.started_at or datetime.now(timezone.utc)).isoformat(),
-        "modified": (run.completed_at or datetime.now(timezone.utc)).isoformat(),
+        "created": (run.started_at or datetime.now(UTC)).isoformat(),
+        "modified": (run.completed_at or datetime.now(UTC)).isoformat(),
         "name": f"CART Run: {scenario.name}",
         "description": (
             f"Automated red team emulation run. "

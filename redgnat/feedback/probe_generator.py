@@ -29,7 +29,7 @@ import json
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from redgnat.feedback.gap_reporter import GapReport
@@ -89,7 +89,7 @@ class ProbeRequest:
     priority: str = "high"
     rationale: str = ""
     suggested_params: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     depth: int = 0  # generation depth in the gap->probe->emulate feedback loop
 
     def to_dict(self) -> dict[str, Any]:

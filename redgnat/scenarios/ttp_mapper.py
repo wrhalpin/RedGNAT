@@ -181,6 +181,11 @@ class TTPMapper:
     def technique_name(self, technique_id: str) -> str:
         """Return the human-readable name for a technique ID, or the ID itself."""
         info = _TECHNIQUE_MAP.get(technique_id)
+        if info:
+            return info.name
+        # Try parent technique for subtechniques (e.g. T1078.004 -> T1078)
+        parent = technique_id.split(".")[0]
+        info = _TECHNIQUE_MAP.get(parent)
         return info.name if info else technique_id
 
     def all_technique_ids(self) -> list[str]:

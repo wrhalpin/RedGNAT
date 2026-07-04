@@ -20,7 +20,7 @@ import json
 import logging
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ def build_grouping(
     created : datetime | None
         Grouping creation timestamp; defaults to UTC now.
     """
-    ts = (created or datetime.now(timezone.utc)).isoformat()
+    ts = (created or datetime.now(UTC)).isoformat()
     grouping: dict[str, Any] = {
         "type": "grouping",
         "spec_version": "2.1",

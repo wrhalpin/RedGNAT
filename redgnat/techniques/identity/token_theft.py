@@ -28,7 +28,7 @@ import json
 import logging
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from redgnat.orm.models import ResultStatus
@@ -40,6 +40,18 @@ _GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 # Impossible travel threshold — sign-ins from two locations within this window
 # that are geographically impossible given the time difference
 _IMPOSSIBLE_TRAVEL_MINUTES = 60
+
+
+def _minutes_apart(ts_a: str, ts_b: str) -> float | None:
+    """Minutes between two ISO-8601 timestamps, or None if unparseable."""
+    if not ts_a or not ts_b:
+        return None
+    try:
+        a = datetime.fromisoformat(ts_a.replace("Z", "+00:00"))
+        b = datetime.fromisoformat(ts_b.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return abs((b - a).total_seconds()) / 60.0
 # Session longevity threshold — flag sessions older than this
 _LONG_SESSION_HOURS = 24
 
@@ -86,7 +98,7 @@ class TokenTheftTechnique(Technique):
 
         findings: list[dict] = []
         errors: list[str] = []
-        since = datetime.now(timezone.utc) - timedelta(hours=lookback_hours)
+        since = datetime.now(UTC) - timedelta(hours=lookback_hours)
 
         def _domain_allowed(host: str) -> bool:
             # Safe-harbor: enforce domain scope when configured; fall back to
@@ -222,14 +234,18 @@ class TokenTheftTechnique(Technique):
                 "interpretation": "Potential session hijack or token replay",
             })
 
-        # Detect MFA bypass events
-        mfa_bypass = [
-            e for e in events
-            if any(
-                "MFA" not in str(a.get("authenticationContext", ""))
-                for a in [e]
-            )
+        # Detect sign-ins that completed without an MFA authentication context
+        mfa_absent = [
+            e for e in events if "MFA" not in str(e.get("authenticationContext", ""))
         ]
+        if mfa_absent:
+            findings.append(
+                {
+                    "category": "okta_mfa_absent",
+                    "count": len(mfa_absent),
+                    "detail": "Sign-in events observed without an MFA authentication context",
+                }
+            )
 
         return findings
 
@@ -252,19 +268,25 @@ class TokenTheftTechnique(Technique):
                 a, b = sorted_events[i], sorted_events[i + 1]
                 ip_a = a.get("ipAddress", "")
                 ip_b = b.get("ipAddress", "")
-                if ip_a and ip_b and ip_a != ip_b:
-                    # Simple: flag all different-IP pairs within the window
-                    impossible.append(
-                        {
-                            "upn": upn,
-                            "ip_a": ip_a,
-                            "ip_b": ip_b,
-                            "time_a": a.get("createdDateTime"),
-                            "time_b": b.get("createdDateTime"),
-                            "location_a": a.get("location", {}).get("city"),
-                            "location_b": b.get("location", {}).get("city"),
-                        }
-                    )
+                if not (ip_a and ip_b and ip_a != ip_b):
+                    continue
+                # Only flag different-IP sign-ins close enough in time that the
+                # physical travel between them would be impossible.
+                mins = _minutes_apart(a.get("createdDateTime", ""), b.get("createdDateTime", ""))
+                if mins is None or mins > _IMPOSSIBLE_TRAVEL_MINUTES:
+                    continue
+                impossible.append(
+                    {
+                        "upn": upn,
+                        "ip_a": ip_a,
+                        "ip_b": ip_b,
+                        "time_a": a.get("createdDateTime"),
+                        "time_b": b.get("createdDateTime"),
+                        "minutes_apart": round(mins, 1),
+                        "location_a": a.get("location", {}).get("city"),
+                        "location_b": b.get("location", {}).get("city"),
+                    }
+                )
         return impossible
 
     @staticmethod
@@ -283,8 +305,14 @@ class TokenTheftTechnique(Technique):
                 a, b = sorted_evts[i], sorted_evts[i + 1]
                 ip_a = a.get("client", {}).get("ipAddress", "")
                 ip_b = b.get("client", {}).get("ipAddress", "")
-                if ip_a and ip_b and ip_a != ip_b:
-                    impossible.append({"upn": upn, "ip_a": ip_a, "ip_b": ip_b})
+                if not (ip_a and ip_b and ip_a != ip_b):
+                    continue
+                mins = _minutes_apart(a.get("published", ""), b.get("published", ""))
+                if mins is None or mins > _IMPOSSIBLE_TRAVEL_MINUTES:
+                    continue
+                impossible.append(
+                    {"upn": upn, "ip_a": ip_a, "ip_b": ip_b, "minutes_apart": round(mins, 1)}
+                )
         return impossible
 
     def _get_entra_token(self, cfg: Any) -> str:

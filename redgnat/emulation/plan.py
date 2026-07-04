@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 from redgnat.techniques.base import Scope
 
 if TYPE_CHECKING:
-    from redgnat.techniques.base import Technique
+    pass
 
 
 @dataclass

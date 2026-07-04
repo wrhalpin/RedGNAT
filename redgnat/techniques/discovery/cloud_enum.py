@@ -275,8 +275,8 @@ class CloudEnumTechnique(Technique):
     def _enum_aws(self, cfg: Any, max_users: int, max_groups: int) -> list[dict]:
         try:
             import boto3  # type: ignore[import]
-        except ImportError:
-            raise RuntimeError("boto3 not installed — pip install boto3")
+        except ImportError as exc:
+            raise RuntimeError("boto3 not installed — pip install boto3") from exc
 
         session_kwargs: dict[str, Any] = {
             "aws_access_key_id": cfg.aws_access_key_id,

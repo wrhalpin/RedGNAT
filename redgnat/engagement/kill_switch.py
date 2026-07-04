@@ -22,7 +22,7 @@ Paths to the kill switch (in order of preference):
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -118,7 +118,7 @@ class KillSwitch:
         dict
             Summary of what was done and any errors encountered.
         """
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         report: dict = {
             "activated_at": now,
             "operator": operator,
@@ -248,7 +248,7 @@ class KillSwitch:
     def _postgres_clear(self, cleared_by: str) -> None:
         import psycopg
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         with psycopg.connect(self.config.db_url) as conn:
             conn.execute(
                 """

@@ -15,9 +15,8 @@ import abc
 import ipaddress
 import logging
 import time
-import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -147,7 +146,7 @@ class TechniqueContext:
     feed_id: str
     scope: Scope
     params: dict[str, Any] = field(default_factory=dict)
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class OutOfScopeError(Exception):

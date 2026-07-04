@@ -7,7 +7,7 @@ import logging
 from typing import Any
 
 from redgnat.config import RedGNATConfig
-from redgnat.orm.models import EmulationRun, EmulationScenario, IntelFeed, RunStatus
+from redgnat.orm.models import EmulationRun, EmulationScenario, IntelFeed
 
 logger = logging.getLogger(__name__)
 
@@ -47,13 +47,11 @@ class RedGNATClient:
             Newly ingested feed records.
         """
         from redgnat.intake.gnat_subscriber import GNATSubscriber
-        from redgnat.intake.sandgnat_subscriber import SandGNATSubscriber
         from redgnat.intake.normalizer import IntelNormalizer
-        from redgnat.scenarios.builder import ScenarioBuilder
+        from redgnat.intake.sandgnat_subscriber import SandGNATSubscriber
 
         feeds: list[IntelFeed] = []
         normalizer = IntelNormalizer(self.config)
-        builder = ScenarioBuilder(self.config)
         store = self._get_store()
 
         for sub in [GNATSubscriber(self.config), SandGNATSubscriber(self.config)]:

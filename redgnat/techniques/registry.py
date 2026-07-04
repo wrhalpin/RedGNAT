@@ -10,7 +10,7 @@ To add a new technique:
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from redgnat.techniques.base import Technique
@@ -19,24 +19,24 @@ if TYPE_CHECKING:
 # Registry — populated at module import time
 # ------------------------------------------------------------------
 # Discovery
-from redgnat.techniques.discovery.network_scan import NetworkScanTechnique
 from redgnat.techniques.discovery.ad_enum import ADEnumTechnique
-from redgnat.techniques.discovery.service_enum import ServiceEnumTechnique
 from redgnat.techniques.discovery.cloud_enum import CloudEnumTechnique
-
-# Phishing
-from redgnat.techniques.phishing.spearphishing_link import SpearphishingLinkTechnique
-from redgnat.techniques.phishing.spearphishing_attachment import SpearphishingAttachmentTechnique
-from redgnat.techniques.phishing.mfa_phishing import MFAPhishingTechnique
-
-# Identity
-from redgnat.techniques.identity.password_spray import PasswordSprayTechnique
+from redgnat.techniques.discovery.network_scan import NetworkScanTechnique
+from redgnat.techniques.discovery.service_enum import ServiceEnumTechnique
 from redgnat.techniques.identity.credential_stuffing import CredentialStuffingTechnique
 from redgnat.techniques.identity.mfa_fatigue import MFAFatigueTechnique
 from redgnat.techniques.identity.oauth_abuse import OAuthAbuseTechnique
-from redgnat.techniques.identity.token_theft import TokenTheftTechnique
 
-TECHNIQUE_REGISTRY: dict[str, Type["Technique"]] = {
+# Identity
+from redgnat.techniques.identity.password_spray import PasswordSprayTechnique
+from redgnat.techniques.identity.token_theft import TokenTheftTechnique
+from redgnat.techniques.phishing.mfa_phishing import MFAPhishingTechnique
+from redgnat.techniques.phishing.spearphishing_attachment import SpearphishingAttachmentTechnique
+
+# Phishing
+from redgnat.techniques.phishing.spearphishing_link import SpearphishingLinkTechnique
+
+TECHNIQUE_REGISTRY: dict[str, type[Technique]] = {
     # -----------------------------------------------------------------------
     # Discovery / Reconnaissance
     # -----------------------------------------------------------------------
@@ -45,7 +45,10 @@ TECHNIQUE_REGISTRY: dict[str, Type["Technique"]] = {
     "T1087.002": ADEnumTechnique,
     "T1069.002": ADEnumTechnique,
     "T1482": ADEnumTechnique,
-    "T1046.service": ServiceEnumTechnique,  # extended service banner variant
+    # Synthetic internal alias (NOT a real ATT&CK sub-id): both NetworkScan and
+    # ServiceEnum map to ATT&CK T1046, so ServiceEnum is registered under a
+    # distinct key to keep it dispatchable while T1046 resolves to NetworkScan.
+    "T1046.service": ServiceEnumTechnique,
     "T1087.004": CloudEnumTechnique,
     "T1069.003": CloudEnumTechnique,
     "T1526": CloudEnumTechnique,
@@ -66,7 +69,7 @@ TECHNIQUE_REGISTRY: dict[str, Type["Technique"]] = {
 }
 
 
-def get_technique(technique_id: str) -> "Type[Technique] | None":
+def get_technique(technique_id: str) -> type[Technique] | None:
     """Return the Technique class for an ATT&CK ID, or None if not registered."""
     return TECHNIQUE_REGISTRY.get(technique_id)
 

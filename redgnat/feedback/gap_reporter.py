@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from redgnat.orm.models import ResultStatus, TechniqueResult
@@ -57,7 +57,7 @@ class GapReport:
     run_id: str = ""
     scenario_id: str = ""
     gaps: list[TechniqueResult] = field(default_factory=list)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     investigation_id: str | None = None
     hypothesis_id: str | None = None
     all_results: list[TechniqueResult] = field(default_factory=list)

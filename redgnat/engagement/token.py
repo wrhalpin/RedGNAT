@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 _REDIS_KEY = "redgnat:engage:token"
@@ -37,13 +37,13 @@ class EngagementToken:
 
     token_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     operator: str = ""
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    expires_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    expires_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @classmethod
     def create(cls, operator: str, duration_hours: float) -> "EngagementToken":
         """Create a new token valid for *duration_hours* from now."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             operator=operator,
             created_at=now,
@@ -53,12 +53,12 @@ class EngagementToken:
     @property
     def is_valid(self) -> bool:
         """True if the token has not yet expired."""
-        return datetime.now(timezone.utc) < self.expires_at
+        return datetime.now(UTC) < self.expires_at
 
     @property
     def remaining_seconds(self) -> float:
         """Seconds until the token expires; 0.0 if already expired."""
-        delta = (self.expires_at - datetime.now(timezone.utc)).total_seconds()
+        delta = (self.expires_at - datetime.now(UTC)).total_seconds()
         return max(delta, 0.0)
 
     def to_dict(self) -> dict[str, Any]:

@@ -46,8 +46,8 @@ async def submit_probe_request(body: dict = Body(...)) -> dict:
 @router.get("/intel/techniques")
 async def list_registered_techniques() -> list[dict]:
     """List all registered ATT&CK technique IDs and their metadata."""
-    from redgnat.techniques.registry import list_technique_ids
     from redgnat.scenarios.ttp_mapper import TTPMapper
+    from redgnat.techniques.registry import list_technique_ids
 
     mapper = TTPMapper()
     result = []

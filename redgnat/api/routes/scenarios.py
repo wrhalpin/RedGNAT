@@ -97,4 +97,4 @@ async def trigger_run(scenario_id: str, body: dict = Body(default={})) -> dict:
         )
         return run.to_dict()
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=404, detail=str(exc)) from exc

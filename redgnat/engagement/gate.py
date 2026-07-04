@@ -154,8 +154,8 @@ class EngagementGate:
 
     def status(self) -> dict:
         """Return a structured dict describing the current gate state."""
-        from redgnat.engagement.token import EngagementToken
         from redgnat.engagement.kill_switch import KillSwitch
+        from redgnat.engagement.token import EngagementToken
 
         gate1 = self.config.phase2_enabled
         gate2 = bool(os.environ.get(_UNLOCK_ENV_VAR, "").strip())

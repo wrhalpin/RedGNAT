@@ -149,7 +149,7 @@ class SpearphishingLinkTechnique(Technique):
 
             # Create and launch campaign
             import datetime as dt
-            now = dt.datetime.now(dt.timezone.utc)
+            now = dt.datetime.now(dt.UTC)
             launch_date = now.strftime("%Y-%m-%dT%H:%M:%S+00:00")
             send_by = now + dt.timedelta(hours=campaign_hours)
             send_by_date = send_by.strftime("%Y-%m-%dT%H:%M:%S+00:00")

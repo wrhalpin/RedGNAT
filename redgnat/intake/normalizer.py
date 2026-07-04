@@ -64,8 +64,8 @@ class IntelNormalizer:
         -------
         EmulationScenario | None
         """
-        from redgnat.techniques.registry import TECHNIQUE_REGISTRY
         from redgnat.scenarios.ttp_mapper import TTPMapper
+        from redgnat.techniques.registry import TECHNIQUE_REGISTRY
 
         mapper = TTPMapper()
 

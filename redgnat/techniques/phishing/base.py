@@ -13,9 +13,9 @@ from __future__ import annotations
 
 import json
 import logging
+import ssl
 import urllib.parse
 import urllib.request
-import ssl
 from typing import Any
 
 logger = logging.getLogger(__name__)

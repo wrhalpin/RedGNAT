@@ -64,12 +64,14 @@ class ScenarioBuilder:
                 )
                 continue
 
-            info = self._mapper.get(tid)
+            # Use the fallback-aware lookups so a subtechnique missing from the
+            # static map still resolves its tactic/name via the parent instead
+            # of being recorded as "unknown".
             steps.append(
                 PlannedStep(
                     technique_id=tid,
-                    tactic=info.tactic if info else "unknown",
-                    technique_name=info.name if info else tid,
+                    tactic=self._mapper.technique_tactic(tid),
+                    technique_name=self._mapper.technique_name(tid),
                     technique_cls=technique_cls,
                     params={},
                 )

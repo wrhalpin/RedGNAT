@@ -16,7 +16,7 @@ import shutil
 from typing import Any
 
 from redgnat.orm.models import ResultStatus
-from redgnat.techniques.base import OutOfScopeError, Scope, Technique, TechniqueContext
+from redgnat.techniques.base import Technique, TechniqueContext
 
 logger = logging.getLogger(__name__)
 

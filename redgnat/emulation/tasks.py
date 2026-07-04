@@ -92,7 +92,7 @@ def run_scenario_task(self, run_id: str) -> dict:
         }
     except Exception as exc:
         logger.exception("run_scenario_task failed for run %s: %s", run_id, exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc
 
 
 def _parse_probe_depth(triggered_by: str) -> int:
@@ -173,8 +173,8 @@ def run_probe_task(probe_dict: dict) -> dict:
     Called automatically after gap analysis; can also be triggered externally
     via POST /api/v1/intel/probe-request.
     """
-    from redgnat.feedback.probe_generator import ProbeRequest
     from redgnat.client import RedGNATClient
+    from redgnat.feedback.probe_generator import ProbeRequest
     from redgnat.orm.models import IntelFeed, IntelSource
 
     probe = ProbeRequest.from_dict(probe_dict)
@@ -236,8 +236,8 @@ def run_engagement_task(self, run_id: str) -> dict:
         Summary including gate check result and run outcome.
     """
     from redgnat.client import RedGNATClient
-    from redgnat.engagement.gate import EngagementGate
     from redgnat.emulation.runner import EngagementRunner
+    from redgnat.engagement.gate import EngagementGate
     from redgnat.orm.models import RunStatus
 
     client = RedGNATClient()

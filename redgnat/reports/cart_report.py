@@ -10,7 +10,7 @@ sections: ATT&CK coverage heatmap, gap analysis, and per-technique drill-down.
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from redgnat.orm.models import EmulationRun, EmulationScenario, ResultStatus, TechniqueResult
@@ -63,7 +63,7 @@ class CARTReport:
         return {
             "scenario_name": self.scenario.name,
             "run_id": self.run.run_id,
-            "report_generated_at": datetime.now(timezone.utc).isoformat(),
+            "report_generated_at": datetime.now(UTC).isoformat(),
             "execution_summary": {
                 "techniques_executed": total,
                 "successful_emulations": successes,

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from redgnat.config import RedGNATConfig
 from redgnat.emulation.plan import EmulationPlan
@@ -68,7 +68,7 @@ class EmulationRunner:
         plan = builder.build_plan(scenario, run)
 
         run.status = RunStatus.RUNNING
-        run.started_at = datetime.now(timezone.utc)
+        run.started_at = datetime.now(UTC)
         store.upsert_run(run)
 
         results: list[TechniqueResult] = []
@@ -125,7 +125,7 @@ class EmulationRunner:
         else:
             run.status = self._aggregate_status(stop_reason, results)
         finally:
-            run.completed_at = datetime.now(timezone.utc)
+            run.completed_at = datetime.now(UTC)
             store.upsert_run(run)
             store.close()
 
@@ -177,7 +177,7 @@ class EmulationRunner:
                 findings=[],
                 evidence=[],
                 error=str(exc),
-                executed_at=datetime.now(timezone.utc),
+                executed_at=datetime.now(UTC),
             )
 
         return result
@@ -234,7 +234,7 @@ class EmulationRunner:
             findings=[],
             evidence=[],
             error=reason,
-            executed_at=datetime.now(timezone.utc),
+            executed_at=datetime.now(UTC),
         )
 
 
