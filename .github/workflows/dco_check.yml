@@ -11,4 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tim-actions/dco@master
+        with:
+          # DCO needs the full commit range of the PR to validate every commit;
+          # the default shallow clone makes the action fail to parse the range.
+          fetch-depth: 0
+      - uses: tim-actions/dco@v1.1.0

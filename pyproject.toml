@@ -111,3 +111,17 @@ python_version = "3.11"
 strict = false
 ignore_missing_imports = true
 warn_unused_ignores = true
+
+[tool.pylint.main]
+# Optional/lazy-imported integrations are not installed in lint envs; don't
+# treat their imports as errors.
+ignored-modules = ["gnat", "gnat.agents", "gnat.reports", "ldap3", "nmap", "boto3"]
+# The codebase deliberately uses lazy imports (to keep optional deps optional
+# and break import cycles) and shares result-shaping across parallel technique
+# modules; enforce overall quality via a score floor rather than chasing a
+# perfect 10/10.
+fail-under = 8.5
+
+[tool.pylint.format]
+# Line length is governed by ruff (E501 there); keep pylint from duplicating it.
+max-line-length = 100
