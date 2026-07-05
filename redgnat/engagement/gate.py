@@ -14,6 +14,7 @@ All three factors must be satisfied simultaneously for Phase 2 to proceed:
 
 Failing any single gate blocks Phase 2 regardless of the other two.
 """
+
 from __future__ import annotations
 
 import logging
@@ -38,6 +39,28 @@ class EngagementGate:
     def __init__(self, config: Any) -> None:
         self.config = config
 
+    def _check_unlock_env(self) -> tuple[bool, str]:
+        """
+        Validate Gate 2 — the runtime unlock env var.
+
+        If ``phase2_unlock_secret`` is configured the env var must match it
+        exactly (a real shared secret); otherwise any non-empty value passes
+        (presence check, for backward compatibility).
+        """
+        unlock = os.environ.get(_UNLOCK_ENV_VAR, "").strip()
+        if not unlock:
+            return False, (
+                f"Gate 2 failed: {_UNLOCK_ENV_VAR} is not set in the process environment. "
+                "Inject the activation secret at runtime before starting the worker."
+            )
+        expected = (self.config.phase2_unlock_secret or "").strip()
+        if expected and unlock != expected:
+            return False, (
+                f"Gate 2 failed: {_UNLOCK_ENV_VAR} does not match the configured "
+                "phase2_unlock_secret."
+            )
+        return True, "Gate 2 passed."
+
     def check(self) -> tuple[bool, str]:
         """
         Evaluate all three gates in order.
@@ -56,13 +79,11 @@ class EngagementGate:
                 "Add 'phase2_enabled = true' to enable Phase 2."
             )
 
-        # Gate 2 — environment variable present and non-empty
-        unlock = os.environ.get(_UNLOCK_ENV_VAR, "").strip()
-        if not unlock:
-            return False, (
-                f"Gate 2 failed: {_UNLOCK_ENV_VAR} is not set in the process environment. "
-                "Inject the activation secret at runtime before starting the worker."
-            )
+        # Gate 2 — environment variable present (and matching the configured
+        # secret, if one is set)
+        ok, reason = self._check_unlock_env()
+        if not ok:
+            return False, reason
 
         # Gate 3 — valid engagement token in Redis
         try:
@@ -91,7 +112,7 @@ class EngagementGate:
             f"({remaining_min} min remaining, operator: {token.operator})"
         )
 
-    def authorize(self, operator: str, duration_hours: float) -> "Any":
+    def authorize(self, operator: str, duration_hours: float) -> Any:
         """
         Generate and store a new engagement token (gate 1 + 2 must already pass).
 
@@ -101,15 +122,11 @@ class EngagementGate:
         from redgnat.engagement.token import EngagementToken
 
         if not self.config.phase2_enabled:
-            raise RuntimeError(
-                "Cannot authorize: phase2_enabled is not set in config."
-            )
+            raise RuntimeError("Cannot authorize: phase2_enabled is not set in config.")
 
-        unlock = os.environ.get(_UNLOCK_ENV_VAR, "").strip()
-        if not unlock:
-            raise RuntimeError(
-                f"Cannot authorize: {_UNLOCK_ENV_VAR} is not set in the process environment."
-            )
+        ok, reason = self._check_unlock_env()
+        if not ok:
+            raise RuntimeError(f"Cannot authorize: {reason}")
 
         if duration_hours <= 0 or duration_hours > 24:
             raise ValueError("Engagement duration must be between 0 and 24 hours.")
@@ -136,8 +153,8 @@ class EngagementGate:
 
     def status(self) -> dict:
         """Return a structured dict describing the current gate state."""
-        from redgnat.engagement.token import EngagementToken
         from redgnat.engagement.kill_switch import KillSwitch
+        from redgnat.engagement.token import EngagementToken
 
         gate1 = self.config.phase2_enabled
         gate2 = bool(os.environ.get(_UNLOCK_ENV_VAR, "").strip())

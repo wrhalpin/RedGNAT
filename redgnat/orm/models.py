@@ -1,14 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Core ORM models for RedGNAT."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from redgnat.orm.base import RedGNATBase, _utcnow, new_uuid
+from redgnat.orm.base import RedGNATBase, _utcnow, deterministic_id, new_uuid
 
 
 class IntelSource(str, Enum):
@@ -34,7 +35,8 @@ class RunStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
     CANCELLED = "cancelled"
-    KILLED = "killed"       # stopped by kill switch mid-run
+    KILLED = "killed"  # stopped by kill switch mid-run
+    EXPIRED = "expired"  # Phase 2 engagement token expired mid-run
 
 
 class ResultStatus(str, Enum):
@@ -42,12 +44,12 @@ class ResultStatus(str, Enum):
 
     SUCCESS = "success"
     PARTIAL = "partial"
-    BLOCKED = "blocked"    # Scope check prevented execution
+    BLOCKED = "blocked"  # Scope check prevented execution
     DETECTED = "detected"  # Triggered defensive telemetry
     ERROR = "error"
     DRY_RUN = "dry_run"
-    KILLED = "killed"      # Kill switch activated mid-run; technique did not start
-    EXPIRED = "expired"    # Phase 2 engagement token expired; technique did not start
+    KILLED = "killed"  # Kill switch activated mid-run; technique did not start
+    EXPIRED = "expired"  # Phase 2 engagement token expired; technique did not start
 
 
 @dataclass
@@ -97,7 +99,7 @@ class IntelFeed(RedGNATBase):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "IntelFeed":
+    def from_dict(cls, data: dict[str, Any]) -> IntelFeed:
         return cls(
             feed_id=data.get("feed_id", new_uuid()),
             source=IntelSource(data.get("source", "gnat")),
@@ -161,7 +163,7 @@ class EmulationScenario(RedGNATBase):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "EmulationScenario":
+    def from_dict(cls, data: dict[str, Any]) -> EmulationScenario:
         return cls(
             scenario_id=data.get("scenario_id", new_uuid()),
             name=data.get("name", ""),
@@ -236,7 +238,7 @@ class EmulationRun(RedGNATBase):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "EmulationRun":
+    def from_dict(cls, data: dict[str, Any]) -> EmulationRun:
         return cls(
             run_id=data.get("run_id", new_uuid()),
             scenario_id=data.get("scenario_id", ""),
@@ -315,7 +317,7 @@ class TechniqueResult(RedGNATBase):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TechniqueResult":
+    def from_dict(cls, data: dict[str, Any]) -> TechniqueResult:
         return cls(
             result_id=data.get("result_id", new_uuid()),
             run_id=data.get("run_id", ""),
@@ -334,13 +336,18 @@ class TechniqueResult(RedGNATBase):
 
     def to_stix_sighting(self) -> dict[str, Any]:
         """Export as a minimal STIX 2.1 Sighting object for push-back to GNAT."""
+        # sighting_of_ref must be a valid STIX id (type--UUID). Derive a stable
+        # UUIDv5 from the ATT&CK id so every sighting of the same technique
+        # references the same attack-pattern id; the raw ATT&CK id is preserved
+        # in x_redgnat_metadata for lookup.
+        attack_pattern_id = f"attack-pattern--{deterministic_id('mitre-attack', self.technique_id)}"
         return {
             "type": "sighting",
             "spec_version": "2.1",
             "id": f"sighting--{self.result_id}",
             "created": self.executed_at.isoformat(),
             "modified": self.executed_at.isoformat(),
-            "sighting_of_ref": f"attack-pattern--{self.technique_id}",
+            "sighting_of_ref": attack_pattern_id,
             "count": len(self.findings),
             "x_redgnat_metadata": {
                 "run_id": self.run_id,
@@ -348,5 +355,6 @@ class TechniqueResult(RedGNATBase):
                 "feed_id": self.feed_id,
                 "status": self.status.value,
                 "tactic": self.tactic,
+                "attack_technique_id": self.technique_id,
             },
         }

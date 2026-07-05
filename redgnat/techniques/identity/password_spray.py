@@ -18,6 +18,7 @@ Use this to measure:
 - MFA enforcement coverage
 - Smart lockout / sign-in risk signal quality
 """
+
 from __future__ import annotations
 
 import logging
@@ -33,6 +34,7 @@ from redgnat.techniques.identity.base import (
     LDAPAuthClient,
     OktaAuthClient,
     _jitter_sleep,
+    _rate_delay_seconds,
 )
 
 logger = logging.getLogger(__name__)
@@ -76,6 +78,7 @@ class PasswordSprayTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         accounts = ctx.scope.target_accounts
@@ -138,37 +141,33 @@ class PasswordSprayTechnique(Technique):
                             ctx.run_id,
                         )
 
-                    _jitter_sleep(60.0 / ctx.scope.max_rate_per_minute)
+                    _jitter_sleep(_rate_delay_seconds(ctx.scope.max_rate_per_minute))
 
             # Wait between password rounds to avoid smart lockout
             if i < len(passwords) - 1:
-                logger.info(
-                    "PasswordSpray: sleeping %.0fs between rounds", inter_delay
-                )
+                logger.info("PasswordSpray: sleeping %.0fs between rounds", inter_delay)
                 time.sleep(inter_delay)
 
         findings = self._build_findings(all_results, accounts, passwords)
         status = (
-            ResultStatus.SUCCESS
-            if any(r.success for r in all_results)
-            else ResultStatus.PARTIAL
+            ResultStatus.SUCCESS if any(r.success for r in all_results) else ResultStatus.PARTIAL
         )
         return self._make_result(ctx, status, findings)
 
-    def _attempt(
-        self, cfg: Any, provider: str, account: str, password: str
-    ) -> AuthAttemptResult:
+    def _attempt(self, cfg: Any, provider: str, account: str, password: str) -> AuthAttemptResult:
         if provider == "entra" and cfg.entra_tenant_id:
-            client = EntraAuthClient(cfg.entra_tenant_id, cfg.entra_client_id)
-            return client.attempt(account, password)
+            return EntraAuthClient(cfg.entra_tenant_id, cfg.entra_client_id).attempt(
+                account, password
+            )
         elif provider == "okta" and cfg.okta_base_url:
-            client = OktaAuthClient(cfg.okta_base_url)
-            return client.attempt(account, password)
+            return OktaAuthClient(cfg.okta_base_url).attempt(account, password)
         elif provider == "ldap" and cfg.ldap_server:
-            client = LDAPAuthClient(cfg.ldap_server, cfg.ldap_port, cfg.ldap_use_ssl)
-            return client.attempt(account, password)
+            return LDAPAuthClient(cfg.ldap_server, cfg.ldap_port, cfg.ldap_use_ssl).attempt(
+                account, password
+            )
         else:
             from redgnat.techniques.identity.base import AuthAttemptResult
+
             return AuthAttemptResult(
                 provider=provider,
                 account=account,

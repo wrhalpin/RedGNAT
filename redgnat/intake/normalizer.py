@@ -8,12 +8,18 @@ emulation plans. It maps ATT&CK technique IDs found in intel to registered
 RedGNAT technique modules and builds an EmulationScenario with an ordered
 technique execution plan.
 """
+
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 
 from redgnat.config import RedGNATConfig
+from redgnat.orm.base import deterministic_id
 from redgnat.orm.models import EmulationScenario, IntelFeed, ScenarioStatus
+
+if TYPE_CHECKING:
+    from redgnat.scenarios.ttp_mapper import TTPMapper
 
 logger = logging.getLogger(__name__)
 
@@ -63,8 +69,8 @@ class IntelNormalizer:
         -------
         EmulationScenario | None
         """
-        from redgnat.techniques.registry import TECHNIQUE_REGISTRY
         from redgnat.scenarios.ttp_mapper import TTPMapper
+        from redgnat.techniques.registry import TECHNIQUE_REGISTRY
 
         mapper = TTPMapper()
 
@@ -107,6 +113,10 @@ class IntelNormalizer:
         )
 
         return EmulationScenario(
+            # Deterministic scenario_id keyed on the feed so re-ingesting the
+            # same intel upserts the same scenario (and the existing-runs guard
+            # in ingest_intel_task then prevents re-emulation).
+            scenario_id=deterministic_id("scenario", feed.feed_id),
             name=feed.campaign_name or f"Auto: {feed.source_ref_id[:8]}",
             description=description,
             feed_id=feed.feed_id,
@@ -114,7 +124,7 @@ class IntelNormalizer:
             status=ScenarioStatus.ACTIVE,
         )
 
-    def _sort_by_tactic(self, technique_ids: list[str], mapper: "TTPMapper") -> list[str]:
+    def _sort_by_tactic(self, technique_ids: list[str], mapper: TTPMapper) -> list[str]:
         """Sort technique IDs by ATT&CK kill-chain tactic order."""
 
         def tactic_rank(tid: str) -> int:

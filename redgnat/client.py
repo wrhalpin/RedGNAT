@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """RedGNATClient — top-level facade for all RedGNAT operations."""
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
 from redgnat.config import RedGNATConfig
-from redgnat.orm.models import EmulationRun, EmulationScenario, IntelFeed, RunStatus
+from redgnat.orm.models import EmulationRun, EmulationScenario, IntelFeed
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class RedGNATClient:
 
     def __init__(self, config_path: str | None = None) -> None:
         self.config = RedGNATConfig(config_path)
-        self._store: Any = None       # lazy: scenarios.store.ScenarioStore
+        self._store: Any = None  # lazy: scenarios.store.ScenarioStore
         self._normalizer_inst: Any = None  # lazy: intake.normalizer.IntelNormalizer
 
     # ------------------------------------------------------------------
@@ -47,13 +48,11 @@ class RedGNATClient:
             Newly ingested feed records.
         """
         from redgnat.intake.gnat_subscriber import GNATSubscriber
-        from redgnat.intake.sandgnat_subscriber import SandGNATSubscriber
         from redgnat.intake.normalizer import IntelNormalizer
-        from redgnat.scenarios.builder import ScenarioBuilder
+        from redgnat.intake.sandgnat_subscriber import SandGNATSubscriber
 
         feeds: list[IntelFeed] = []
         normalizer = IntelNormalizer(self.config)
-        builder = ScenarioBuilder(self.config)
         store = self._get_store()
 
         for sub in [GNATSubscriber(self.config), SandGNATSubscriber(self.config)]:

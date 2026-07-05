@@ -12,6 +12,7 @@ Usage
     redgnat scenarios
     redgnat runs [--scenario <id>]
 """
+
 from __future__ import annotations
 
 import argparse
@@ -21,6 +22,7 @@ import sys
 
 def _config():
     from redgnat.config import RedGNATConfig
+
     return RedGNATConfig()
 
 
@@ -110,7 +112,9 @@ def cmd_scenarios(args: argparse.Namespace) -> int:
         print("No scenarios found.")
         return 0
     for s in scenarios:
-        print(f"  {s.scenario_id}  {s.name!r}  status={s.status.value}  techniques={len(s.technique_ids)}")
+        print(
+            f"  {s.scenario_id}  {s.name!r}  status={s.status.value}  techniques={len(s.technique_ids)}"
+        )
     return 0
 
 

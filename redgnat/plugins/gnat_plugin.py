@@ -24,12 +24,13 @@ The connector is also auto-discoverable by GNAT via the entry point:
     [project.entry-points."gnat.connectors"]
     redgnat = "redgnat.plugins.gnat_plugin:RedGNATConnector"
 """
+
 from __future__ import annotations
 
 import json
 import logging
-import urllib.request
 import ssl
+import urllib.request
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -66,11 +67,7 @@ class RedGNATConnector:
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._api_key = api_key
-        self._ssl_ctx = (
-            ssl.create_default_context()
-            if verify_ssl
-            else self._no_verify_ctx()
-        )
+        self._ssl_ctx = ssl.create_default_context() if verify_ssl else self._no_verify_ctx()
 
     @staticmethod
     def _no_verify_ctx() -> ssl.SSLContext:
@@ -102,25 +99,26 @@ class RedGNATConnector:
         Parameters
         ----------
         object_type : str
-            "course-of-action" (run summaries) or "sighting" (technique results).
+            "course-of-action" (run summaries), "sighting" (technique results),
+            "note" (gap intelligence), or "grouping" (investigation envelopes).
 
         Returns
         -------
         list[dict]
             STIX-shaped dicts compatible with GNAT's ORM.
         """
-        if object_type == "course-of-action":
-            runs = self._get("/api/v1/stix/results")
-            return runs if isinstance(runs, list) else []
-        elif object_type == "sighting":
-            sightings = self._get("/api/v1/stix/sightings")
-            return sightings if isinstance(sightings, list) else []
-        elif object_type == "note":
-            notes = self._get("/api/v1/stix/gaps")
-            return notes if isinstance(notes, list) else []
-        else:
+        endpoints = {
+            "course-of-action": "/api/v1/stix/results",
+            "sighting": "/api/v1/stix/sightings",
+            "note": "/api/v1/stix/gaps",
+            "grouping": "/api/v1/stix/groupings",
+        }
+        endpoint = endpoints.get(object_type)
+        if endpoint is None:
             logger.debug("RedGNATConnector: unsupported object_type %s", object_type)
             return []
+        objs = self._get(endpoint)
+        return objs if isinstance(objs, list) else []
 
     def get_object(self, object_id: str) -> dict | None:
         try:

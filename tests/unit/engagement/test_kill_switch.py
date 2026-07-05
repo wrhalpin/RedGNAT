@@ -1,18 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Unit tests for KillSwitch."""
+
 from __future__ import annotations
 
-from unittest.mock import MagicMock, call, patch
-
-import pytest
+from unittest.mock import MagicMock, patch
 
 from redgnat.engagement.kill_switch import (
-    KillSwitch,
     _REDIS_KEY_ACTIVE,
     _REDIS_KEY_OPERATOR,
     _REDIS_KEY_REASON,
     _REDIS_KEY_TS,
+    KillSwitch,
 )
 
 
@@ -38,31 +37,64 @@ class TestKillSwitchIsActive:
         with patch.object(ks, "_redis", return_value=mock_redis):
             assert ks.is_active() is True
 
-    def test_returns_false_when_no_flag(self):
+    def test_returns_false_when_redis_clear_and_postgres_clear(self):
+        # Fail-closed design: a missing Redis flag is not proof of "clear";
+        # the durable Postgres record is authoritative and must confirm it.
         ks = _make_ks()
         mock_redis = MagicMock()
         mock_redis.get.return_value = None
-        with patch.object(ks, "_redis", return_value=mock_redis):
+        with (
+            patch.object(ks, "_redis", return_value=mock_redis),
+            patch.object(ks, "_postgres_is_active", return_value=False) as pg,
+        ):
             assert ks.is_active() is False
+        pg.assert_called_once()
+
+    def test_returns_true_when_redis_evicted_but_postgres_active(self):
+        # Regression: a kill record survives in Postgres after the volatile
+        # Redis flag is evicted/restarted. The switch must still read active.
+        ks = _make_ks()
+        mock_redis = MagicMock()
+        mock_redis.get.return_value = None
+        with (
+            patch.object(ks, "_redis", return_value=mock_redis),
+            patch.object(ks, "_postgres_is_active", return_value=True),
+        ):
+            assert ks.is_active() is True
 
     def test_falls_back_to_postgres_when_redis_unavailable(self):
         ks = _make_ks()
-        with patch.object(ks, "_redis", side_effect=ConnectionError("down")):
-            with patch.object(ks, "_postgres_is_active", return_value=True) as pg:
-                result = ks.is_active()
+        with (
+            patch.object(ks, "_redis", side_effect=ConnectionError("down")),
+            patch.object(ks, "_postgres_is_active", return_value=True) as pg,
+        ):
+            result = ks.is_active()
         assert result is True
         pg.assert_called_once()
+
+    def test_fails_closed_when_durable_store_unreachable(self):
+        # If neither Redis nor Postgres can confirm state, halt (return True).
+        from redgnat.engagement.kill_switch import _KillStateUnavailable
+
+        ks = _make_ks()
+        with (
+            patch.object(ks, "_redis", side_effect=ConnectionError("down")),
+            patch.object(ks, "_postgres_is_active", side_effect=_KillStateUnavailable("no db")),
+        ):
+            assert ks.is_active() is True
 
 
 class TestKillSwitchActivate:
     def test_sets_redis_keys(self):
         ks = _make_ks()
         mock_redis = MagicMock()
-        with patch.object(ks, "_redis", return_value=mock_redis):
-            with patch.object(ks, "_postgres_record"):
-                with patch.object(ks, "_close_gophish_campaigns", return_value=0):
-                    with patch.object(ks, "_notify_gnat"):
-                        report = ks.activate(reason="test", operator="alice")
+        with (
+            patch.object(ks, "_redis", return_value=mock_redis),
+            patch.object(ks, "_postgres_record"),
+            patch.object(ks, "_close_gophish_campaigns", return_value=0),
+            patch.object(ks, "_notify_gnat"),
+        ):
+            ks.activate(reason="test", operator="alice")
 
         set_calls = {c[0][0]: c[0][1] for c in mock_redis.set.call_args_list}
         assert set_calls[_REDIS_KEY_ACTIVE] == "1"
@@ -72,11 +104,13 @@ class TestKillSwitchActivate:
     def test_activate_returns_report_with_steps(self):
         ks = _make_ks()
         mock_redis = MagicMock()
-        with patch.object(ks, "_redis", return_value=mock_redis):
-            with patch.object(ks, "_postgres_record"):
-                with patch.object(ks, "_close_gophish_campaigns", return_value=2):
-                    with patch.object(ks, "_notify_gnat"):
-                        report = ks.activate(reason="drill", operator="bob")
+        with (
+            patch.object(ks, "_redis", return_value=mock_redis),
+            patch.object(ks, "_postgres_record"),
+            patch.object(ks, "_close_gophish_campaigns", return_value=2),
+            patch.object(ks, "_notify_gnat"),
+        ):
+            report = ks.activate(reason="drill", operator="bob")
 
         assert report["steps"]["redis"] == "ok"
         assert report["steps"]["postgres"] == "ok"
@@ -84,22 +118,26 @@ class TestKillSwitchActivate:
 
     def test_redis_failure_still_records_postgres(self):
         ks = _make_ks()
-        with patch.object(ks, "_redis", side_effect=ConnectionError("no redis")):
-            with patch.object(ks, "_postgres_record") as pg:
-                with patch.object(ks, "_close_gophish_campaigns", return_value=0):
-                    with patch.object(ks, "_notify_gnat"):
-                        report = ks.activate()
+        with (
+            patch.object(ks, "_redis", side_effect=ConnectionError("no redis")),
+            patch.object(ks, "_postgres_record") as pg,
+            patch.object(ks, "_close_gophish_campaigns", return_value=0),
+            patch.object(ks, "_notify_gnat"),
+        ):
+            report = ks.activate()
         assert "FAILED" in report["steps"]["redis"]
         pg.assert_called_once()
 
     def test_gnat_notification_failure_non_fatal(self):
         ks = _make_ks()
         mock_redis = MagicMock()
-        with patch.object(ks, "_redis", return_value=mock_redis):
-            with patch.object(ks, "_postgres_record"):
-                with patch.object(ks, "_close_gophish_campaigns", return_value=0):
-                    with patch.object(ks, "_notify_gnat", side_effect=RuntimeError("gnat down")):
-                        report = ks.activate()
+        with (
+            patch.object(ks, "_redis", return_value=mock_redis),
+            patch.object(ks, "_postgres_record"),
+            patch.object(ks, "_close_gophish_campaigns", return_value=0),
+            patch.object(ks, "_notify_gnat", side_effect=RuntimeError("gnat down")),
+        ):
+            report = ks.activate()
         assert "error" in report["steps"]["gnat_notify"]
         assert report["steps"]["redis"] == "ok"
 
@@ -108,9 +146,11 @@ class TestKillSwitchReset:
     def test_reset_clears_redis_keys(self):
         ks = _make_ks()
         mock_redis = MagicMock()
-        with patch.object(ks, "_redis", return_value=mock_redis):
-            with patch.object(ks, "_postgres_clear"):
-                ks.reset(operator="carol")
+        with (
+            patch.object(ks, "_redis", return_value=mock_redis),
+            patch.object(ks, "_postgres_clear"),
+        ):
+            ks.reset(operator="carol")
 
         mock_redis.delete.assert_called_once_with(
             _REDIS_KEY_ACTIVE, _REDIS_KEY_REASON, _REDIS_KEY_OPERATOR, _REDIS_KEY_TS
@@ -119,9 +159,11 @@ class TestKillSwitchReset:
     def test_reset_calls_postgres_clear(self):
         ks = _make_ks()
         mock_redis = MagicMock()
-        with patch.object(ks, "_redis", return_value=mock_redis):
-            with patch.object(ks, "_postgres_clear") as pg:
-                ks.reset(operator="carol")
+        with (
+            patch.object(ks, "_redis", return_value=mock_redis),
+            patch.object(ks, "_postgres_clear") as pg,
+        ):
+            ks.reset(operator="carol")
         pg.assert_called_once_with(cleared_by="carol")
 
 

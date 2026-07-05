@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "redgnat"
@@ -22,7 +22,11 @@ classifiers = [
 ]
 
 dependencies = [
-    "gnat>=1.5.0",           # Core GNAT library (connectors, ORM, agents)
+    # NOTE: the GNAT platform library is an optional integration — every import
+    # of it in this package is lazy and guarded. It is not published to public
+    # PyPI, so it lives in the [gnat] extra (install `redgnat[gnat]`, or provide
+    # it via a private index) rather than as a hard dependency that would break
+    # `pip install` in environments without access to it.
     "psycopg[binary]>=3.1",  # PostgreSQL driver (matches SandGNAT convention)
     "celery[redis]>=5.3",    # Async task queue
     "fastapi>=0.111",        # REST management API
@@ -32,6 +36,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+gnat = [
+    "gnat>=1.5.0",           # Core GNAT library (connectors, ORM, agents)
+]
 discovery = [
     "python-nmap>=0.7",      # nmap subprocess wrapper (T1046, T1595.001)
     "ldap3>=2.9",            # LDAP enumeration (T1087, T1069, T1482)
@@ -50,7 +57,7 @@ dev = [
     "types-urllib3",
     "httpx>=0.27",           # Test async client
 ]
-all = ["redgnat[discovery,phishing]"]
+all = ["redgnat[discovery,phishing,gnat]"]
 
 [project.scripts]
 redgnat = "redgnat.cli:main"
@@ -83,10 +90,38 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-ignore = ["E501"]
+# E501: line length handled by the formatter.
+# UP042: the dataclass-ORM enums intentionally use (str, Enum) rather than
+# StrEnum for explicit .value serialization; this is a deliberate convention.
+ignore = ["E501", "UP042"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI dependency-injection idiom: Depends()/Body()/Query()/Header() are
+# intentionally used as argument defaults.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Body",
+    "fastapi.Query",
+    "fastapi.Header",
+    "fastapi.Security",
+]
 
 [tool.mypy]
 python_version = "3.11"
 strict = false
 ignore_missing_imports = true
 warn_unused_ignores = true
+
+[tool.pylint.main]
+# Optional/lazy-imported integrations are not installed in lint envs; don't
+# treat their imports as errors.
+ignored-modules = ["gnat", "gnat.agents", "gnat.reports", "ldap3", "nmap", "boto3"]
+# The codebase deliberately uses lazy imports (to keep optional deps optional
+# and break import cycles) and shares result-shaping across parallel technique
+# modules; enforce overall quality via a score floor rather than chasing a
+# perfect 10/10.
+fail-under = 8.5
+
+[tool.pylint.format]
+# Line length is governed by ruff (E501 there); keep pylint from duplicating it.
+max-line-length = 100

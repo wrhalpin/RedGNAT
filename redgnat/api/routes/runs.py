@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Run query routes — GET /runs, GET /runs/{run_id}, POST /runs/{run_id}/investigation."""
+
 from __future__ import annotations
 
 import logging
@@ -14,6 +15,7 @@ router = APIRouter(tags=["runs"])
 
 def _get_client() -> Any:
     from redgnat.client import RedGNATClient
+
     return RedGNATClient()
 
 

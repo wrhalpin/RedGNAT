@@ -4,6 +4,7 @@
 Verify that ALL techniques return DRY_RUN status when scope.dry_run=True.
 This is a safety regression test — it must always pass.
 """
+
 from __future__ import annotations
 
 import pytest

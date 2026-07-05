@@ -19,13 +19,19 @@ Paths to the kill switch (in order of preference):
   • POST /api/v1/engage/kill        — REST API (requires X-Kill-Key header)
   • redis-cli SET redgnat:kill:active 1  — direct Redis (nuclear option)
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
+class _KillStateUnavailable(RuntimeError):
+    """Raised when the durable kill-switch store cannot be reached."""
+
 
 _REDIS_KEY_ACTIVE = "redgnat:kill:active"
 _REDIS_KEY_REASON = "redgnat:kill:reason"
@@ -54,17 +60,32 @@ class KillSwitch:
         """
         Return True if the kill switch is active.
 
-        Checks Redis first (fast path); falls back to Postgres if Redis
-        is unavailable so a restarted worker still respects a prior kill.
+        Fail-closed design. Redis is only a *fast path* for the positive
+        (killed) answer: an affirmative flag short-circuits to True. A
+        missing Redis flag is NOT proof the switch is clear — the volatile
+        cache can be evicted or restarted while a durable kill record still
+        stands — so the authoritative "not killed" decision always comes
+        from the durable Postgres record. If that durable store cannot be
+        reached we halt (return True) rather than risk running while a kill
+        is in effect.
         """
+        # Fast path: an affirmative Redis flag means killed.
         try:
             redis = self._redis()
             if redis.get(_REDIS_KEY_ACTIVE):
                 return True
         except Exception as exc:
-            logger.warning("KillSwitch: Redis unavailable, checking Postgres: %s", exc)
+            logger.warning("KillSwitch: Redis unavailable, consulting Postgres: %s", exc)
+
+        # Authoritative check: the durable Postgres record decides "clear".
+        try:
             return self._postgres_is_active()
-        return False
+        except _KillStateUnavailable as exc:
+            logger.critical(
+                "KillSwitch: durable kill state UNREACHABLE — failing closed (halt): %s",
+                exc,
+            )
+            return True
 
     def status(self) -> dict:
         """Return a dict describing the current kill state."""
@@ -98,7 +119,7 @@ class KillSwitch:
         dict
             Summary of what was done and any errors encountered.
         """
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         report: dict = {
             "activated_at": now,
             "operator": operator,
@@ -114,9 +135,7 @@ class KillSwitch:
             redis.set(_REDIS_KEY_OPERATOR, operator)
             redis.set(_REDIS_KEY_TS, now)
             report["steps"]["redis"] = "ok"
-            logger.critical(
-                "KILL SWITCH ACTIVATED — operator=%s reason=%r", operator, reason
-            )
+            logger.critical("KILL SWITCH ACTIVATED — operator=%s reason=%r", operator, reason)
         except Exception as exc:
             report["steps"]["redis"] = f"FAILED: {exc}"
             logger.critical("KILL SWITCH: failed to set Redis flag: %s", exc)
@@ -191,6 +210,15 @@ class KillSwitch:
         return redis_lib.from_url(self.config.redis_url)
 
     def _postgres_is_active(self) -> bool:
+        """
+        Return True if an uncleared kill record exists in Postgres.
+
+        Raises
+        ------
+        _KillStateUnavailable
+            If the durable store cannot be reached. Callers must treat this
+            as "state unknown" and fail closed — never as "not killed".
+        """
         try:
             import psycopg
 
@@ -200,8 +228,8 @@ class KillSwitch:
                 ).fetchone()
                 return row is not None
         except Exception as exc:
-            logger.error("KillSwitch: Postgres fallback failed: %s", exc)
-            return False
+            logger.error("KillSwitch: durable Postgres check failed: %s", exc)
+            raise _KillStateUnavailable(str(exc)) from exc
 
     def _postgres_record(self, reason: str, operator: str, activated_at: str) -> None:
         import psycopg
@@ -219,7 +247,7 @@ class KillSwitch:
     def _postgres_clear(self, cleared_by: str) -> None:
         import psycopg
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         with psycopg.connect(self.config.db_url) as conn:
             conn.execute(
                 """
@@ -253,7 +281,7 @@ class KillSwitch:
     def _notify_gnat(self, reason: str, operator: str, activated_at: str) -> None:
         """Push a CRITICAL STIX Note to GNAT describing the kill event."""
         try:
-            from gnat import GNATClient  # type: ignore[import]
+            from gnat import GNATClient
         except ImportError:
             logger.warning("KillSwitch: GNAT not installed, skipping notification")
             return

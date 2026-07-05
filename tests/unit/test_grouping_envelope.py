@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Tests — Phase 2.3: STIX Grouping envelope for investigation-scoped runs."""
-from __future__ import annotations
 
-import pytest
+from __future__ import annotations
 
 from redgnat.feedback.investigation_context import build_grouping
 

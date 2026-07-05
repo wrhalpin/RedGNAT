@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Shared test fixtures for RedGNAT unit tests."""
+
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
-from typing import Any
 
 import pytest
 

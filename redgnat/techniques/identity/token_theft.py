@@ -22,13 +22,14 @@ Providers:
 
 Emulation only: read-only API access to audit logs; no token capture or replay.
 """
+
 from __future__ import annotations
 
 import json
 import logging
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from redgnat.orm.models import ResultStatus
@@ -40,6 +41,20 @@ _GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 # Impossible travel threshold — sign-ins from two locations within this window
 # that are geographically impossible given the time difference
 _IMPOSSIBLE_TRAVEL_MINUTES = 60
+
+
+def _minutes_apart(ts_a: str, ts_b: str) -> float | None:
+    """Minutes between two ISO-8601 timestamps, or None if unparseable."""
+    if not ts_a or not ts_b:
+        return None
+    try:
+        a = datetime.fromisoformat(ts_a.replace("Z", "+00:00"))
+        b = datetime.fromisoformat(ts_b.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return abs((b - a).total_seconds()) / 60.0
+
+
 # Session longevity threshold — flag sessions older than this
 _LONG_SESSION_HOURS = 24
 
@@ -71,6 +86,7 @@ class TokenTheftTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         providers = ctx.params.get("providers", ["entra", "okta"])
@@ -86,9 +102,29 @@ class TokenTheftTechnique(Technique):
 
         findings: list[dict] = []
         errors: list[str] = []
-        since = datetime.now(timezone.utc) - timedelta(hours=lookback_hours)
+        since = datetime.now(UTC) - timedelta(hours=lookback_hours)
 
-        if "entra" in providers and cfg.entra_tenant_id:
+        def _domain_allowed(host: str) -> bool:
+            # Safe-harbor: enforce domain scope when configured; fall back to
+            # config gating when no domain scope is set.
+            if not ctx.scope.target_domains:
+                return True
+            return bool(host) and ctx.scope.allows_domain(host)
+
+        entra_domain = cfg.entra_tenant_id if "." in (cfg.entra_tenant_id or "") else ""
+        okta_host = (cfg.okta_base_url or "").split("://")[-1].split("/")[0]
+
+        # Only enforce the domain gate for a domain-form tenant; a GUID
+        # tenant_id (the common case) cannot be domain-scoped, so skip rather
+        # than force-block it.
+        if (
+            "entra" in providers
+            and cfg.entra_tenant_id
+            and entra_domain
+            and not _domain_allowed(entra_domain)
+        ):
+            errors.append(f"entra: tenant {entra_domain!r} not in scope")
+        elif "entra" in providers and cfg.entra_tenant_id:
             try:
                 entra_findings = self._analyze_entra(cfg, since, long_session_hours)
                 findings.extend(entra_findings)
@@ -96,7 +132,9 @@ class TokenTheftTechnique(Technique):
                 logger.warning("TokenTheft Entra analysis failed: %s", exc)
                 errors.append(f"entra: {exc}")
 
-        if "okta" in providers and cfg.okta_base_url:
+        if "okta" in providers and cfg.okta_base_url and not _domain_allowed(okta_host):
+            errors.append(f"okta: host {okta_host!r} not in scope")
+        elif "okta" in providers and cfg.okta_base_url:
             try:
                 okta_findings = self._analyze_okta(cfg, since, long_session_hours)
                 findings.extend(okta_findings)
@@ -138,47 +176,54 @@ class TokenTheftTechnique(Technique):
         # Flag risky sign-ins
         risky = [s for s in sign_ins if s.get("riskState") not in {"none", None}]
         if risky:
-            findings.append({
-                "category": "entra_risky_signins",
-                "count": len(risky),
-                "risk_states": list({s.get("riskState") for s in risky}),
-                "sample": [
-                    {
-                        "upn": s.get("userPrincipalName"),
-                        "risk_state": s.get("riskState"),
-                        "risk_detail": s.get("riskDetail"),
-                        "ip": s.get("ipAddress"),
-                    }
-                    for s in risky[:10]
-                ],
-            })
+            findings.append(
+                {
+                    "category": "entra_risky_signins",
+                    "count": len(risky),
+                    "risk_states": list({s.get("riskState") for s in risky}),
+                    "sample": [
+                        {
+                            "upn": s.get("userPrincipalName"),
+                            "risk_state": s.get("riskState"),
+                            "risk_detail": s.get("riskDetail"),
+                            "ip": s.get("ipAddress"),
+                        }
+                        for s in risky[:10]
+                    ],
+                }
+            )
 
         # Impossible travel detection (simple: same UPN, two IPs, short window)
         impossible = self._detect_impossible_travel(sign_ins)
         if impossible:
-            findings.append({
-                "category": "entra_impossible_travel",
-                "count": len(impossible),
-                "events": impossible[:10],
-                "interpretation": "Potential token replay or shared credentials detected",
-            })
+            findings.append(
+                {
+                    "category": "entra_impossible_travel",
+                    "count": len(impossible),
+                    "events": impossible[:10],
+                    "interpretation": "Potential token replay or shared credentials detected",
+                }
+            )
 
         # Check CAE presence — are continuous access evaluation events present?
         cae_signins = [
-            s for s in sign_ins
+            s
+            for s in sign_ins
             if "continuousAccessEvaluation" in str(s.get("authenticationRequirement", ""))
         ]
-        findings.append({
-            "category": "entra_cae_coverage",
-            "cae_enabled_signins": len(cae_signins),
-            "total_signins": len(sign_ins),
-            "cae_coverage_pct": len(cae_signins) / max(len(sign_ins), 1) * 100,
-            "recommendation": (
-                "Enable Continuous Access Evaluation for all apps to reduce "
-                "token theft window" if len(cae_signins) < len(sign_ins) * 0.8
-                else "CAE coverage appears good"
-            ),
-        })
+        findings.append(
+            {
+                "category": "entra_cae_coverage",
+                "cae_enabled_signins": len(cae_signins),
+                "total_signins": len(sign_ins),
+                "cae_coverage_pct": len(cae_signins) / max(len(sign_ins), 1) * 100,
+                "recommendation": (
+                    "Enable Continuous Access Evaluation for all apps to reduce token theft window"
+                    if len(cae_signins) < len(sign_ins) * 0.8
+                    else "CAE coverage appears good"
+                ),
+            }
+        )
 
         return findings
 
@@ -201,21 +246,25 @@ class TokenTheftTechnique(Technique):
         # Look for sessions from multiple IPs for the same user
         impossible = self._detect_okta_impossible_travel(events)
         if impossible:
-            findings.append({
-                "category": "okta_impossible_travel",
-                "count": len(impossible),
-                "events": impossible[:10],
-                "interpretation": "Potential session hijack or token replay",
-            })
-
-        # Detect MFA bypass events
-        mfa_bypass = [
-            e for e in events
-            if any(
-                "MFA" not in str(a.get("authenticationContext", ""))
-                for a in [e]
+            findings.append(
+                {
+                    "category": "okta_impossible_travel",
+                    "count": len(impossible),
+                    "events": impossible[:10],
+                    "interpretation": "Potential session hijack or token replay",
+                }
             )
-        ]
+
+        # Detect sign-ins that completed without an MFA authentication context
+        mfa_absent = [e for e in events if "MFA" not in str(e.get("authenticationContext", ""))]
+        if mfa_absent:
+            findings.append(
+                {
+                    "category": "okta_mfa_absent",
+                    "count": len(mfa_absent),
+                    "detail": "Sign-in events observed without an MFA authentication context",
+                }
+            )
 
         return findings
 
@@ -238,19 +287,25 @@ class TokenTheftTechnique(Technique):
                 a, b = sorted_events[i], sorted_events[i + 1]
                 ip_a = a.get("ipAddress", "")
                 ip_b = b.get("ipAddress", "")
-                if ip_a and ip_b and ip_a != ip_b:
-                    # Simple: flag all different-IP pairs within the window
-                    impossible.append(
-                        {
-                            "upn": upn,
-                            "ip_a": ip_a,
-                            "ip_b": ip_b,
-                            "time_a": a.get("createdDateTime"),
-                            "time_b": b.get("createdDateTime"),
-                            "location_a": a.get("location", {}).get("city"),
-                            "location_b": b.get("location", {}).get("city"),
-                        }
-                    )
+                if not (ip_a and ip_b and ip_a != ip_b):
+                    continue
+                # Only flag different-IP sign-ins close enough in time that the
+                # physical travel between them would be impossible.
+                mins = _minutes_apart(a.get("createdDateTime", ""), b.get("createdDateTime", ""))
+                if mins is None or mins > _IMPOSSIBLE_TRAVEL_MINUTES:
+                    continue
+                impossible.append(
+                    {
+                        "upn": upn,
+                        "ip_a": ip_a,
+                        "ip_b": ip_b,
+                        "time_a": a.get("createdDateTime"),
+                        "time_b": b.get("createdDateTime"),
+                        "minutes_apart": round(mins, 1),
+                        "location_a": a.get("location", {}).get("city"),
+                        "location_b": b.get("location", {}).get("city"),
+                    }
+                )
         return impossible
 
     @staticmethod
@@ -269,18 +324,26 @@ class TokenTheftTechnique(Technique):
                 a, b = sorted_evts[i], sorted_evts[i + 1]
                 ip_a = a.get("client", {}).get("ipAddress", "")
                 ip_b = b.get("client", {}).get("ipAddress", "")
-                if ip_a and ip_b and ip_a != ip_b:
-                    impossible.append({"upn": upn, "ip_a": ip_a, "ip_b": ip_b})
+                if not (ip_a and ip_b and ip_a != ip_b):
+                    continue
+                mins = _minutes_apart(a.get("published", ""), b.get("published", ""))
+                if mins is None or mins > _IMPOSSIBLE_TRAVEL_MINUTES:
+                    continue
+                impossible.append(
+                    {"upn": upn, "ip_a": ip_a, "ip_b": ip_b, "minutes_apart": round(mins, 1)}
+                )
         return impossible
 
     def _get_entra_token(self, cfg: Any) -> str:
         url = f"{cfg.entra_authority}/{cfg.entra_tenant_id}/oauth2/v2.0/token"
-        data = urllib.parse.urlencode({
-            "client_id": cfg.entra_client_id,
-            "client_secret": cfg.entra_client_secret,
-            "scope": "https://graph.microsoft.com/.default",
-            "grant_type": "client_credentials",
-        }).encode()
+        data = urllib.parse.urlencode(
+            {
+                "client_id": cfg.entra_client_id,
+                "client_secret": cfg.entra_client_secret,
+                "scope": "https://graph.microsoft.com/.default",
+                "grant_type": "client_credentials",
+            }
+        ).encode()
         req = urllib.request.Request(url, data=data, method="POST")
         with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
             return json.loads(resp.read())["access_token"]

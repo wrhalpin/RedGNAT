@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """INI-based configuration management for RedGNAT."""
+
 from __future__ import annotations
 
 import configparser
@@ -50,6 +51,17 @@ class RedGNATConfig:
     def phase2_enabled(self) -> bool:
         """Gate 1 of the Phase 2 impasse — must be true in config."""
         return self._cfg.getboolean("redgnat", "phase2_enabled", fallback=False)
+
+    @property
+    def phase2_unlock_secret(self) -> str:
+        """
+        Expected value for the Gate 2 unlock env var (REDGNAT_PHASE2_UNLOCK).
+
+        When set, Gate 2 requires the env var to match this exact value — a
+        real shared secret rather than mere presence. Empty (default) keeps
+        the presence-only check for backward compatibility.
+        """
+        return self._get("redgnat", "phase2_unlock_secret", "")
 
     @property
     def log_level(self) -> str:
@@ -122,6 +134,16 @@ class RedGNATConfig:
     @property
     def gophish_default_campaign_hours(self) -> int:
         return int(self._get("gophish", "default_campaign_hours", "72"))
+
+    @property
+    def max_inline_poll_seconds(self) -> int:
+        """
+        Upper bound on how long a technique may block a worker waiting for
+        campaign results inline. Longer campaigns keep running in GoPhish;
+        only the initial in-worker poll is capped so a handful of concurrent
+        phishing runs cannot starve the Celery worker pool.
+        """
+        return int(self._get("gophish", "max_inline_poll_seconds", "60"))
 
     # ------------------------------------------------------------------
     # [scope]
@@ -248,6 +270,17 @@ class RedGNATConfig:
     @property
     def feedback_max_probes(self) -> int:
         return int(self._get("feedback", "max_probes_per_report", "10"))
+
+    @property
+    def feedback_max_probe_depth(self) -> int:
+        """
+        Maximum generations in the gap->probe->emulate feedback loop.
+
+        A run triggered by a probe carries a depth; once it reaches this cap
+        no further probes are generated, bounding the self-amplifying loop
+        (which the rule-based follow-on table can otherwise cycle forever).
+        """
+        return int(self._get("feedback", "max_probe_depth", "3"))
 
     # ------------------------------------------------------------------
     # Helpers

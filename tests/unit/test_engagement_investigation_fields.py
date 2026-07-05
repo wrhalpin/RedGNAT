@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Tests — Phase 1: EmulationRun investigation fields and store persistence."""
+
 from __future__ import annotations
 
-from redgnat.orm.models import EmulationRun, RunStatus
+from redgnat.orm.models import EmulationRun
 
 
 def _make_run(**kwargs) -> EmulationRun:

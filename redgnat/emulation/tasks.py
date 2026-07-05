@@ -9,6 +9,7 @@ Workers are started with:
 The beat scheduler (celery beat) drives periodic intel ingestion:
     celery -A redgnat.emulation.tasks beat --loglevel=info
 """
+
 from __future__ import annotations
 
 import logging
@@ -92,7 +93,21 @@ def run_scenario_task(self, run_id: str) -> dict:
         }
     except Exception as exc:
         logger.exception("run_scenario_task failed for run %s: %s", run_id, exc)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc
+
+
+def _parse_probe_depth(triggered_by: str) -> int:
+    """Extract the probe generation depth from a triggered_by tag.
+
+    Probe-driven runs are tagged ``probe:<id>:d<N>``; all other runs are
+    depth 0 (the root of a feedback chain).
+    """
+    if triggered_by and ":d" in triggered_by:
+        try:
+            return int(triggered_by.rsplit(":d", 1)[1])
+        except ValueError:
+            return 0
+    return 0
 
 
 def _run_feedback(config: Any, run: Any, results: list) -> None:
@@ -121,7 +136,16 @@ def _run_feedback(config: Any, run: Any, results: list) -> None:
         if config.feedback_push_to_gnat:
             reporter.push_to_gnat(report)
 
-        if config.feedback_probe_generation_enabled:
+        current_depth = _parse_probe_depth(getattr(run, "triggered_by", ""))
+        if current_depth >= config.feedback_max_probe_depth:
+            logger.info(
+                "_run_feedback: run %s at probe depth %d (max %d) — "
+                "not generating further probes (runaway guard)",
+                run_id,
+                current_depth,
+                config.feedback_max_probe_depth,
+            )
+        elif config.feedback_probe_generation_enabled:
             generator = ProbeGenerator(
                 config,
                 model=config.feedback_probe_model,
@@ -130,11 +154,13 @@ def _run_feedback(config: Any, run: Any, results: list) -> None:
             probes = generator.generate(report)
             if probes:
                 logger.info(
-                    "_run_feedback: queuing %d probe request(s) from gap report %s",
+                    "_run_feedback: queuing %d probe request(s) from gap report %s (depth %d)",
                     len(probes),
                     report.gap_id,
+                    current_depth + 1,
                 )
                 for probe in probes:
+                    probe.depth = current_depth + 1
                     run_probe_task.delay(probe.to_dict())
     except Exception as exc:
         logger.warning("_run_feedback: non-fatal error during feedback phase: %s", exc)
@@ -148,8 +174,8 @@ def run_probe_task(probe_dict: dict) -> dict:
     Called automatically after gap analysis; can also be triggered externally
     via POST /api/v1/intel/probe-request.
     """
-    from redgnat.feedback.probe_generator import ProbeRequest
     from redgnat.client import RedGNATClient
+    from redgnat.feedback.probe_generator import ProbeRequest
     from redgnat.orm.models import IntelFeed, IntelSource
 
     probe = ProbeRequest.from_dict(probe_dict)
@@ -178,7 +204,11 @@ def run_probe_task(probe_dict: dict) -> dict:
     store = client._get_store()
     store.upsert_feed(feed)
     store.upsert_scenario(scenario)
-    run = client.run_scenario(scenario.scenario_id, triggered_by=f"probe:{probe.probe_id}", async_=False)
+    run = client.run_scenario(
+        scenario.scenario_id,
+        triggered_by=f"probe:{probe.probe_id}:d{probe.depth}",
+        async_=False,
+    )
     return {"probe_id": probe.probe_id, "run_id": run.run_id if run else None}
 
 
@@ -207,8 +237,8 @@ def run_engagement_task(self, run_id: str) -> dict:
         Summary including gate check result and run outcome.
     """
     from redgnat.client import RedGNATClient
-    from redgnat.engagement.gate import EngagementGate
     from redgnat.emulation.runner import EngagementRunner
+    from redgnat.engagement.gate import EngagementGate
     from redgnat.orm.models import RunStatus
 
     client = RedGNATClient()
@@ -228,9 +258,7 @@ def run_engagement_task(self, run_id: str) -> dict:
     gate = EngagementGate(client.config)
     authorized, reason = gate.check()
     if not authorized:
-        logger.warning(
-            "run_engagement_task: gate denied run=%s reason=%s", run_id, reason
-        )
+        logger.warning("run_engagement_task: gate denied run=%s reason=%s", run_id, reason)
         run.status = RunStatus.FAILED
         store.upsert_run(run)
         store.close()

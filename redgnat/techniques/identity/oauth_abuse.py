@@ -19,6 +19,7 @@ Emulation only:
 For a more realistic test, configure a real low-privilege app in Entra and
 provide its OAuth consent URL via ctx.params["consent_url"].
 """
+
 from __future__ import annotations
 
 import logging
@@ -28,7 +29,7 @@ from typing import Any
 
 from redgnat.orm.models import ResultStatus
 from redgnat.techniques.base import Technique, TechniqueContext
-from redgnat.techniques.phishing.base import GoPhishClient
+from redgnat.techniques.phishing.base import GoPhishClient, teardown_resources
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +115,7 @@ class OAuthAbuseTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         targets_raw: list[dict] = ctx.params.get("targets", [])
@@ -129,9 +131,11 @@ class OAuthAbuseTechnique(Technique):
         if not cfg.gophish_base_url or not cfg.gophish_api_key:
             return self._blocked_result(ctx, "GoPhish not configured")
 
+        def _domain(email: str) -> str:
+            return email.rsplit("@", 1)[-1] if "@" in email else ""
+
         validated_targets = [
-            t for t in targets_raw
-            if ctx.scope.allows_domain((t.get("email", "").split("@") + [""])[-1])
+            t for t in targets_raw if ctx.scope.allows_domain(_domain(t.get("email", "")))
         ]
         if not validated_targets:
             return self._blocked_result(ctx, "No in-scope targets")
@@ -158,12 +162,11 @@ class OAuthAbuseTechnique(Technique):
             page = client.create_page(page_dict)
             created_resources["page_id"] = page["id"]
 
-            group = client.create_group(
-                name=f"{campaign_name}-targets", targets=validated_targets
-            )
+            group = client.create_group(name=f"{campaign_name}-targets", targets=validated_targets)
             created_resources["group_id"] = group["id"]
 
             import datetime as dt
+
             launch_date = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
             campaign = client.create_campaign(
@@ -181,15 +184,14 @@ class OAuthAbuseTechnique(Technique):
             created_resources["campaign_id"] = campaign_id
 
             logger.info(
-                "OAuthAbuse: launched consent phishing campaign %s (id=%d) "
-                "targeting %d [run=%s]",
+                "OAuthAbuse: launched consent phishing campaign %s (id=%d) targeting %d [run=%s]",
                 campaign_name,
                 campaign_id,
                 len(validated_targets),
                 ctx.run_id,
             )
 
-            time.sleep(wait_minutes * 60)
+            time.sleep(min(wait_minutes * 60, cfg.max_inline_poll_seconds))
             results = client.get_campaign_summary(campaign_id)
             stats = results.get("stats", {})
             sent = max(stats.get("sent", 1), 1)
@@ -218,9 +220,10 @@ class OAuthAbuseTechnique(Technique):
 
         except Exception as exc:
             logger.exception("OAuthAbuse campaign failed: %s", exc)
+            teardown_resources(client, created_resources, logger)
             return self._make_result(
                 ctx,
                 ResultStatus.ERROR,
-                findings=[{"created_resources": created_resources}],
+                findings=[{"created_resources": created_resources, "cleanup_attempted": True}],
                 error=str(exc),
             )

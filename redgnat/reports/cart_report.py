@@ -7,10 +7,11 @@ Produces PDF and DOCX red team engagement reports from EmulationRun results.
 Wraps GNAT's gnat.reports module for document generation and adds CART-specific
 sections: ATT&CK coverage heatmap, gap analysis, and per-technique drill-down.
 """
+
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from redgnat.orm.models import EmulationRun, EmulationScenario, ResultStatus, TechniqueResult
@@ -49,7 +50,7 @@ class CARTReport:
     # ------------------------------------------------------------------
     def executive_summary(self) -> dict[str, Any]:
         total = len(self.results)
-        by_status = {}
+        by_status: dict[str, int] = {}
         for r in self.results:
             by_status[r.status.value] = by_status.get(r.status.value, 0) + 1
 
@@ -63,7 +64,7 @@ class CARTReport:
         return {
             "scenario_name": self.scenario.name,
             "run_id": self.run.run_id,
-            "report_generated_at": datetime.now(timezone.utc).isoformat(),
+            "report_generated_at": datetime.now(UTC).isoformat(),
             "execution_summary": {
                 "techniques_executed": total,
                 "successful_emulations": successes,
@@ -128,7 +129,11 @@ class CARTReport:
             if r.status == ResultStatus.SUCCESS and r.findings:
                 recs.extend(self._recommendations_for(r))
         seen: set[str] = set()
-        unique = [r for r in recs if not (r in seen or seen.add(r))]
+        unique: list[str] = []
+        for rec in recs:
+            if rec not in seen:
+                seen.add(rec)
+                unique.append(rec)
         return unique[:8]
 
     def _recommendations_for(self, result: TechniqueResult) -> list[str]:
@@ -147,7 +152,9 @@ class CARTReport:
         elif tid == "T1110.003":
             recs.append("Enforce account lockout policy and deploy Smart Lockout / SSPR")
         elif tid == "T1110.004":
-            recs.append("Enable breach credential detection (HIBP integration / Entra ID Protection)")
+            recs.append(
+                "Enable breach credential detection (HIBP integration / Entra ID Protection)"
+            )
         elif tid == "T1621":
             recs.append("Deploy FIDO2/hardware-key MFA to eliminate push fatigue attack surface")
         elif tid == "T1528":
@@ -206,10 +213,7 @@ class CARTReport:
         return {
             "executive_summary": self.executive_summary(),
             "attack_coverage_map": self.attack_coverage_map(),
-            "technique_details": [
-                self.technique_detail(r.technique_id)
-                for r in self.results
-            ],
+            "technique_details": [self.technique_detail(r.technique_id) for r in self.results],
             "raw_results": [r.to_dict() for r in self.results],
         }
 
@@ -220,7 +224,7 @@ class CARTReport:
         Requires: pip install 'gnat[reports]'
         """
         try:
-            from gnat.reports import ReportBuilder  # type: ignore[import]
+            from gnat.reports import ReportBuilder
         except ImportError:
             logger.warning("GNAT reports not available — pip install 'gnat[reports]'")
             return
@@ -241,7 +245,7 @@ class CARTReport:
         Requires: pip install 'gnat[reports]'
         """
         try:
-            from gnat.reports import ReportBuilder  # type: ignore[import]
+            from gnat.reports import ReportBuilder
         except ImportError:
             logger.warning("GNAT reports not available — pip install 'gnat[reports]'")
             return

@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """STIX export routes — consumed by the GNAT RedGNATConnector plugin."""
+
 from __future__ import annotations
 
+from datetime import UTC
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -12,6 +14,7 @@ router = APIRouter(tags=["stix"])
 
 def _get_client() -> Any:
     from redgnat.client import RedGNATClient
+
     return RedGNATClient()
 
 
@@ -152,6 +155,7 @@ async def list_stix_groupings() -> list[dict]:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _stamp(stix_obj: dict[str, Any], run: Any) -> None:
     """Apply investigation context properties to a STIX object in-place."""
     from redgnat.feedback.investigation_context import apply_investigation_context
@@ -165,7 +169,7 @@ def _stamp(stix_obj: dict[str, Any], run: Any) -> None:
 
 
 def _run_to_stix_coa(run: Any, scenario: Any, results: list[Any]) -> dict:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     status_counts: dict[str, int] = {}
     for r in results:
@@ -175,8 +179,8 @@ def _run_to_stix_coa(run: Any, scenario: Any, results: list[Any]) -> dict:
         "type": "course-of-action",
         "spec_version": "2.1",
         "id": f"course-of-action--{run.run_id}",
-        "created": (run.started_at or datetime.now(timezone.utc)).isoformat(),
-        "modified": (run.completed_at or datetime.now(timezone.utc)).isoformat(),
+        "created": (run.started_at or datetime.now(UTC)).isoformat(),
+        "modified": (run.completed_at or datetime.now(UTC)).isoformat(),
         "name": f"CART Run: {scenario.name}",
         "description": (
             f"Automated red team emulation run. "

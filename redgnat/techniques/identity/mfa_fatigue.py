@@ -17,6 +17,7 @@ Emulation controls:
 - Stops immediately if an approval is detected (reports as critical finding)
 - Requires explicit opt-in via ctx.params["confirm_mfa_fatigue_test"] = True
 """
+
 from __future__ import annotations
 
 import json
@@ -80,9 +81,7 @@ class MFAFatigueTechnique(Technique):
             return self._blocked_result(ctx, "No target_accounts configured in scope")
 
         provider = ctx.params.get("provider", "entra")
-        pushes_per_account = min(
-            int(ctx.params.get("pushes_per_account", 3)), _MAX_PUSHES_CAP
-        )
+        pushes_per_account = min(int(ctx.params.get("pushes_per_account", 3)), _MAX_PUSHES_CAP)
         inter_push_delay = float(ctx.params.get("inter_push_delay_seconds", 5.0))
         password = ctx.params.get("password", "")
 
@@ -99,6 +98,7 @@ class MFAFatigueTechnique(Technique):
             )
 
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         findings: list[dict] = []
@@ -133,9 +133,7 @@ class MFAFatigueTechnique(Technique):
         results = []
 
         for i in range(pushes):
-            logger.info(
-                "MFAFatigue: push %d/%d to %s via %s", i + 1, pushes, account, provider
-            )
+            logger.info("MFAFatigue: push %d/%d to %s via %s", i + 1, pushes, account, provider)
             if provider == "entra":
                 outcome = self._entra_push(cfg, account, password)
             elif provider == "okta":
@@ -171,11 +169,13 @@ class MFAFatigueTechnique(Technique):
         device_code_url = (
             f"https://login.microsoftonline.com/{cfg.entra_tenant_id}/oauth2/v2.0/devicecode"
         )
-        data = urllib.parse.urlencode({
-            "client_id": cfg.entra_client_id,
-            "scope": "openid profile",
-            "login_hint": account,
-        }).encode()
+        data = urllib.parse.urlencode(
+            {
+                "client_id": cfg.entra_client_id,
+                "scope": "openid profile",
+                "login_hint": account,
+            }
+        ).encode()
 
         try:
             req = urllib.request.Request(device_code_url, data=data, method="POST")
@@ -187,16 +187,16 @@ class MFAFatigueTechnique(Technique):
             interval = int(body.get("interval", 5))
 
             # Poll for approval (limited to 2 polls to detect quick approvals)
-            token_url = (
-                f"https://login.microsoftonline.com/{cfg.entra_tenant_id}/oauth2/v2.0/token"
-            )
+            token_url = f"https://login.microsoftonline.com/{cfg.entra_tenant_id}/oauth2/v2.0/token"
             for _ in range(min(2, expires_in // interval)):
                 time.sleep(interval)
-                poll_data = urllib.parse.urlencode({
-                    "client_id": cfg.entra_client_id,
-                    "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-                    "device_code": device_code,
-                }).encode()
+                poll_data = urllib.parse.urlencode(
+                    {
+                        "client_id": cfg.entra_client_id,
+                        "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+                        "device_code": device_code,
+                    }
+                ).encode()
                 try:
                     poll_req = urllib.request.Request(token_url, data=poll_data, method="POST")
                     with urllib.request.urlopen(poll_req, timeout=10) as poll_resp:  # noqa: S310
@@ -231,9 +231,7 @@ class MFAFatigueTechnique(Technique):
 
             # Find a PUSH factor
             factors = body.get("_embedded", {}).get("factors", [])
-            push_factor = next(
-                (f for f in factors if f.get("factorType") == "push"), None
-            )
+            push_factor = next((f for f in factors if f.get("factorType") == "push"), None)
             if not push_factor:
                 return {
                     "approved": False,
@@ -244,9 +242,7 @@ class MFAFatigueTechnique(Technique):
 
             verify_url = push_factor["_links"]["verify"]["href"]
             verify_payload = json.dumps({"stateToken": state_token}).encode()
-            verify_req = urllib.request.Request(
-                verify_url, data=verify_payload, headers=headers
-            )
+            verify_req = urllib.request.Request(verify_url, data=verify_payload, headers=headers)
             with urllib.request.urlopen(verify_req, timeout=15) as vresp:  # noqa: S310
                 vbody = json.loads(vresp.read())
 

@@ -12,6 +12,7 @@ collects credentials. All campaign targets must belong to in-scope domains.
 Emulation only: tracks user interaction metrics (click rate, credential
 submission rate) without deploying actual malware payloads.
 """
+
 from __future__ import annotations
 
 import logging
@@ -21,7 +22,7 @@ from typing import Any
 
 from redgnat.orm.models import ResultStatus
 from redgnat.techniques.base import Technique, TechniqueContext
-from redgnat.techniques.phishing.base import GoPhishClient
+from redgnat.techniques.phishing.base import GoPhishClient, teardown_resources
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +88,7 @@ class SpearphishingLinkTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         targets_raw: list[dict] = ctx.params.get("targets", [])
@@ -99,7 +101,9 @@ class SpearphishingLinkTechnique(Technique):
             )
 
         if not cfg.gophish_base_url or not cfg.gophish_api_key:
-            return self._blocked_result(ctx, "GoPhish not configured (gophish.base_url / gophish.api_key)")
+            return self._blocked_result(
+                ctx, "GoPhish not configured (gophish.base_url / gophish.api_key)"
+            )
 
         # Validate all target email domains are in scope
         validated_targets = []
@@ -128,9 +132,7 @@ class SpearphishingLinkTechnique(Technique):
             created_resources["group_id"] = group["id"]
 
             # Create email template
-            template_dict = dict(
-                ctx.params.get("email_template", _DEFAULT_EMAIL_TEMPLATE)
-            )
+            template_dict = dict(ctx.params.get("email_template", _DEFAULT_EMAIL_TEMPLATE))
             template_dict["name"] = f"{campaign_name}-tmpl"
             template = client.create_template(template_dict)
             created_resources["template_id"] = template["id"]
@@ -149,8 +151,11 @@ class SpearphishingLinkTechnique(Technique):
 
             # Create and launch campaign
             import datetime as dt
-            now = dt.datetime.utcnow()
+
+            now = dt.datetime.now(dt.UTC)
             launch_date = now.strftime("%Y-%m-%dT%H:%M:%S+00:00")
+            send_by = now + dt.timedelta(hours=campaign_hours)
+            send_by_date = send_by.strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
             campaign_payload = {
                 "name": campaign_name,
@@ -158,7 +163,7 @@ class SpearphishingLinkTechnique(Technique):
                 "landing_page": {"name": page_dict["name"]},
                 "url": cfg.gophish_landing_page_base_url or "https://click.example.com",
                 "launch_date": launch_date,
-                "send_by_date": "",
+                "send_by_date": send_by_date,
                 "smtp": {"id": smtp_id},
                 "groups": [{"name": f"{campaign_name}-targets"}],
             }
@@ -174,8 +179,9 @@ class SpearphishingLinkTechnique(Technique):
                 ctx.run_id,
             )
 
-            # Poll for initial results
-            time.sleep(wait_minutes * 60)
+            # Poll for initial results (bounded so the worker is not held for
+            # the full campaign window — the campaign keeps running in GoPhish).
+            time.sleep(min(wait_minutes * 60, cfg.max_inline_poll_seconds))
             results = client.get_campaign_summary(campaign_id)
 
             stats = results.get("stats", {})
@@ -188,18 +194,17 @@ class SpearphishingLinkTechnique(Technique):
                     "emails_opened": stats.get("opened", 0),
                     "links_clicked": stats.get("clicked", 0),
                     "credentials_submitted": stats.get("submitted_data", 0),
-                    "click_rate": (
-                        stats.get("clicked", 0) / max(stats.get("sent", 1), 1)
-                    ),
+                    "click_rate": (stats.get("clicked", 0) / max(stats.get("sent", 1), 1)),
                 }
             ]
             return self._make_result(ctx, ResultStatus.SUCCESS, findings)
 
         except Exception as exc:
             logger.exception("SpearphishingLink campaign failed: %s", exc)
+            teardown_resources(client, created_resources, logger)
             return self._make_result(
                 ctx,
                 ResultStatus.ERROR,
-                findings=[{"created_resources": created_resources}],
+                findings=[{"created_resources": created_resources, "cleanup_attempted": True}],
                 error=str(exc),
             )

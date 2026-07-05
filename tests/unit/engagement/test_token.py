@@ -1,15 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Unit tests for EngagementToken."""
+
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
 
-import pytest
-
-from redgnat.engagement.token import EngagementToken, _REDIS_KEY
+from redgnat.engagement.token import _REDIS_KEY, EngagementToken
 
 
 class TestEngagementTokenCreate:
@@ -30,12 +29,12 @@ class TestEngagementTokenCreate:
 
     def test_is_valid_expired_token(self):
         token = EngagementToken.create("alice", 1.0)
-        token.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+        token.expires_at = datetime.now(UTC) - timedelta(seconds=1)
         assert token.is_valid is False
 
     def test_remaining_seconds_zero_for_expired(self):
         token = EngagementToken.create("alice", 1.0)
-        token.expires_at = datetime.now(timezone.utc) - timedelta(hours=1)
+        token.expires_at = datetime.now(UTC) - timedelta(hours=1)
         assert token.remaining_seconds == 0.0
 
 

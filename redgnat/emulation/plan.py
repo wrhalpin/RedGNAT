@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """EmulationPlan — ordered execution schedule produced by ScenarioBuilder."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -9,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 from redgnat.techniques.base import Scope
 
 if TYPE_CHECKING:
-    from redgnat.techniques.base import Technique
+    pass
 
 
 @dataclass

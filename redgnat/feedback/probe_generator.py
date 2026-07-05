@@ -23,13 +23,14 @@ A ProbeRequest is a lightweight instruction to run one or more follow-on
 techniques against specific targets, generated from AI analysis of which
 defensive gaps are most actionable given the current threat context.
 """
+
 from __future__ import annotations
 
 import json
 import logging
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from redgnat.feedback.gap_reporter import GapReport
@@ -89,7 +90,8 @@ class ProbeRequest:
     priority: str = "high"
     rationale: str = ""
     suggested_params: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    depth: int = 0  # generation depth in the gap->probe->emulate feedback loop
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -101,10 +103,11 @@ class ProbeRequest:
             "rationale": self.rationale,
             "suggested_params": self.suggested_params,
             "created_at": self.created_at.isoformat(),
+            "depth": self.depth,
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "ProbeRequest":
+    def from_dict(cls, d: dict[str, Any]) -> ProbeRequest:
         obj = cls(
             probe_id=d.get("probe_id", str(uuid.uuid4())),
             source_gap_id=d.get("source_gap_id", ""),
@@ -113,6 +116,7 @@ class ProbeRequest:
             priority=d.get("priority", "high"),
             rationale=d.get("rationale", ""),
             suggested_params=d.get("suggested_params", {}),
+            depth=int(d.get("depth", 0)),
         )
         raw_ts = d.get("created_at")
         if raw_ts:
@@ -211,7 +215,7 @@ class ProbeGenerator:
     # ------------------------------------------------------------------
 
     def _generate_via_llm(self, report: GapReport) -> list[ProbeRequest]:
-        from gnat.agents import LLMClient  # type: ignore[import]
+        from gnat.agents import LLMClient
 
         gap_summary = self._build_gap_summary(report)
         prompt = _DEFAULT_PROBE_PROMPT.format(gap_summary=gap_summary)
@@ -220,7 +224,7 @@ class ProbeGenerator:
             config_path=self.config.gnat_config_path,
             model=self.model,
         )
-        raw = llm.complete(prompt)  # type: ignore[attr-defined]
+        raw = llm.complete(prompt)
         suggestions = self._parse_llm_response(raw)
         return self._suggestions_to_probes(suggestions, report)
 
@@ -230,7 +234,9 @@ class ProbeGenerator:
             info = self._mapper.get(r.technique_id)
             name = info.name if info else r.technique_id
             tactic = info.tactic if info else r.tactic
-            lines.append(f"- {r.technique_id} ({name}, tactic={tactic}): executed without detection")
+            lines.append(
+                f"- {r.technique_id} ({name}, tactic={tactic}): executed without detection"
+            )
         return "\n".join(lines)
 
     @staticmethod

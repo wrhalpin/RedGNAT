@@ -6,13 +6,15 @@ GNAT intel subscriber.
 Polls a GNATClient for new Campaign and AttackPattern STIX objects and
 converts them into IntelFeed records for RedGNAT's scenario builder.
 """
+
 from __future__ import annotations
 
 import logging
-from typing import Iterator
+from collections.abc import Iterator
 
 from redgnat.config import RedGNATConfig
 from redgnat.intake.base import IntelSubscriber
+from redgnat.orm.base import deterministic_id
 from redgnat.orm.models import IntelFeed, IntelSource
 
 logger = logging.getLogger(__name__)
@@ -45,11 +47,9 @@ class GNATSubscriber(IntelSubscriber):
     def _get_client(self) -> object:
         if self._gnat_client is None:
             try:
-                from gnat import GNATClient  # type: ignore[import]
+                from gnat import GNATClient
 
-                self._gnat_client = GNATClient(
-                    config_path=self.config.gnat_config_path
-                )
+                self._gnat_client = GNATClient(config_path=self.config.gnat_config_path)
             except ImportError as exc:
                 raise RuntimeError(
                     "GNAT library not installed. Run: pip install 'gnat>=1.5.0'"
@@ -128,6 +128,9 @@ class GNATSubscriber(IntelSubscriber):
             stix_bundle = {"type": "bundle", "objects": []}
 
         yield IntelFeed(
+            # Deterministic feed_id so re-polling the same campaign upserts the
+            # same row instead of accumulating duplicate feeds/scenarios/runs.
+            feed_id=deterministic_id("gnat", campaign_id),
             source=IntelSource.GNAT,
             source_ref_id=campaign_id,
             stix_bundle=stix_bundle,
