@@ -22,7 +22,11 @@ classifiers = [
 ]
 
 dependencies = [
-    "gnat>=1.5.0",           # Core GNAT library (connectors, ORM, agents)
+    # NOTE: the GNAT platform library is an optional integration — every import
+    # of it in this package is lazy and guarded. It is not published to public
+    # PyPI, so it lives in the [gnat] extra (install `redgnat[gnat]`, or provide
+    # it via a private index) rather than as a hard dependency that would break
+    # `pip install` in environments without access to it.
     "psycopg[binary]>=3.1",  # PostgreSQL driver (matches SandGNAT convention)
     "celery[redis]>=5.3",    # Async task queue
     "fastapi>=0.111",        # REST management API
@@ -32,6 +36,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+gnat = [
+    "gnat>=1.5.0",           # Core GNAT library (connectors, ORM, agents)
+]
 discovery = [
     "python-nmap>=0.7",      # nmap subprocess wrapper (T1046, T1595.001)
     "ldap3>=2.9",            # LDAP enumeration (T1087, T1069, T1482)
@@ -50,7 +57,7 @@ dev = [
     "types-urllib3",
     "httpx>=0.27",           # Test async client
 ]
-all = ["redgnat[discovery,phishing]"]
+all = ["redgnat[discovery,phishing,gnat]"]
 
 [project.scripts]
 redgnat = "redgnat.cli:main"
