@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """ScenarioStore tests with a mocked psycopg connection."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -44,9 +45,14 @@ def store():
 class TestFeeds:
     def test_upsert_and_get_feed(self, store):
         feed = IntelFeed(
-            feed_id="f1", source=IntelSource.GNAT, source_ref_id="c1",
-            stix_bundle={"type": "bundle"}, campaign_name="c", attack_pattern_ids=["T1046"],
-            confidence=0.7, ingested_at=TS,
+            feed_id="f1",
+            source=IntelSource.GNAT,
+            source_ref_id="c1",
+            stix_bundle={"type": "bundle"},
+            campaign_name="c",
+            attack_pattern_ids=["T1046"],
+            confidence=0.7,
+            ingested_at=TS,
         )
         ctx, inner = _conn()
         with patch.object(store, "_get_conn", return_value=ctx):
@@ -76,9 +82,15 @@ class TestFeeds:
 class TestScenarios:
     def test_upsert_and_get(self, store):
         scn = EmulationScenario(
-            scenario_id="s1", name="n", description="d", feed_id="f1",
-            technique_ids=["T1046"], scope_overrides={"dry_run": True},
-            status=ScenarioStatus.ACTIVE, created_at=TS, updated_at=TS,
+            scenario_id="s1",
+            name="n",
+            description="d",
+            feed_id="f1",
+            technique_ids=["T1046"],
+            scope_overrides={"dry_run": True},
+            status=ScenarioStatus.ACTIVE,
+            created_at=TS,
+            updated_at=TS,
         )
         ctx, _ = _conn()
         with patch.object(store, "_get_conn", return_value=ctx):
@@ -107,9 +119,14 @@ class TestScenarios:
 class TestRuns:
     def test_upsert_and_get_run(self, store):
         run = EmulationRun(
-            run_id="r1", scenario_id="s1", status=RunStatus.RUNNING,
-            started_at=TS, triggered_by="manual", investigation_id="IC-1",
-            hypothesis_id="HYP-1", investigation_tenant_id="tn",
+            run_id="r1",
+            scenario_id="s1",
+            status=RunStatus.RUNNING,
+            started_at=TS,
+            triggered_by="manual",
+            investigation_id="IC-1",
+            hypothesis_id="HYP-1",
+            investigation_tenant_id="tn",
             investigation_validation_pending=True,
         )
         ctx, _ = _conn()
@@ -144,16 +161,23 @@ class TestRuns:
 class TestResults:
     def test_insert_and_list_results(self, store):
         res = TechniqueResult(
-            result_id="res1", run_id="r1", scenario_id="s1", feed_id="f1",
-            technique_id="T1046", tactic="discovery", status=ResultStatus.SUCCESS,
-            findings=[{"a": 1}], evidence=[], error=None, executed_at=TS,
+            result_id="res1",
+            run_id="r1",
+            scenario_id="s1",
+            feed_id="f1",
+            technique_id="T1046",
+            tactic="discovery",
+            status=ResultStatus.SUCCESS,
+            findings=[{"a": 1}],
+            evidence=[],
+            error=None,
+            executed_at=TS,
         )
         ctx, _ = _conn()
         with patch.object(store, "_get_conn", return_value=ctx):
             store.insert_result(res)
 
-        row = ("res1", "r1", "s1", "f1", "T1046", "discovery", "success",
-               [{"a": 1}], [], None, TS)
+        row = ("res1", "r1", "s1", "f1", "T1046", "discovery", "success", [{"a": 1}], [], None, TS)
         ctx2, _ = _conn(fetchall=[row])
         with patch.object(store, "_get_conn", return_value=ctx2):
             out = store.list_results("r1")

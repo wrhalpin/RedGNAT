@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Safety-control tests for the credential-access techniques (Control #4)."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -30,18 +31,26 @@ def _ctx(params=None, accounts=(TEST_ACCT,), rate=60):
 
 def _ok(account, success=True):
     return AuthAttemptResult(
-        provider="entra", account=account, password_hint="*", success=success,
-        locked_out=False, mfa_required=False, error_code=None,
-        http_status=200, raw_response_snippet=None,
+        provider="entra",
+        account=account,
+        password_hint="*",
+        success=success,
+        locked_out=False,
+        mfa_required=False,
+        error_code=None,
+        http_status=200,
+        raw_response_snippet=None,
     )
 
 
 @pytest.fixture(autouse=True)
 def _no_sleep():
-    with patch("redgnat.techniques.identity.password_spray.time.sleep", lambda *_: None), \
-         patch("redgnat.techniques.identity.base._jitter_sleep", lambda *_: None), \
-         patch("redgnat.techniques.identity.mfa_fatigue._jitter_sleep", lambda *_: None), \
-         patch("redgnat.config.RedGNATConfig", return_value=MagicMock()):
+    with (
+        patch("redgnat.techniques.identity.password_spray.time.sleep", lambda *_: None),
+        patch("redgnat.techniques.identity.base._jitter_sleep", lambda *_: None),
+        patch("redgnat.techniques.identity.mfa_fatigue._jitter_sleep", lambda *_: None),
+        patch("redgnat.config.RedGNATConfig", return_value=MagicMock()),
+    ):
         yield
 
 
@@ -53,7 +62,9 @@ class TestPasswordSpray:
     def test_only_sprays_scope_accounts(self):
         t = PasswordSprayTechnique()
         seen = []
-        with patch.object(t, "_attempt", side_effect=lambda cfg, p, acct, pw: seen.append(acct) or _ok(acct)):
+        with patch.object(
+            t, "_attempt", side_effect=lambda cfg, p, acct, pw: seen.append(acct) or _ok(acct)
+        ):
             t.execute(_ctx(params={"passwords": ["Spring2026!"]}))
         # every attempted account came from scope.target_accounts, nothing else
         assert set(seen) == {TEST_ACCT}
@@ -99,7 +110,8 @@ class TestCredentialStuffing:
         t = CredentialStuffingTechnique()
         params = {
             "credential_pairs": [{"username": TEST_ACCT, "password": "p"}],
-            "providers": ["entra"], "shuffle": False,
+            "providers": ["entra"],
+            "shuffle": False,
         }
         with patch.object(t, "_attempt", return_value=_ok(TEST_ACCT, success=False)):
             result = t.execute(_ctx(params=params, rate=0))
@@ -125,8 +137,10 @@ class TestMFAFatigue:
     def test_push_count_capped(self):
         t = MFAFatigueTechnique()
         params = {
-            "confirm_mfa_fatigue_test": True, "password": "p",
-            "pushes_per_account": 9999, "provider": "entra",
+            "confirm_mfa_fatigue_test": True,
+            "password": "p",
+            "pushes_per_account": 9999,
+            "provider": "entra",
         }
         calls = {"n": 0}
 

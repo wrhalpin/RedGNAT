@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Engagement route tests (gate / kill switch / authorize)."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock
@@ -96,9 +97,7 @@ class TestAuthorize:
         monkeypatch.setenv("REDGNAT_KILL_KEY", "kk")
         gate = MagicMock()
         monkeypatch.setattr("redgnat.engagement.gate.EngagementGate", lambda cfg: gate)
-        r = api.request(
-            "DELETE", "/api/v1/engage/authorize", headers={**AUTH, "X-Kill-Key": "kk"}
-        )
+        r = api.request("DELETE", "/api/v1/engage/authorize", headers={**AUTH, "X-Kill-Key": "kk"})
         assert r.status_code == 200
         assert r.json()["revoked"] is True
         gate.revoke_token.assert_called_once()

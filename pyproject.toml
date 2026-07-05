@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "redgnat"
@@ -83,7 +83,10 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-ignore = ["E501"]
+# E501: line length handled by the formatter.
+# UP042: the dataclass-ORM enums intentionally use (str, Enum) rather than
+# StrEnum for explicit .value serialization; this is a deliberate convention.
+ignore = ["E501", "UP042"]
 
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI dependency-injection idiom: Depends()/Body()/Query()/Header() are

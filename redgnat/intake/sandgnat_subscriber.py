@@ -6,13 +6,14 @@ SandGNAT intel subscriber.
 Polls the SandGNAT export API for completed malware analyses and converts
 behavioral STIX bundles into IntelFeed records for RedGNAT's scenario builder.
 """
+
 from __future__ import annotations
 
 import json
 import logging
 import urllib.error
 import urllib.request
-from typing import Iterator
+from collections.abc import Iterator
 
 from redgnat.config import RedGNATConfig
 from redgnat.intake.base import IntelSubscriber
@@ -28,16 +29,37 @@ _SEVERITY_ORDER = {"low": 0, "medium": 1, "high": 2, "critical": 3}
 # and are relevant for emulation (discovery/persistence/lateral movement)
 _EMULATABLE_TECHNIQUES = {
     # Discovery
-    "T1046", "T1082", "T1083", "T1016", "T1049", "T1033", "T1007",
-    "T1069", "T1087", "T1135", "T1018", "T1482",
+    "T1046",
+    "T1082",
+    "T1083",
+    "T1016",
+    "T1049",
+    "T1033",
+    "T1007",
+    "T1069",
+    "T1087",
+    "T1135",
+    "T1018",
+    "T1482",
     # Initial Access
-    "T1566.001", "T1566.002", "T1190", "T1078",
+    "T1566.001",
+    "T1566.002",
+    "T1190",
+    "T1078",
     # Credential Access
-    "T1110.003", "T1110.004", "T1621", "T1528", "T1539", "T1555",
+    "T1110.003",
+    "T1110.004",
+    "T1621",
+    "T1528",
+    "T1539",
+    "T1555",
     # Lateral Movement
-    "T1021.001", "T1021.002", "T1021.006",
+    "T1021.001",
+    "T1021.002",
+    "T1021.006",
     # Collection
-    "T1560", "T1074",
+    "T1560",
+    "T1074",
 }
 
 
@@ -104,6 +126,10 @@ class SandGNATSubscriber(IntelSubscriber):
             bundle = self._get(f"/analyses/{analysis_id}/bundle")
         except Exception as exc:
             logger.warning("Could not fetch bundle for analysis %s: %s", analysis_id, exc)
+            return
+
+        if not isinstance(bundle, dict):
+            logger.warning("SandGNAT bundle for %s is not a STIX object — skipping", analysis_id)
             return
 
         # Extract emulatable ATT&CK technique IDs from the bundle

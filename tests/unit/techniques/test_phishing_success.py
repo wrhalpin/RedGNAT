@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Success-path tests for GoPhish-backed techniques (client mocked)."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -35,7 +36,10 @@ def _ctx():
         max_rate_per_minute=60,
     )
     return TechniqueContext(
-        run_id="run-1", scenario_id="s1", feed_id="f1", scope=scope,
+        run_id="run-1",
+        scenario_id="s1",
+        feed_id="f1",
+        scope=scope,
         params={"targets": [{"email": "victim@test.example.com", "first_name": "V"}]},
     )
 
@@ -64,9 +68,11 @@ def _gophish_client():
 )
 def test_success_path(module, cls):
     client = _gophish_client()
-    with patch("redgnat.config.RedGNATConfig", return_value=_cfg()), \
-         patch(f"{module}.GoPhishClient", return_value=client), \
-         patch(f"{module}.time.sleep", lambda *_: None):
+    with (
+        patch("redgnat.config.RedGNATConfig", return_value=_cfg()),
+        patch(f"{module}.GoPhishClient", return_value=client),
+        patch(f"{module}.time.sleep", lambda *_: None),
+    ):
         result = cls().execute(_ctx())
     assert result.status == ResultStatus.SUCCESS
     client.create_campaign.assert_called_once()
@@ -84,9 +90,11 @@ def test_success_path(module, cls):
 def test_teardown_on_error(module, cls):
     client = _gophish_client()
     client.create_campaign.side_effect = RuntimeError("gophish 500")
-    with patch("redgnat.config.RedGNATConfig", return_value=_cfg()), \
-         patch(f"{module}.GoPhishClient", return_value=client), \
-         patch(f"{module}.time.sleep", lambda *_: None):
+    with (
+        patch("redgnat.config.RedGNATConfig", return_value=_cfg()),
+        patch(f"{module}.GoPhishClient", return_value=client),
+        patch(f"{module}.time.sleep", lambda *_: None),
+    ):
         result = cls().execute(_ctx())
     assert result.status == ResultStatus.ERROR
     # teardown deletes the created page/template/group after the failure
@@ -107,7 +115,10 @@ def test_out_of_scope_target_blocks():
     with patch("redgnat.config.RedGNATConfig", return_value=_cfg()):
         scope = Scope(target_domains=["other.example.com"], max_rate_per_minute=60)
         ctx = TechniqueContext(
-            run_id="r", scenario_id="s", feed_id="f", scope=scope,
+            run_id="r",
+            scenario_id="s",
+            feed_id="f",
+            scope=scope,
             params={"targets": [{"email": "victim@test.example.com"}]},
         )
         result = SpearphishingLinkTechnique().execute(ctx)

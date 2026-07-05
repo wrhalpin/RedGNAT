@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """End-to-end route tests via the FastAPI TestClient (store/client mocked)."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock
@@ -145,12 +146,8 @@ class TestIntelRoutes:
     def test_probe_request_queued(self, api, monkeypatch):
         fake_task = MagicMock()
         fake_task.id = "task-123"
-        monkeypatch.setattr(
-            "redgnat.emulation.tasks.run_probe_task.delay", lambda body: fake_task
-        )
-        r = api.post(
-            "/api/v1/intel/probe-request", headers=AUTH, json={"technique_id": "T1621"}
-        )
+        monkeypatch.setattr("redgnat.emulation.tasks.run_probe_task.delay", lambda body: fake_task)
+        r = api.post("/api/v1/intel/probe-request", headers=AUTH, json={"technique_id": "T1621"})
         assert r.status_code == 200
         assert r.json()["task_id"] == "task-123"
 

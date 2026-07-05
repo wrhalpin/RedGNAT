@@ -12,6 +12,7 @@ collects credentials. All campaign targets must belong to in-scope domains.
 Emulation only: tracks user interaction metrics (click rate, credential
 submission rate) without deploying actual malware payloads.
 """
+
 from __future__ import annotations
 
 import logging
@@ -87,6 +88,7 @@ class SpearphishingLinkTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         targets_raw: list[dict] = ctx.params.get("targets", [])
@@ -99,7 +101,9 @@ class SpearphishingLinkTechnique(Technique):
             )
 
         if not cfg.gophish_base_url or not cfg.gophish_api_key:
-            return self._blocked_result(ctx, "GoPhish not configured (gophish.base_url / gophish.api_key)")
+            return self._blocked_result(
+                ctx, "GoPhish not configured (gophish.base_url / gophish.api_key)"
+            )
 
         # Validate all target email domains are in scope
         validated_targets = []
@@ -128,9 +132,7 @@ class SpearphishingLinkTechnique(Technique):
             created_resources["group_id"] = group["id"]
 
             # Create email template
-            template_dict = dict(
-                ctx.params.get("email_template", _DEFAULT_EMAIL_TEMPLATE)
-            )
+            template_dict = dict(ctx.params.get("email_template", _DEFAULT_EMAIL_TEMPLATE))
             template_dict["name"] = f"{campaign_name}-tmpl"
             template = client.create_template(template_dict)
             created_resources["template_id"] = template["id"]
@@ -149,6 +151,7 @@ class SpearphishingLinkTechnique(Technique):
 
             # Create and launch campaign
             import datetime as dt
+
             now = dt.datetime.now(dt.UTC)
             launch_date = now.strftime("%Y-%m-%dT%H:%M:%S+00:00")
             send_by = now + dt.timedelta(hours=campaign_hours)
@@ -191,9 +194,7 @@ class SpearphishingLinkTechnique(Technique):
                     "emails_opened": stats.get("opened", 0),
                     "links_clicked": stats.get("clicked", 0),
                     "credentials_submitted": stats.get("submitted_data", 0),
-                    "click_rate": (
-                        stats.get("clicked", 0) / max(stats.get("sent", 1), 1)
-                    ),
+                    "click_rate": (stats.get("clicked", 0) / max(stats.get("sent", 1), 1)),
                 }
             ]
             return self._make_result(ctx, ResultStatus.SUCCESS, findings)

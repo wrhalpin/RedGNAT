@@ -9,6 +9,7 @@ Emulation only: discovers open ports and services but performs no exploitation.
 External dependency: nmap must be installed on the host (apt install nmap).
 Python binding: python-nmap (pip install python-nmap).
 """
+
 from __future__ import annotations
 
 import logging
@@ -75,7 +76,7 @@ class NetworkScanTechnique(Technique):
         evidence: list[dict] = []
 
         try:
-            import nmap as nm  # type: ignore[import]
+            import nmap as nm
         except ImportError:
             return self._make_result(
                 ctx,
@@ -87,9 +88,7 @@ class NetworkScanTechnique(Technique):
         scanner = nm.PortScanner()
 
         for cidr in target_ranges:
-            logger.info(
-                "NetworkScan: scanning %s (args: %s) [run=%s]", cidr, nmap_args, ctx.run_id
-            )
+            logger.info("NetworkScan: scanning %s (args: %s) [run=%s]", cidr, nmap_args, ctx.run_id)
             try:
                 scanner.scan(hosts=cidr, arguments=nmap_args)
             except nm.PortScannerError as exc:
@@ -122,9 +121,7 @@ class NetworkScanTechnique(Technique):
                     findings.append(host_entry)
 
                 # Raw nmap XML for evidence (trimmed)
-                evidence.append(
-                    {"host": host, "nmap_data": dict(scanner[host])}
-                )
+                evidence.append({"host": host, "nmap_data": dict(scanner[host])})
 
         status = ResultStatus.SUCCESS if findings else ResultStatus.PARTIAL
         logger.info(

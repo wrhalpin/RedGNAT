@@ -14,6 +14,7 @@ custom properties (four when a hypothesis is present):
 
 Canonical spec: docs/reference/investigation-context.md
 """
+
 from __future__ import annotations
 
 import json
@@ -134,10 +135,7 @@ def validate_hypothesis(
     (None, warning)
         GNAT unreachable — caller should accept with ``investigation_validation_pending=True``.
     """
-    url = (
-        f"{gnat_api_base_url.rstrip('/')}"
-        f"/api/investigations/{investigation_id}/hypotheses"
-    )
+    url = f"{gnat_api_base_url.rstrip('/')}/api/investigations/{investigation_id}/hypotheses"
     req = urllib.request.Request(
         url,
         headers={"X-API-Key": gnat_api_key, "Accept": "application/json"},
@@ -205,10 +203,7 @@ def push_investigation_bundle(
         Push failed; ``error_type`` is one of "conflict", "not_found",
         "forbidden", "network_error".
     """
-    url = (
-        f"{gnat_api_base_url.rstrip('/')}"
-        f"/api/investigations/{investigation_id}/evidence"
-    )
+    url = f"{gnat_api_base_url.rstrip('/')}/api/investigations/{investigation_id}/evidence"
     headers: dict[str, str] = {
         "X-API-Key": gnat_api_key,
         "Content-Type": "application/json",

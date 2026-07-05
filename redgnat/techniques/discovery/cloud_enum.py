@@ -10,6 +10,7 @@ Read-only enumeration of cloud identity providers and resources:
 
 Emulation only: uses read-only API permissions; never modifies cloud resources.
 """
+
 from __future__ import annotations
 
 import json
@@ -57,6 +58,7 @@ class CloudEnumTechnique(Technique):
             )
 
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         providers = ctx.params.get("providers", ["entra", "okta", "aws"])
@@ -80,7 +82,15 @@ class CloudEnumTechnique(Technique):
         entra_domain = cfg.entra_tenant_id if "." in (cfg.entra_tenant_id or "") else ""
         okta_host = (cfg.okta_base_url or "").split("://")[-1].split("/")[0]
 
-        if "entra" in providers and cfg.entra_tenant_id and not _domain_allowed(entra_domain):
+        # Only enforce the domain gate for a domain-form tenant; a GUID
+        # tenant_id (the common case) cannot be domain-scoped, so skip rather
+        # than force-block it.
+        if (
+            "entra" in providers
+            and cfg.entra_tenant_id
+            and entra_domain
+            and not _domain_allowed(entra_domain)
+        ):
             errors.append(f"entra: tenant {entra_domain!r} not in scope")
         elif "entra" in providers and cfg.entra_tenant_id:
             try:
@@ -110,7 +120,8 @@ class CloudEnumTechnique(Technique):
 
         if not findings and not errors:
             return self._blocked_result(
-                ctx, "No cloud providers configured (entra_tenant_id / okta_base_url / aws_access_key_id)"
+                ctx,
+                "No cloud providers configured (entra_tenant_id / okta_base_url / aws_access_key_id)",
             )
 
         status = ResultStatus.SUCCESS if findings else ResultStatus.ERROR
@@ -138,19 +149,21 @@ class CloudEnumTechnique(Technique):
             "createdDateTime,lastSignInDateTime,assignedLicenses",
             headers,
         )
-        results.append({
-            "category": "entra_users",
-            "count": len(users),
-            "sample": [
-                {
-                    "upn": u.get("userPrincipalName"),
-                    "display_name": u.get("displayName"),
-                    "enabled": u.get("accountEnabled"),
-                    "last_signin": u.get("lastSignInDateTime"),
-                }
-                for u in users[:20]
-            ],
-        })
+        results.append(
+            {
+                "category": "entra_users",
+                "count": len(users),
+                "sample": [
+                    {
+                        "upn": u.get("userPrincipalName"),
+                        "display_name": u.get("displayName"),
+                        "enabled": u.get("accountEnabled"),
+                        "last_signin": u.get("lastSignInDateTime"),
+                    }
+                    for u in users[:20]
+                ],
+            }
+        )
         logger.info("CloudEnum: found %d Entra users", len(users))
 
         # Groups
@@ -166,9 +179,15 @@ class CloudEnumTechnique(Technique):
             f"{_GRAPH_BASE}/applications?$top=100&$select=id,displayName,appId,requiredResourceAccess",
             headers,
         )
-        results.append({"category": "entra_applications", "count": len(apps), "apps": [
-            {"name": a.get("displayName"), "app_id": a.get("appId")} for a in apps[:20]
-        ]})
+        results.append(
+            {
+                "category": "entra_applications",
+                "count": len(apps),
+                "apps": [
+                    {"name": a.get("displayName"), "app_id": a.get("appId")} for a in apps[:20]
+                ],
+            }
+        )
 
         # Service principals (enterprise apps)
         sps = self._graph_get(
@@ -181,12 +200,14 @@ class CloudEnumTechnique(Technique):
 
     def _get_entra_token(self, cfg: Any) -> str:
         url = f"{cfg.entra_authority}/{cfg.entra_tenant_id}/oauth2/v2.0/token"
-        data = urllib.parse.urlencode({
-            "client_id": cfg.entra_client_id,
-            "client_secret": cfg.entra_client_secret,
-            "scope": " ".join(_GRAPH_SCOPES),
-            "grant_type": "client_credentials",
-        }).encode()
+        data = urllib.parse.urlencode(
+            {
+                "client_id": cfg.entra_client_id,
+                "client_secret": cfg.entra_client_secret,
+                "scope": " ".join(_GRAPH_SCOPES),
+                "grant_type": "client_credentials",
+            }
+        ).encode()
         req = urllib.request.Request(url, data=data, method="POST")
         with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
             body = json.loads(resp.read())
@@ -218,32 +239,36 @@ class CloudEnumTechnique(Technique):
             f"{base}/api/v1/users?limit={min(max_users, 200)}&filter=status+eq+%22ACTIVE%22",
             headers,
         )
-        results.append({
-            "category": "okta_users",
-            "count": len(users),
-            "sample": [
-                {
-                    "login": u.get("profile", {}).get("login"),
-                    "display_name": u.get("profile", {}).get("displayName"),
-                    "status": u.get("status"),
-                    "last_login": u.get("lastLogin"),
-                }
-                for u in users[:20]
-            ],
-        })
+        results.append(
+            {
+                "category": "okta_users",
+                "count": len(users),
+                "sample": [
+                    {
+                        "login": u.get("profile", {}).get("login"),
+                        "display_name": u.get("profile", {}).get("displayName"),
+                        "status": u.get("status"),
+                        "last_login": u.get("lastLogin"),
+                    }
+                    for u in users[:20]
+                ],
+            }
+        )
         logger.info("CloudEnum: found %d active Okta users", len(users))
 
         # Groups
-        groups = self._okta_get(
-            f"{base}/api/v1/groups?limit={min(max_groups, 200)}", headers
-        )
+        groups = self._okta_get(f"{base}/api/v1/groups?limit={min(max_groups, 200)}", headers)
         results.append({"category": "okta_groups", "count": len(groups)})
 
         # Applications
         apps = self._okta_get(f"{base}/api/v1/apps?limit=100", headers)
-        results.append({"category": "okta_apps", "count": len(apps), "apps": [
-            {"label": a.get("label"), "status": a.get("status")} for a in apps[:20]
-        ]})
+        results.append(
+            {
+                "category": "okta_apps",
+                "count": len(apps),
+                "apps": [{"label": a.get("label"), "status": a.get("status")} for a in apps[:20]],
+            }
+        )
 
         return results
 
@@ -274,7 +299,7 @@ class CloudEnumTechnique(Technique):
     # ------------------------------------------------------------------
     def _enum_aws(self, cfg: Any, max_users: int, max_groups: int) -> list[dict]:
         try:
-            import boto3  # type: ignore[import]
+            import boto3
         except ImportError as exc:
             raise RuntimeError("boto3 not installed — pip install boto3") from exc
 
@@ -303,19 +328,21 @@ class CloudEnumTechnique(Technique):
         # IAM users
         users_resp = iam.list_users(MaxItems=min(max_users, 1000))
         users = users_resp.get("Users", [])
-        results.append({
-            "category": "aws_iam_users",
-            "count": len(users),
-            "sample": [
-                {
-                    "username": u.get("UserName"),
-                    "arn": u.get("Arn"),
-                    "created": str(u.get("CreateDate", "")),
-                    "password_last_used": str(u.get("PasswordLastUsed", "never")),
-                }
-                for u in users[:20]
-            ],
-        })
+        results.append(
+            {
+                "category": "aws_iam_users",
+                "count": len(users),
+                "sample": [
+                    {
+                        "username": u.get("UserName"),
+                        "arn": u.get("Arn"),
+                        "created": str(u.get("CreateDate", "")),
+                        "password_last_used": str(u.get("PasswordLastUsed", "never")),
+                    }
+                    for u in users[:20]
+                ],
+            }
+        )
         logger.info("CloudEnum: found %d AWS IAM users", len(users))
 
         # IAM groups

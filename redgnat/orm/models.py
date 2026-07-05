@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Core ORM models for RedGNAT."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -34,8 +35,8 @@ class RunStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
     CANCELLED = "cancelled"
-    KILLED = "killed"       # stopped by kill switch mid-run
-    EXPIRED = "expired"     # Phase 2 engagement token expired mid-run
+    KILLED = "killed"  # stopped by kill switch mid-run
+    EXPIRED = "expired"  # Phase 2 engagement token expired mid-run
 
 
 class ResultStatus(str, Enum):
@@ -43,12 +44,12 @@ class ResultStatus(str, Enum):
 
     SUCCESS = "success"
     PARTIAL = "partial"
-    BLOCKED = "blocked"    # Scope check prevented execution
+    BLOCKED = "blocked"  # Scope check prevented execution
     DETECTED = "detected"  # Triggered defensive telemetry
     ERROR = "error"
     DRY_RUN = "dry_run"
-    KILLED = "killed"      # Kill switch activated mid-run; technique did not start
-    EXPIRED = "expired"    # Phase 2 engagement token expired; technique did not start
+    KILLED = "killed"  # Kill switch activated mid-run; technique did not start
+    EXPIRED = "expired"  # Phase 2 engagement token expired; technique did not start
 
 
 @dataclass
@@ -98,7 +99,7 @@ class IntelFeed(RedGNATBase):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "IntelFeed":
+    def from_dict(cls, data: dict[str, Any]) -> IntelFeed:
         return cls(
             feed_id=data.get("feed_id", new_uuid()),
             source=IntelSource(data.get("source", "gnat")),
@@ -162,7 +163,7 @@ class EmulationScenario(RedGNATBase):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "EmulationScenario":
+    def from_dict(cls, data: dict[str, Any]) -> EmulationScenario:
         return cls(
             scenario_id=data.get("scenario_id", new_uuid()),
             name=data.get("name", ""),
@@ -237,7 +238,7 @@ class EmulationRun(RedGNATBase):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "EmulationRun":
+    def from_dict(cls, data: dict[str, Any]) -> EmulationRun:
         return cls(
             run_id=data.get("run_id", new_uuid()),
             scenario_id=data.get("scenario_id", ""),
@@ -316,7 +317,7 @@ class TechniqueResult(RedGNATBase):
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TechniqueResult":
+    def from_dict(cls, data: dict[str, Any]) -> TechniqueResult:
         return cls(
             result_id=data.get("result_id", new_uuid()),
             run_id=data.get("run_id", ""),

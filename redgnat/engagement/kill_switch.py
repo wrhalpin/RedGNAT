@@ -19,6 +19,7 @@ Paths to the kill switch (in order of preference):
   • POST /api/v1/engage/kill        — REST API (requires X-Kill-Key header)
   • redis-cli SET redgnat:kill:active 1  — direct Redis (nuclear option)
 """
+
 from __future__ import annotations
 
 import logging
@@ -134,9 +135,7 @@ class KillSwitch:
             redis.set(_REDIS_KEY_OPERATOR, operator)
             redis.set(_REDIS_KEY_TS, now)
             report["steps"]["redis"] = "ok"
-            logger.critical(
-                "KILL SWITCH ACTIVATED — operator=%s reason=%r", operator, reason
-            )
+            logger.critical("KILL SWITCH ACTIVATED — operator=%s reason=%r", operator, reason)
         except Exception as exc:
             report["steps"]["redis"] = f"FAILED: {exc}"
             logger.critical("KILL SWITCH: failed to set Redis flag: %s", exc)
@@ -282,7 +281,7 @@ class KillSwitch:
     def _notify_gnat(self, reason: str, operator: str, activated_at: str) -> None:
         """Push a CRITICAL STIX Note to GNAT describing the kill event."""
         try:
-            from gnat import GNATClient  # type: ignore[import]
+            from gnat import GNATClient
         except ImportError:
             logger.warning("KillSwitch: GNAT not installed, skipping notification")
             return

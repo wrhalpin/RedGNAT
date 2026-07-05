@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Unit tests for IntelNormalizer."""
+
 from __future__ import annotations
 
 import pytest
@@ -62,9 +63,7 @@ def test_normalizer_sets_status_active(
     assert scenario.status == ScenarioStatus.ACTIVE
 
 
-def test_normalizer_preserves_feed_id(
-    normalizer: IntelNormalizer, feed_with_techniques: IntelFeed
-):
+def test_normalizer_preserves_feed_id(normalizer: IntelNormalizer, feed_with_techniques: IntelFeed):
     scenario = normalizer.to_scenario(feed_with_techniques)
     assert scenario is not None
     assert scenario.feed_id == feed_with_techniques.feed_id

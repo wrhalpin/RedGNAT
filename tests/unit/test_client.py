@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """RedGNATClient facade tests with a mocked store."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -66,9 +67,11 @@ class TestIngestLatest:
         sub.poll.return_value = [feed]
         normalizer = MagicMock()
         normalizer.to_scenario.return_value = _scenario()
-        with patch("redgnat.intake.gnat_subscriber.GNATSubscriber", return_value=sub), \
-             patch("redgnat.intake.sandgnat_subscriber.SandGNATSubscriber", return_value=sub), \
-             patch("redgnat.intake.normalizer.IntelNormalizer", return_value=normalizer):
+        with (
+            patch("redgnat.intake.gnat_subscriber.GNATSubscriber", return_value=sub),
+            patch("redgnat.intake.sandgnat_subscriber.SandGNATSubscriber", return_value=sub),
+            patch("redgnat.intake.normalizer.IntelNormalizer", return_value=normalizer),
+        ):
             feeds = client.ingest_latest()
         # two subscribers, one feed each
         assert len(feeds) == 2

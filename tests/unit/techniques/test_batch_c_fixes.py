@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Regression tests for Batch C technique-safety fixes."""
+
 from __future__ import annotations
 
 from redgnat.techniques.identity.base import _rate_delay_seconds
@@ -23,6 +24,7 @@ class TestOAuthDomainExtraction:
         from redgnat.techniques.base import Scope
 
         scope = Scope(target_domains=["corp.example.com"])
+
         # Mirror the technique's extraction logic
         def _domain(email: str) -> str:
             return email.rsplit("@", 1)[-1] if "@" in email else ""

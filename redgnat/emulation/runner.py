@@ -12,6 +12,7 @@ Two runner classes are provided:
   EngagementRunner   — Phase 2; additionally checks the engagement token
                        between steps and aborts if it has expired.
 """
+
 from __future__ import annotations
 
 import logging
@@ -19,8 +20,14 @@ import time
 from datetime import UTC, datetime
 
 from redgnat.config import RedGNATConfig
-from redgnat.emulation.plan import EmulationPlan
-from redgnat.orm.models import EmulationRun, ResultStatus, RunStatus, TechniqueResult
+from redgnat.emulation.plan import EmulationPlan, PlannedStep
+from redgnat.orm.models import (
+    EmulationRun,
+    EmulationScenario,
+    ResultStatus,
+    RunStatus,
+    TechniqueResult,
+)
 from redgnat.techniques.base import TechniqueContext
 
 logger = logging.getLogger(__name__)
@@ -43,7 +50,7 @@ class EmulationRunner:
     def __init__(self, config: RedGNATConfig) -> None:
         self.config = config
 
-    def execute(self, run: EmulationRun, scenario: "object") -> list[TechniqueResult]:
+    def execute(self, run: EmulationRun, scenario: EmulationScenario) -> list[TechniqueResult]:
         """
         Execute all steps in the scenario's plan and persist results.
 
@@ -132,16 +139,12 @@ class EmulationRunner:
         return results
 
     @staticmethod
-    def _aggregate_status(
-        stop_reason: str | None, results: list[TechniqueResult]
-    ) -> RunStatus:
+    def _aggregate_status(stop_reason: str | None, results: list[TechniqueResult]) -> RunStatus:
         """Roll technique outcomes up into a single run status."""
         if stop_reason:
             return RunStatus.EXPIRED if stop_reason.startswith("expired") else RunStatus.KILLED
         executed = [
-            r
-            for r in results
-            if r.status not in (ResultStatus.KILLED, ResultStatus.EXPIRED)
+            r for r in results if r.status not in (ResultStatus.KILLED, ResultStatus.EXPIRED)
         ]
         # A run whose every executed technique errored is a failed run, not a
         # clean completion — downstream consumers rely on run.status.
@@ -149,7 +152,7 @@ class EmulationRunner:
             return RunStatus.FAILED
         return RunStatus.COMPLETED
 
-    def _execute_step(self, step: "object", plan: EmulationPlan) -> TechniqueResult:
+    def _execute_step(self, step: PlannedStep, plan: EmulationPlan) -> TechniqueResult:
         from redgnat.orm.base import new_uuid  # noqa: F401
 
         ctx = TechniqueContext(
@@ -164,9 +167,7 @@ class EmulationRunner:
             technique = step.technique_cls()
             result = technique.execute(ctx)
         except Exception as exc:
-            logger.exception(
-                "Technique %s raised unhandled exception: %s", step.technique_id, exc
-            )
+            logger.exception("Technique %s raised unhandled exception: %s", step.technique_id, exc)
             result = TechniqueResult(
                 run_id=plan.run_id,
                 scenario_id=plan.scenario_id,
@@ -210,9 +211,7 @@ class EmulationRunner:
                 return "kill"
         except Exception as exc:
             # Cannot confirm it is safe to proceed → halt.
-            logger.critical(
-                "Runner: kill switch check errored — failing closed (halt): %s", exc
-            )
+            logger.critical("Runner: kill switch check errored — failing closed (halt): %s", exc)
             return "kill:check-error"
 
         return None
@@ -220,7 +219,7 @@ class EmulationRunner:
     @staticmethod
     def _make_unexecuted_result(
         plan: EmulationPlan,
-        step: "object",
+        step: PlannedStep,
         status: ResultStatus,
         reason: str,
     ) -> TechniqueResult:
@@ -262,9 +261,7 @@ class EngagementRunner(EmulationRunner):
             if not authorized:
                 return f"expired:{reason}"
         except Exception as exc:
-            logger.critical(
-                "EngagementRunner: gate check errored — failing closed (halt): %s", exc
-            )
+            logger.critical("EngagementRunner: gate check errored — failing closed (halt): %s", exc)
             return f"expired:gate-check-error:{exc}"
 
         return None

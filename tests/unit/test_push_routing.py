@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Tests — Phase 3.1: Gap report push routing based on investigation context."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -42,8 +43,10 @@ class TestPushRouting:
         report = _make_report()
         config = _make_config()
         reporter = GapReporter(config)
-        with patch.object(reporter, "_push_via_gnat_client", return_value=True) as mock_gnat, \
-             patch.object(reporter, "_push_to_investigation") as mock_inv:
+        with (
+            patch.object(reporter, "_push_via_gnat_client", return_value=True) as mock_gnat,
+            patch.object(reporter, "_push_to_investigation") as mock_inv,
+        ):
             result = reporter.push_to_gnat(report)
         mock_gnat.assert_called_once()
         mock_inv.assert_not_called()
@@ -53,8 +56,10 @@ class TestPushRouting:
         report = _make_report(investigation_id="IC-2026-0001")
         config = _make_config(gnat_api_base_url="http://gnat.test:8000")
         reporter = GapReporter(config)
-        with patch.object(reporter, "_push_to_investigation", return_value=True) as mock_inv, \
-             patch.object(reporter, "_push_via_gnat_client") as mock_gnat:
+        with (
+            patch.object(reporter, "_push_to_investigation", return_value=True) as mock_inv,
+            patch.object(reporter, "_push_via_gnat_client") as mock_gnat,
+        ):
             result = reporter.push_to_gnat(report)
         mock_inv.assert_called_once()
         mock_gnat.assert_not_called()
@@ -65,9 +70,11 @@ class TestPushRouting:
         report = _make_report(investigation_id="IC-2026-0001")
         config = _make_config(gnat_api_base_url="")  # not configured
         reporter = GapReporter(config)
-        with patch.object(reporter, "_push_via_gnat_client", return_value=True) as mock_gnat, \
-             patch.object(reporter, "_push_to_investigation") as mock_inv:
-            result = reporter.push_to_gnat(report)
+        with (
+            patch.object(reporter, "_push_via_gnat_client", return_value=True) as mock_gnat,
+            patch.object(reporter, "_push_to_investigation") as mock_inv,
+        ):
+            reporter.push_to_gnat(report)
         mock_gnat.assert_called_once()
         mock_inv.assert_not_called()
 
@@ -75,8 +82,10 @@ class TestPushRouting:
         report = GapReport(run_id="run-001", scenario_id="scen-001", gaps=[])
         config = _make_config()
         reporter = GapReporter(config)
-        with patch.object(reporter, "_push_via_gnat_client") as mock_gnat, \
-             patch.object(reporter, "_push_to_investigation") as mock_inv:
+        with (
+            patch.object(reporter, "_push_via_gnat_client") as mock_gnat,
+            patch.object(reporter, "_push_to_investigation") as mock_inv,
+        ):
             result = reporter.push_to_gnat(report)
         mock_gnat.assert_not_called()
         mock_inv.assert_not_called()

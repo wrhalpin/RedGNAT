@@ -9,6 +9,7 @@ This module wraps the GoPhish REST API (v2) using urllib3 / stdlib urllib.
 Emulation-only: campaigns are real phishing simulations scoped to target_domains
 configured in the safe-harbor scope. No actual malware is delivered.
 """
+
 from __future__ import annotations
 
 import json
@@ -127,7 +128,7 @@ class GoPhishClient:
         return self._request("GET", "/api/smtp/") or []
 
 
-def teardown_resources(client: "GoPhishClient", created: dict, log: Any) -> None:
+def teardown_resources(client: GoPhishClient, created: dict, log: Any) -> None:
     """
     Best-effort cleanup of GoPhish resources after a failed campaign run.
 

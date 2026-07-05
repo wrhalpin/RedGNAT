@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Unit tests for the technique registry."""
+
 from __future__ import annotations
 
 from redgnat.techniques.base import Technique
@@ -50,9 +51,18 @@ def test_list_technique_ids_is_sorted():
 
 def test_expected_techniques_registered():
     expected = {
-        "T1046", "T1087.002", "T1069.002", "T1482",
-        "T1566.001", "T1566.002", "T1566",
-        "T1110.003", "T1110.004", "T1621", "T1528", "T1539",
+        "T1046",
+        "T1087.002",
+        "T1069.002",
+        "T1482",
+        "T1566.001",
+        "T1566.002",
+        "T1566",
+        "T1110.003",
+        "T1110.004",
+        "T1621",
+        "T1528",
+        "T1539",
     }
     registered = set(TECHNIQUE_REGISTRY.keys())
     missing = expected - registered

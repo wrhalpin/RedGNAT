@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Engagement management routes — Phase 2 gate, kill switch, and status."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -14,6 +15,7 @@ _KILL_KEY_HEADER = "X-Kill-Key"
 
 def _get_config() -> Any:
     from redgnat.config import RedGNATConfig
+
     return RedGNATConfig()
 
 
@@ -28,6 +30,7 @@ def _require_kill_key(x_kill_key: str | None, *, deny_if_unset: bool = False) ->
     default so an operator is never locked out of the brakes.
     """
     import os
+
     expected = os.environ.get("REDGNAT_KILL_KEY", "")
     if not expected:
         if deny_if_unset:
@@ -92,9 +95,7 @@ async def authorize_engagement(
     if not operator:
         raise HTTPException(status_code=422, detail="operator is required")
     if duration_hours <= 0 or duration_hours > 24:
-        raise HTTPException(
-            status_code=422, detail="duration_hours must be > 0 and <= 24"
-        )
+        raise HTTPException(status_code=422, detail="duration_hours must be > 0 and <= 24")
 
     config = _get_config()
     gate = EngagementGate(config)

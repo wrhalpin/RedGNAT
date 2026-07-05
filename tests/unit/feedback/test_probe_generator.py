@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Unit tests for ProbeGenerator (rule-based path only — no LLM required)."""
+
 from __future__ import annotations
 
 import json
@@ -61,6 +62,7 @@ class TestProbeGeneratorRuleBased:
         # triggering the rule-based fallback
         class _FakeConfig:
             gnat_config_path = None
+
         return ProbeGenerator(_FakeConfig(), max_probes=10)
 
     def test_no_gaps_returns_empty(self):
@@ -111,15 +113,22 @@ class TestProbeGeneratorRuleBased:
             assert p.source_run_id == report.run_id
 
     def test_llm_json_parse_clean(self):
-        raw = json.dumps([
-            {"technique_id": "T1046", "rationale": "test", "priority": "high", "suggested_params": {}},
-        ])
+        raw = json.dumps(
+            [
+                {
+                    "technique_id": "T1046",
+                    "rationale": "test",
+                    "priority": "high",
+                    "suggested_params": {},
+                },
+            ]
+        )
         result = ProbeGenerator._parse_llm_response(raw)
         assert len(result) == 1
         assert result[0]["technique_id"] == "T1046"
 
     def test_llm_json_parse_strips_fences(self):
-        raw = "```json\n[{\"technique_id\": \"T1046\", \"rationale\": \"r\", \"priority\": \"high\", \"suggested_params\": {}}]\n```"
+        raw = '```json\n[{"technique_id": "T1046", "rationale": "r", "priority": "high", "suggested_params": {}}]\n```'
         result = ProbeGenerator._parse_llm_response(raw)
         assert len(result) == 1
 

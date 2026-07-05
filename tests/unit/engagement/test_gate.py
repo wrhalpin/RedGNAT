@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Unit tests for EngagementGate."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
@@ -63,6 +64,7 @@ class TestEngagementGateCheck:
         gate = EngagementGate(cfg)
         mock_redis = MagicMock()
         import json
+
         mock_redis.get.return_value = json.dumps(_valid_token().to_dict()).encode()
         with patch.object(gate, "_redis", return_value=mock_redis):
             authorized, _ = gate.check()
@@ -84,6 +86,7 @@ class TestEngagementGateCheck:
         gate = EngagementGate(_mock_config())
         mock_redis = MagicMock()
         import json
+
         mock_redis.get.return_value = json.dumps(_expired_token().to_dict()).encode()
         with patch.object(gate, "_redis", return_value=mock_redis):
             authorized, reason = gate.check()
@@ -96,6 +99,7 @@ class TestEngagementGateCheck:
         gate = EngagementGate(_mock_config())
         mock_redis = MagicMock()
         import json
+
         mock_redis.get.return_value = json.dumps(_valid_token().to_dict()).encode()
         with patch.object(gate, "_redis", return_value=mock_redis):
             authorized, reason = gate.check()
@@ -127,9 +131,11 @@ class TestEngagementGateAuthorize:
         monkeypatch.setenv(_UNLOCK_ENV_VAR, "unlocked")
         gate = EngagementGate(_mock_config())
         mock_redis = MagicMock()
-        with patch.object(gate, "_redis", return_value=mock_redis):
-            with pytest.raises(ValueError, match="24"):
-                gate.authorize("alice", 25.0)
+        with (
+            patch.object(gate, "_redis", return_value=mock_redis),
+            pytest.raises(ValueError, match="24"),
+        ):
+            gate.authorize("alice", 25.0)
 
     def test_authorize_stores_token(self, monkeypatch):
         monkeypatch.setenv(_UNLOCK_ENV_VAR, "unlocked")

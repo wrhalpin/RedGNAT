@@ -14,6 +14,7 @@ via the GNATClient. GNAT operators and AI agents then use these notes to:
 - Drive HuntGNAT rule gap analysis
 - Feed the probe generator for follow-on testing
 """
+
 from __future__ import annotations
 
 import logging
@@ -104,11 +105,12 @@ class GapReport:
             info = mapper.get(r.technique_id)
             name = info.name if info else r.technique_id
             finding_summary = self._summarise_findings(r)
-            intel_ask = _INTEL_ASKS.get(r.technique_id, _INTEL_ASKS.get(r.technique_id.split(".")[0], ""))
+            intel_ask = _INTEL_ASKS.get(
+                r.technique_id, _INTEL_ASKS.get(r.technique_id.split(".")[0], "")
+            )
             gap_lines.append(
                 f"- [{r.technique_id}] {name}: executed without detection. "
-                f"{finding_summary}"
-                + (f" Intel needed: {intel_ask}" if intel_ask else "")
+                f"{finding_summary}" + (f" Intel needed: {intel_ask}" if intel_ask else "")
             )
 
         note_content = (
@@ -348,10 +350,10 @@ class GapReporter:
     def _push_via_gnat_client(self, report: GapReport, stix_note: dict) -> bool:
         """Fall back to GNATClient.upsert_object for non-investigation runs."""
         try:
-            from gnat import GNATClient  # type: ignore[import]
+            from gnat import GNATClient
 
             client = GNATClient(config_path=self.config.gnat_config_path)
-            client.upsert_object(stix_note)  # type: ignore[attr-defined]
+            client.upsert_object(stix_note)
             logger.info(
                 "GapReporter: pushed gap report %s to GNAT (%d gaps, critical=%s)",
                 report.gap_id,

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Tests for the gap-reporter push internals (evidence push + 409 reopen)."""
+
 from __future__ import annotations
 
 import sys
@@ -12,12 +13,21 @@ from redgnat.orm.models import ResultStatus, TechniqueResult
 
 def _report():
     gap = TechniqueResult(
-        run_id="r1", scenario_id="s1", technique_id="T1046",
-        tactic="discovery", status=ResultStatus.SUCCESS, findings=[{"open_ports": [80]}],
+        run_id="r1",
+        scenario_id="s1",
+        technique_id="T1046",
+        tactic="discovery",
+        status=ResultStatus.SUCCESS,
+        findings=[{"open_ports": [80]}],
     )
     return GapReport(
-        gap_id="gap-r1", run_id="r1", scenario_id="s1", gaps=[gap],
-        investigation_id="IC-1", hypothesis_id="HYP-1", all_results=[gap],
+        gap_id="gap-r1",
+        run_id="r1",
+        scenario_id="s1",
+        gaps=[gap],
+        investigation_id="IC-1",
+        hypothesis_id="HYP-1",
+        all_results=[gap],
     )
 
 

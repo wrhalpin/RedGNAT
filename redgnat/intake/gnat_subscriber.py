@@ -6,10 +6,11 @@ GNAT intel subscriber.
 Polls a GNATClient for new Campaign and AttackPattern STIX objects and
 converts them into IntelFeed records for RedGNAT's scenario builder.
 """
+
 from __future__ import annotations
 
 import logging
-from typing import Iterator
+from collections.abc import Iterator
 
 from redgnat.config import RedGNATConfig
 from redgnat.intake.base import IntelSubscriber
@@ -46,11 +47,9 @@ class GNATSubscriber(IntelSubscriber):
     def _get_client(self) -> object:
         if self._gnat_client is None:
             try:
-                from gnat import GNATClient  # type: ignore[import]
+                from gnat import GNATClient
 
-                self._gnat_client = GNATClient(
-                    config_path=self.config.gnat_config_path
-                )
+                self._gnat_client = GNATClient(config_path=self.config.gnat_config_path)
             except ImportError as exc:
                 raise RuntimeError(
                     "GNAT library not installed. Run: pip install 'gnat>=1.5.0'"

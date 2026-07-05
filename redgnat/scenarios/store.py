@@ -6,6 +6,7 @@ ScenarioStore — all PostgreSQL persistence for RedGNAT.
 The single source of truth for database access. No other module writes to
 the database directly (mirrors SandGNAT's persistence.py convention).
 """
+
 from __future__ import annotations
 
 import json
@@ -48,7 +49,7 @@ class ScenarioStore:
     def _get_conn(self) -> Any:
         if self._conn is None or self._conn.closed:
             try:
-                import psycopg  # type: ignore[import]
+                import psycopg
 
                 self._conn = psycopg.connect(self._db_url)
             except ImportError as exc:
@@ -155,6 +156,7 @@ class ScenarioStore:
         status: ScenarioStatus | None = None,
         limit: int = 100,
     ) -> list[EmulationScenario]:
+        params: tuple[Any, ...]
         if status:
             sql = "SELECT * FROM emulation_scenarios WHERE status = %s ORDER BY created_at DESC LIMIT %s"
             params = (status.value, limit)

@@ -10,8 +10,10 @@ Emulation only: uses read-only service account credentials; never modifies AD.
 
 External dependency: ldap3 (pip install ldap3).
 """
+
 from __future__ import annotations
 
+import contextlib
 import logging
 from typing import Any
 
@@ -48,7 +50,9 @@ def _host_in_scope(scope: Any, host: str) -> bool:
 
 
 # LDAP search filters
-_USER_FILTER = "(&(objectClass=user)(objectCategory=person)(!userAccountControl:1.2.840.113556.1.4.803:=2))"
+_USER_FILTER = (
+    "(&(objectClass=user)(objectCategory=person)(!userAccountControl:1.2.840.113556.1.4.803:=2))"
+)
 _GROUP_FILTER = "(&(objectClass=group))"
 _TRUST_FILTER = "(objectClass=trustedDomain)"
 _GPO_FILTER = "(objectClass=groupPolicyContainer)"
@@ -56,9 +60,15 @@ _ADMIN_GROUP_FILTER = "(&(objectClass=group)(|(cn=Domain Admins)(cn=Enterprise A
 
 # Attributes to retrieve per object type
 _USER_ATTRS = [
-    "sAMAccountName", "userPrincipalName", "displayName", "mail",
-    "memberOf", "lastLogonTimestamp", "userAccountControl",
-    "pwdLastSet", "whenCreated",
+    "sAMAccountName",
+    "userPrincipalName",
+    "displayName",
+    "mail",
+    "memberOf",
+    "lastLogonTimestamp",
+    "userAccountControl",
+    "pwdLastSet",
+    "whenCreated",
 ]
 _GROUP_ATTRS = ["cn", "description", "member", "memberOf", "groupType"]
 _TRUST_ATTRS = ["name", "trustDirection", "trustType", "trustAttributes", "flatName"]
@@ -101,7 +111,7 @@ class ADEnumTechnique(Technique):
             )
 
         try:
-            import ldap3  # type: ignore[import]
+            import ldap3
         except ImportError:
             return self._make_result(
                 ctx,
@@ -128,9 +138,7 @@ class ADEnumTechnique(Technique):
         # Safe-harbor: the LDAP host must be in scope before any bind.
         ldap_host = _extract_host(server_addr)
         if not _host_in_scope(ctx.scope, ldap_host):
-            return self._blocked_result(
-                ctx, f"LDAP server host {ldap_host!r} is not in scope"
-            )
+            return self._blocked_result(ctx, f"LDAP server host {ldap_host!r} is not in scope")
 
         try:
             server = ldap3.Server(
@@ -171,9 +179,7 @@ class ADEnumTechnique(Technique):
             findings.append({"category": "groups", "count": len(groups), "sample": groups[:10]})
 
             # 3. Privileged group members
-            priv_groups = self._search(
-                conn, base_dn, _ADMIN_GROUP_FILTER, _GROUP_ATTRS, 20
-            )
+            priv_groups = self._search(conn, base_dn, _ADMIN_GROUP_FILTER, _GROUP_ATTRS, 20)
             findings.append(
                 {
                     "category": "privileged_groups",
@@ -181,9 +187,7 @@ class ADEnumTechnique(Technique):
                     "groups": priv_groups,
                 }
             )
-            logger.info(
-                "ADEnum: found %d privileged groups [run=%s]", len(priv_groups), ctx.run_id
-            )
+            logger.info("ADEnum: found %d privileged groups [run=%s]", len(priv_groups), ctx.run_id)
 
             # 4. Domain trusts
             trusts = self._search(conn, base_dn, _TRUST_FILTER, _TRUST_ATTRS, 50)
@@ -203,10 +207,8 @@ class ADEnumTechnique(Technique):
                 error=str(exc),
             )
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 conn.unbind()
-            except Exception:
-                pass
 
         return self._make_result(ctx, ResultStatus.SUCCESS, findings, evidence)
 

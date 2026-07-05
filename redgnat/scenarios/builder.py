@@ -6,6 +6,7 @@ ScenarioBuilder — assembles EmulationPlans from EmulationScenarios.
 The builder takes a stored EmulationScenario (a list of technique IDs and
 scope overrides) and produces an EmulationPlan ready for the runner.
 """
+
 from __future__ import annotations
 
 import logging

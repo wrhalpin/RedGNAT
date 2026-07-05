@@ -19,6 +19,7 @@ Emulation only:
 For a more realistic test, configure a real low-privilege app in Entra and
 provide its OAuth consent URL via ctx.params["consent_url"].
 """
+
 from __future__ import annotations
 
 import logging
@@ -114,6 +115,7 @@ class OAuthAbuseTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         targets_raw: list[dict] = ctx.params.get("targets", [])
@@ -160,12 +162,11 @@ class OAuthAbuseTechnique(Technique):
             page = client.create_page(page_dict)
             created_resources["page_id"] = page["id"]
 
-            group = client.create_group(
-                name=f"{campaign_name}-targets", targets=validated_targets
-            )
+            group = client.create_group(name=f"{campaign_name}-targets", targets=validated_targets)
             created_resources["group_id"] = group["id"]
 
             import datetime as dt
+
             launch_date = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
             campaign = client.create_campaign(
@@ -183,8 +184,7 @@ class OAuthAbuseTechnique(Technique):
             created_resources["campaign_id"] = campaign_id
 
             logger.info(
-                "OAuthAbuse: launched consent phishing campaign %s (id=%d) "
-                "targeting %d [run=%s]",
+                "OAuthAbuse: launched consent phishing campaign %s (id=%d) targeting %d [run=%s]",
                 campaign_name,
                 campaign_id,
                 len(validated_targets),

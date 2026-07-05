@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Tests — Phase 2.1: STIX investigation context stamping."""
+
 from __future__ import annotations
 
 from redgnat.feedback.investigation_context import apply_investigation_context

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Regression tests for Batch D STIX/feedback correctness fixes."""
+
 from __future__ import annotations
 
 from redgnat.emulation.tasks import _parse_probe_depth

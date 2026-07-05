@@ -9,6 +9,7 @@ Start with:
 Or via Makefile:
     make api
 """
+
 from __future__ import annotations
 
 import logging
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 _API_KEY_HEADER = "X-API-Key"
 
 
-def create_app() -> "Any":
+def create_app() -> Any:
     try:
         from fastapi import Depends, FastAPI, HTTPException, Security, status
         from fastapi.middleware.cors import CORSMiddleware
@@ -39,9 +40,7 @@ def create_app() -> "Any":
     # Explicitly configured origins only — default to none (same-origin).
     # Set REDGNAT_CORS_ORIGINS=https://dash.example.com to enable a UI origin.
     _cors_origins = [
-        o.strip()
-        for o in os.environ.get("REDGNAT_CORS_ORIGINS", "").split(",")
-        if o.strip()
+        o.strip() for o in os.environ.get("REDGNAT_CORS_ORIGINS", "").split(",") if o.strip()
     ]
     app.add_middleware(
         CORSMiddleware,
@@ -61,9 +60,7 @@ def create_app() -> "Any":
 
     async def verify_api_key(api_key: str = Security(api_key_scheme)) -> str:
         if _expected_key and api_key != _expected_key:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid API key"
-            )
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid API key")
         return api_key
 
     # ------------------------------------------------------------------

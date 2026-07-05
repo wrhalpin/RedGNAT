@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Celery task-body tests (client/store/runner mocked)."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -26,8 +27,12 @@ def _scenario():
 
 def _gap_result():
     return TechniqueResult(
-        run_id="r1", scenario_id="s1", technique_id="T1046",
-        tactic="discovery", status=ResultStatus.SUCCESS, findings=[{"open_ports": [80]}],
+        run_id="r1",
+        scenario_id="s1",
+        technique_id="T1046",
+        tactic="discovery",
+        status=ResultStatus.SUCCESS,
+        findings=[{"open_ports": [80]}],
     )
 
 
@@ -61,9 +66,11 @@ class TestRunScenarioTask:
         run = _run()
         store.get_run.return_value = run
         store.get_scenario.return_value = _scenario()
-        with patch("redgnat.client.RedGNATClient", return_value=client), \
-             patch("redgnat.emulation.runner.EmulationRunner") as Runner, \
-             patch.object(tasks, "_run_feedback") as fb:
+        with (
+            patch("redgnat.client.RedGNATClient", return_value=client),
+            patch("redgnat.emulation.runner.EmulationRunner") as Runner,
+            patch.object(tasks, "_run_feedback") as fb,
+        ):
             Runner.return_value.execute.return_value = [_gap_result()]
             out = tasks.run_scenario_task.run("r1")
         assert out["run_id"] == "r1"
@@ -101,9 +108,11 @@ class TestRunFeedback:
         probe = MagicMock()
         probe.depth = 0
         probe.to_dict.return_value = {"technique_id": "T1595"}
-        with patch("redgnat.feedback.gap_reporter.GapReporter") as GR, \
-             patch("redgnat.feedback.probe_generator.ProbeGenerator") as PG, \
-             patch.object(tasks.run_probe_task, "delay") as delay:
+        with (
+            patch("redgnat.feedback.gap_reporter.GapReporter") as GR,
+            patch("redgnat.feedback.probe_generator.ProbeGenerator") as PG,
+            patch.object(tasks.run_probe_task, "delay") as delay,
+        ):
             GR.return_value.build_report.return_value = report
             PG.return_value.generate.return_value = [probe]
             tasks._run_feedback(cfg, _run(triggered_by="manual"), [_gap_result()])
@@ -113,8 +122,10 @@ class TestRunFeedback:
     def test_depth_cap_stops_probes(self):
         cfg = self._config()
         report = MagicMock(gaps=[_gap_result()], gap_id="g1")
-        with patch("redgnat.feedback.gap_reporter.GapReporter") as GR, \
-             patch("redgnat.feedback.probe_generator.ProbeGenerator") as PG:
+        with (
+            patch("redgnat.feedback.gap_reporter.GapReporter") as GR,
+            patch("redgnat.feedback.probe_generator.ProbeGenerator") as PG,
+        ):
             GR.return_value.build_report.return_value = report
             # run already at max depth -> no probe generation
             tasks._run_feedback(cfg, _run(triggered_by="probe:x:d3"), [_gap_result()])
@@ -134,9 +145,7 @@ class TestRunProbeTask:
         client._normalizer.return_value.to_scenario.return_value = _scenario()
         client.run_scenario.return_value = _run()
         with patch("redgnat.client.RedGNATClient", return_value=client):
-            out = tasks.run_probe_task.run(
-                {"technique_id": "T1046", "probe_id": "p1", "depth": 1}
-            )
+            out = tasks.run_probe_task.run({"technique_id": "T1046", "probe_id": "p1", "depth": 1})
         assert out["run_id"] == "r1"
         # depth threaded into triggered_by
         _, kwargs = client.run_scenario.call_args
@@ -151,8 +160,10 @@ class TestRunEngagementTask:
         store.get_scenario.return_value = _scenario()
         gate = MagicMock()
         gate.check.return_value = (False, "no token")
-        with patch("redgnat.client.RedGNATClient", return_value=client), \
-             patch("redgnat.engagement.gate.EngagementGate", return_value=gate):
+        with (
+            patch("redgnat.client.RedGNATClient", return_value=client),
+            patch("redgnat.engagement.gate.EngagementGate", return_value=gate),
+        ):
             out = tasks.run_engagement_task.run("r1")
         assert out["authorized"] is False
 
@@ -163,10 +174,12 @@ class TestRunEngagementTask:
         store.get_scenario.return_value = _scenario()
         gate = MagicMock()
         gate.check.return_value = (True, "ok")
-        with patch("redgnat.client.RedGNATClient", return_value=client), \
-             patch("redgnat.engagement.gate.EngagementGate", return_value=gate), \
-             patch("redgnat.emulation.runner.EngagementRunner") as Runner, \
-             patch.object(tasks, "_run_feedback"):
+        with (
+            patch("redgnat.client.RedGNATClient", return_value=client),
+            patch("redgnat.engagement.gate.EngagementGate", return_value=gate),
+            patch("redgnat.emulation.runner.EngagementRunner") as Runner,
+            patch.object(tasks, "_run_feedback"),
+        ):
             Runner.return_value.execute.return_value = [_gap_result()]
             out = tasks.run_engagement_task.run("r1")
         assert out["authorized"] is True

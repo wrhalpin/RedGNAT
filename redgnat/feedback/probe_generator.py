@@ -23,6 +23,7 @@ A ProbeRequest is a lightweight instruction to run one or more follow-on
 techniques against specific targets, generated from AI analysis of which
 defensive gaps are most actionable given the current threat context.
 """
+
 from __future__ import annotations
 
 import json
@@ -106,7 +107,7 @@ class ProbeRequest:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "ProbeRequest":
+    def from_dict(cls, d: dict[str, Any]) -> ProbeRequest:
         obj = cls(
             probe_id=d.get("probe_id", str(uuid.uuid4())),
             source_gap_id=d.get("source_gap_id", ""),
@@ -214,7 +215,7 @@ class ProbeGenerator:
     # ------------------------------------------------------------------
 
     def _generate_via_llm(self, report: GapReport) -> list[ProbeRequest]:
-        from gnat.agents import LLMClient  # type: ignore[import]
+        from gnat.agents import LLMClient
 
         gap_summary = self._build_gap_summary(report)
         prompt = _DEFAULT_PROBE_PROMPT.format(gap_summary=gap_summary)
@@ -223,7 +224,7 @@ class ProbeGenerator:
             config_path=self.config.gnat_config_path,
             model=self.model,
         )
-        raw = llm.complete(prompt)  # type: ignore[attr-defined]
+        raw = llm.complete(prompt)
         suggestions = self._parse_llm_response(raw)
         return self._suggestions_to_probes(suggestions, report)
 
@@ -233,7 +234,9 @@ class ProbeGenerator:
             info = self._mapper.get(r.technique_id)
             name = info.name if info else r.technique_id
             tactic = info.tactic if info else r.tactic
-            lines.append(f"- {r.technique_id} ({name}, tactic={tactic}): executed without detection")
+            lines.append(
+                f"- {r.technique_id} ({name}, tactic={tactic}): executed without detection"
+            )
         return "\n".join(lines)
 
     @staticmethod

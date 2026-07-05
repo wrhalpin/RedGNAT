@@ -8,6 +8,7 @@ Provides richer service identification than nmap version detection alone.
 
 Emulation only: read-only banner capture, no exploitation.
 """
+
 from __future__ import annotations
 
 import logging
@@ -22,18 +23,18 @@ logger = logging.getLogger(__name__)
 
 # Well-known probes per port
 _PORT_PROBES: dict[int, bytes] = {
-    21: b"",          # FTP — server sends banner on connect
-    22: b"",          # SSH — server sends banner on connect
-    23: b"",          # Telnet
-    25: b"",          # SMTP
+    21: b"",  # FTP — server sends banner on connect
+    22: b"",  # SSH — server sends banner on connect
+    23: b"",  # Telnet
+    25: b"",  # SMTP
     80: b"HEAD / HTTP/1.0\r\n\r\n",
-    110: b"",         # POP3
-    143: b"",         # IMAP
+    110: b"",  # POP3
+    143: b"",  # IMAP
     443: b"HEAD / HTTP/1.0\r\n\r\n",
-    445: b"",         # SMB — banner-level only
-    3306: b"",        # MySQL
-    3389: b"",        # RDP — version info from TLS handshake
-    5432: b"",        # PostgreSQL
+    445: b"",  # SMB — banner-level only
+    3306: b"",  # MySQL
+    3389: b"",  # RDP — version info from TLS handshake
+    5432: b"",  # PostgreSQL
     8080: b"HEAD / HTTP/1.0\r\n\r\n",
     8443: b"HEAD / HTTP/1.0\r\n\r\n",
 }
@@ -80,10 +81,12 @@ class ServiceEnumTechnique(Technique):
             return self._make_result(
                 ctx,
                 ResultStatus.PARTIAL,
-                findings=[{
-                    "note": "No targets provided. Run NetworkScanTechnique first and "
-                            "pass its findings as ctx.params['targets']."
-                }],
+                findings=[
+                    {
+                        "note": "No targets provided. Run NetworkScanTechnique first and "
+                        "pass its findings as ctx.params['targets']."
+                    }
+                ],
             )
 
         findings: list[dict] = []
@@ -115,9 +118,7 @@ class ServiceEnumTechnique(Technique):
 
         return self._make_result(ctx, ResultStatus.SUCCESS, findings)
 
-    def _grab_banner(
-        self, host: str, port: int, timeout: float, use_tls: bool
-    ) -> str | None:
+    def _grab_banner(self, host: str, port: int, timeout: float, use_tls: bool) -> str | None:
         probe = _PORT_PROBES.get(port, b"")
         try:
             sock = socket.create_connection((host, port), timeout=timeout)

@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Abstract base for RedGNAT intel subscribers."""
+
 from __future__ import annotations
 
 import abc
 import logging
-from typing import Iterator
+from collections.abc import Iterator
 
 from redgnat.config import RedGNATConfig
 from redgnat.orm.models import IntelFeed

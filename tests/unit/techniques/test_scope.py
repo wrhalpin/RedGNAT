@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Unit tests for the Scope safe-harbor implementation."""
+
 from __future__ import annotations
 
 import pytest
@@ -105,9 +106,7 @@ class TestTechniqueScopeGuard:
     def test_dry_run_result(self):
         t = _TestTechnique()
         scope = make_scope(dry_run=True)
-        ctx = TechniqueContext(
-            run_id="r1", scenario_id="s1", feed_id="f1", scope=scope
-        )
+        ctx = TechniqueContext(run_id="r1", scenario_id="s1", feed_id="f1", scope=scope)
         result = t._dry_run_result(ctx, "would do something")
         assert result.status == ResultStatus.DRY_RUN
         assert result.findings[0]["dry_run"] is True
@@ -115,9 +114,7 @@ class TestTechniqueScopeGuard:
     def test_blocked_result(self):
         t = _TestTechnique()
         scope = make_scope()
-        ctx = TechniqueContext(
-            run_id="r1", scenario_id="s1", feed_id="f1", scope=scope
-        )
+        ctx = TechniqueContext(run_id="r1", scenario_id="s1", feed_id="f1", scope=scope)
         result = t._blocked_result(ctx, "no targets")
         assert result.status == ResultStatus.BLOCKED
 
@@ -142,9 +139,7 @@ class TestScopeCIDR:
         assert scope.allows_cidr("10.49.0.0/15") is False
 
     def test_excluded_overlap_is_rejected(self):
-        scope = make_scope(
-            target_ranges=["10.50.0.0/16"], excluded_ranges=["10.50.5.0/24"]
-        )
+        scope = make_scope(target_ranges=["10.50.0.0/16"], excluded_ranges=["10.50.5.0/24"])
         assert scope.allows_cidr("10.50.0.0/16") is False
 
     def test_bogus_cidr_is_rejected(self):

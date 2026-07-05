@@ -24,6 +24,7 @@ The connector is also auto-discoverable by GNAT via the entry point:
     [project.entry-points."gnat.connectors"]
     redgnat = "redgnat.plugins.gnat_plugin:RedGNATConnector"
 """
+
 from __future__ import annotations
 
 import json
@@ -66,11 +67,7 @@ class RedGNATConnector:
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._api_key = api_key
-        self._ssl_ctx = (
-            ssl.create_default_context()
-            if verify_ssl
-            else self._no_verify_ctx()
-        )
+        self._ssl_ctx = ssl.create_default_context() if verify_ssl else self._no_verify_ctx()
 
     @staticmethod
     def _no_verify_ctx() -> ssl.SSLContext:

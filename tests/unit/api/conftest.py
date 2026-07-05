@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Shared fixtures for API route tests."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock

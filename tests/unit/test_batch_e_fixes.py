@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Regression tests for Batch E completeness fixes."""
+
 from __future__ import annotations
 
 from redgnat.scenarios.ttp_mapper import TTPMapper

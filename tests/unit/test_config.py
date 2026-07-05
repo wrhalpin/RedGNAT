@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Exercise every RedGNATConfig property against a fully-populated INI."""
+
 from __future__ import annotations
 
 import textwrap

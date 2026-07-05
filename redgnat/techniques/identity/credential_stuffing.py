@@ -16,6 +16,7 @@ Use this to measure:
 - Whether breach detection (HIBP-style signals, Entra ID Leaked Credential risk) fires
 - Whether MFA or Conditional Access blocks replay attempts
 """
+
 from __future__ import annotations
 
 import logging
@@ -63,6 +64,7 @@ class CredentialStuffingTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         credential_pairs: list[dict] = ctx.params.get("credential_pairs", [])
@@ -80,15 +82,14 @@ class CredentialStuffingTechnique(Technique):
 
         # Filter to only in-scope test accounts
         scoped_pairs = [
-            p for p in credential_pairs
-            if ctx.scope.allows_account(p.get("username", ""))
+            p for p in credential_pairs if ctx.scope.allows_account(p.get("username", ""))
         ]
 
         if not scoped_pairs:
             return self._blocked_result(
                 ctx,
                 f"None of the {len(credential_pairs)} credential pairs match "
-                f"scope.target_accounts — aborting"
+                f"scope.target_accounts — aborting",
             )
 
         if shuffle:
@@ -125,15 +126,11 @@ class CredentialStuffingTechnique(Technique):
 
         findings = self._build_findings(all_results, scoped_pairs)
         status = (
-            ResultStatus.SUCCESS
-            if any(r.success for r in all_results)
-            else ResultStatus.PARTIAL
+            ResultStatus.SUCCESS if any(r.success for r in all_results) else ResultStatus.PARTIAL
         )
         return self._make_result(ctx, status, findings)
 
-    def _attempt(
-        self, cfg: Any, provider: str, username: str, password: str
-    ) -> AuthAttemptResult:
+    def _attempt(self, cfg: Any, provider: str, username: str, password: str) -> AuthAttemptResult:
         if provider == "entra" and cfg.entra_tenant_id:
             return EntraAuthClient(cfg.entra_tenant_id, cfg.entra_client_id).attempt(
                 username, password

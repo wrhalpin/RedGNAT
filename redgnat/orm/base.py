@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """RedGNAT base ORM class — dataclass-style models with STIX export."""
+
 from __future__ import annotations
 
 import uuid
@@ -47,7 +48,7 @@ class RedGNATBase:
         raise NotImplementedError
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "RedGNATBase":
+    def from_dict(cls, data: dict[str, Any]) -> RedGNATBase:
         """Reconstruct a model instance from a serialized dict."""
         raise NotImplementedError
 

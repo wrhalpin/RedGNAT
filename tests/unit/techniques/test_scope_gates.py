@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Scope-gate tests for discovery/identity techniques (Batch C safety fixes)."""
+
 from __future__ import annotations
 
 import sys
@@ -74,9 +75,11 @@ class TestCloudEnumScope:
 
     def test_out_of_scope_tenant_not_enumerated(self):
         t = CloudEnumTechnique()
-        with patch("redgnat.config.RedGNATConfig", return_value=self._cfg()), \
-             patch.object(t, "_enum_entra") as entra, \
-             patch.object(t, "_enum_okta") as okta:
+        with (
+            patch("redgnat.config.RedGNATConfig", return_value=self._cfg()),
+            patch.object(t, "_enum_entra") as entra,
+            patch.object(t, "_enum_okta") as okta,
+        ):
             result = t.execute(_ctx(domains=["unrelated.com"]))
         entra.assert_not_called()
         okta.assert_not_called()
@@ -84,9 +87,26 @@ class TestCloudEnumScope:
 
     def test_in_scope_tenant_is_enumerated(self):
         t = CloudEnumTechnique()
-        with patch("redgnat.config.RedGNATConfig", return_value=self._cfg()), \
-             patch.object(t, "_enum_entra", return_value=[{"user": "a"}]) as entra, \
-             patch.object(t, "_enum_okta", return_value=[]):
+        with (
+            patch("redgnat.config.RedGNATConfig", return_value=self._cfg()),
+            patch.object(t, "_enum_entra", return_value=[{"user": "a"}]) as entra,
+            patch.object(t, "_enum_okta", return_value=[]),
+        ):
+            result = t.execute(_ctx(domains=["corp.example.com"]))
+        entra.assert_called_once()
+        assert result.status == ResultStatus.SUCCESS
+
+    def test_guid_tenant_is_not_domain_gated(self):
+        # A GUID tenant_id (the common case, per config.ini.example) cannot be
+        # domain-scoped — the gate must be SKIPPED, not force-block Entra.
+        cfg = self._cfg()
+        cfg.entra_tenant_id = "11111111-2222-3333-4444-555555555555"
+        cfg.okta_base_url = ""
+        t = CloudEnumTechnique()
+        with (
+            patch("redgnat.config.RedGNATConfig", return_value=cfg),
+            patch.object(t, "_enum_entra", return_value=[{"user": "a"}]) as entra,
+        ):
             result = t.execute(_ctx(domains=["corp.example.com"]))
         entra.assert_called_once()
         assert result.status == ResultStatus.SUCCESS
@@ -101,9 +121,11 @@ class TestTokenTheftScope:
 
     def test_out_of_scope_provider_not_analyzed(self):
         t = TokenTheftTechnique()
-        with patch("redgnat.config.RedGNATConfig", return_value=self._cfg()), \
-             patch.object(t, "_analyze_entra") as entra, \
-             patch.object(t, "_analyze_okta") as okta:
+        with (
+            patch("redgnat.config.RedGNATConfig", return_value=self._cfg()),
+            patch.object(t, "_analyze_entra") as entra,
+            patch.object(t, "_analyze_okta") as okta,
+        ):
             result = t.execute(_ctx(domains=["unrelated.com"]))
         entra.assert_not_called()
         okta.assert_not_called()
@@ -113,9 +135,25 @@ class TestTokenTheftScope:
 
     def test_in_scope_provider_analyzed(self):
         t = TokenTheftTechnique()
-        with patch("redgnat.config.RedGNATConfig", return_value=self._cfg()), \
-             patch.object(t, "_analyze_entra", return_value=[{"category": "x"}]) as entra, \
-             patch.object(t, "_analyze_okta", return_value=[]):
+        with (
+            patch("redgnat.config.RedGNATConfig", return_value=self._cfg()),
+            patch.object(t, "_analyze_entra", return_value=[{"category": "x"}]) as entra,
+            patch.object(t, "_analyze_okta", return_value=[]),
+        ):
+            result = t.execute(_ctx(domains=["corp.example.com"]))
+        entra.assert_called_once()
+        assert result.status == ResultStatus.SUCCESS
+
+    def test_guid_tenant_is_not_domain_gated(self):
+        # GUID tenant_id -> domain gate skipped, Entra still analyzed.
+        cfg = self._cfg()
+        cfg.entra_tenant_id = "11111111-2222-3333-4444-555555555555"
+        cfg.okta_base_url = ""
+        t = TokenTheftTechnique()
+        with (
+            patch("redgnat.config.RedGNATConfig", return_value=cfg),
+            patch.object(t, "_analyze_entra", return_value=[{"category": "x"}]) as entra,
+        ):
             result = t.execute(_ctx(domains=["corp.example.com"]))
         entra.assert_called_once()
         assert result.status == ResultStatus.SUCCESS

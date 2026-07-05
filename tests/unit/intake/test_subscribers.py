@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Subscriber poll() tests with network access mocked at the boundary."""
+
 from __future__ import annotations
 
 from types import SimpleNamespace
@@ -38,7 +39,9 @@ class TestGNATSubscriber:
     def test_poll_yields_feed(self):
         sub = GNATSubscriber(_cfg())
         campaign = SimpleNamespace(
-            id="c1", name="Camp", confidence=90,
+            id="c1",
+            name="Camp",
+            confidence=90,
             to_dict=lambda: {"type": "campaign", "id": "c1"},
         )
         client = self._client([campaign], [_attack_pattern("T1046")])

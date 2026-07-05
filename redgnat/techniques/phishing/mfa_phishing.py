@@ -14,6 +14,7 @@ Emulation only: credentials collected are hashed and not stored in plaintext.
 This technique is most valuable for measuring whether users bypass
 phishing-resistant MFA prompts.
 """
+
 from __future__ import annotations
 
 import logging
@@ -108,6 +109,7 @@ class MFAPhishingTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         targets_raw: list[dict] = ctx.params.get("targets", [])
@@ -157,12 +159,11 @@ class MFAPhishingTechnique(Technique):
             page = client.create_page(page_dict)
             created_resources["page_id"] = page["id"]
 
-            group = client.create_group(
-                name=f"{campaign_name}-targets", targets=validated_targets
-            )
+            group = client.create_group(name=f"{campaign_name}-targets", targets=validated_targets)
             created_resources["group_id"] = group["id"]
 
             import datetime as dt
+
             launch_date = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
             campaign = client.create_campaign(

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Tests — Phase 1.2: Hypothesis validation against GNAT's API."""
+
 from __future__ import annotations
 
 import json
@@ -14,9 +15,7 @@ API_KEY = "test-key"
 INV_ID = "IC-2026-0001"
 HYP_ID = "HYP-2026-0001-01"
 
-_HYPOTHESES_PAYLOAD = json.dumps(
-    [{"id": HYP_ID, "title": "Spray goes undetected"}]
-).encode()
+_HYPOTHESES_PAYLOAD = json.dumps([{"id": HYP_ID, "title": "Spray goes undetected"}]).encode()
 
 
 def _mock_urlopen(payload: bytes, status: int = 200):
@@ -38,9 +37,7 @@ class TestValidateHypothesis:
 
     @patch("urllib.request.urlopen")
     def test_hypothesis_not_in_list_returns_false(self, mock_open):
-        mock_open.return_value = _mock_urlopen(
-            json.dumps([{"id": "HYP-OTHER"}]).encode()
-        )
+        mock_open.return_value = _mock_urlopen(json.dumps([{"id": "HYP-OTHER"}]).encode())
         valid, msg = validate_hypothesis(GNAT_URL, API_KEY, INV_ID, HYP_ID)
         assert valid is False
         assert HYP_ID in msg

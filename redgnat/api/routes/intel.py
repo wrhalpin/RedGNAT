@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Intel feed routes — GET /intel/feeds, POST /intel/ingest."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -12,6 +13,7 @@ router = APIRouter(tags=["intel"])
 
 def _get_client() -> Any:
     from redgnat.client import RedGNATClient
+
     return RedGNATClient()
 
 
@@ -53,10 +55,12 @@ async def list_registered_techniques() -> list[dict]:
     result = []
     for tid in list_technique_ids():
         info = mapper.get(tid)
-        result.append({
-            "technique_id": tid,
-            "name": info.name if info else tid,
-            "tactic": info.tactic if info else "unknown",
-            "description": info.description if info else "",
-        })
+        result.append(
+            {
+                "technique_id": tid,
+                "name": info.name if info else tid,
+                "tactic": info.tactic if info else "unknown",
+                "description": info.description if info else "",
+            }
+        )
     return result

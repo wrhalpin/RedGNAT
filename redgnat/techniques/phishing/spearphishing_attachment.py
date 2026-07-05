@@ -13,6 +13,7 @@ susceptibility and email gateway effectiveness.
 Emulation only: attachments contain no executable payload — only a harmless
 web-beacon image tag that phones home to the GoPhish landing page.
 """
+
 from __future__ import annotations
 
 import base64
@@ -28,9 +29,7 @@ from redgnat.techniques.phishing.base import GoPhishClient, teardown_resources
 logger = logging.getLogger(__name__)
 
 # Minimal 1x1 pixel PNG as base64 (used as the tracking beacon image)
-_PIXEL_PNG_B64 = (
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDQADHQL/Ar4XZgAAAABJRU5ErkJggg=="
-)
+_PIXEL_PNG_B64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDQADHQL/Ar4XZgAAAABJRU5ErkJggg=="
 
 _ATTACHMENT_EMAIL_TEMPLATE = {
     "name": "RedGNAT Attachment Template",
@@ -81,6 +80,7 @@ class SpearphishingAttachmentTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         targets_raw: list[dict] = ctx.params.get("targets", [])
@@ -122,7 +122,7 @@ class SpearphishingAttachmentTechnique(Technique):
             )
             attachment_b64 = base64.b64encode(beacon_content.encode()).decode()
 
-            template_dict = dict(_ATTACHMENT_EMAIL_TEMPLATE)
+            template_dict: dict[str, Any] = dict(_ATTACHMENT_EMAIL_TEMPLATE)
             template_dict["name"] = f"{campaign_name}-tmpl"
             template_dict["attachments"] = [
                 {
@@ -145,9 +145,7 @@ class SpearphishingAttachmentTechnique(Technique):
             page = client.create_page(page_dict)
             created_resources["page_id"] = page["id"]
 
-            group = client.create_group(
-                name=f"{campaign_name}-targets", targets=validated_targets
-            )
+            group = client.create_group(name=f"{campaign_name}-targets", targets=validated_targets)
             created_resources["group_id"] = group["id"]
 
             smtp_profiles = client.list_smtp()
@@ -155,6 +153,7 @@ class SpearphishingAttachmentTechnique(Technique):
                 raise RuntimeError("No GoPhish sending profiles")
 
             import datetime as dt
+
             launch_date = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
             campaign = client.create_campaign(

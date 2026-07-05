@@ -8,6 +8,7 @@ To add a new technique:
 2. Subclass Technique with correct technique_id
 3. Add an entry here: TECHNIQUE_REGISTRY["T1234.001"] = MyTechnique
 """
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING

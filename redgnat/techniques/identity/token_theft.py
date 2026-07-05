@@ -22,6 +22,7 @@ Providers:
 
 Emulation only: read-only API access to audit logs; no token capture or replay.
 """
+
 from __future__ import annotations
 
 import json
@@ -52,6 +53,8 @@ def _minutes_apart(ts_a: str, ts_b: str) -> float | None:
     except ValueError:
         return None
     return abs((b - a).total_seconds()) / 60.0
+
+
 # Session longevity threshold — flag sessions older than this
 _LONG_SESSION_HOURS = 24
 
@@ -83,6 +86,7 @@ class TokenTheftTechnique(Technique):
 
     def execute(self, ctx: TechniqueContext) -> Any:
         from redgnat.config import RedGNATConfig
+
         cfg = RedGNATConfig()
 
         providers = ctx.params.get("providers", ["entra", "okta"])
@@ -110,7 +114,15 @@ class TokenTheftTechnique(Technique):
         entra_domain = cfg.entra_tenant_id if "." in (cfg.entra_tenant_id or "") else ""
         okta_host = (cfg.okta_base_url or "").split("://")[-1].split("/")[0]
 
-        if "entra" in providers and cfg.entra_tenant_id and not _domain_allowed(entra_domain):
+        # Only enforce the domain gate for a domain-form tenant; a GUID
+        # tenant_id (the common case) cannot be domain-scoped, so skip rather
+        # than force-block it.
+        if (
+            "entra" in providers
+            and cfg.entra_tenant_id
+            and entra_domain
+            and not _domain_allowed(entra_domain)
+        ):
             errors.append(f"entra: tenant {entra_domain!r} not in scope")
         elif "entra" in providers and cfg.entra_tenant_id:
             try:
@@ -164,47 +176,54 @@ class TokenTheftTechnique(Technique):
         # Flag risky sign-ins
         risky = [s for s in sign_ins if s.get("riskState") not in {"none", None}]
         if risky:
-            findings.append({
-                "category": "entra_risky_signins",
-                "count": len(risky),
-                "risk_states": list({s.get("riskState") for s in risky}),
-                "sample": [
-                    {
-                        "upn": s.get("userPrincipalName"),
-                        "risk_state": s.get("riskState"),
-                        "risk_detail": s.get("riskDetail"),
-                        "ip": s.get("ipAddress"),
-                    }
-                    for s in risky[:10]
-                ],
-            })
+            findings.append(
+                {
+                    "category": "entra_risky_signins",
+                    "count": len(risky),
+                    "risk_states": list({s.get("riskState") for s in risky}),
+                    "sample": [
+                        {
+                            "upn": s.get("userPrincipalName"),
+                            "risk_state": s.get("riskState"),
+                            "risk_detail": s.get("riskDetail"),
+                            "ip": s.get("ipAddress"),
+                        }
+                        for s in risky[:10]
+                    ],
+                }
+            )
 
         # Impossible travel detection (simple: same UPN, two IPs, short window)
         impossible = self._detect_impossible_travel(sign_ins)
         if impossible:
-            findings.append({
-                "category": "entra_impossible_travel",
-                "count": len(impossible),
-                "events": impossible[:10],
-                "interpretation": "Potential token replay or shared credentials detected",
-            })
+            findings.append(
+                {
+                    "category": "entra_impossible_travel",
+                    "count": len(impossible),
+                    "events": impossible[:10],
+                    "interpretation": "Potential token replay or shared credentials detected",
+                }
+            )
 
         # Check CAE presence — are continuous access evaluation events present?
         cae_signins = [
-            s for s in sign_ins
+            s
+            for s in sign_ins
             if "continuousAccessEvaluation" in str(s.get("authenticationRequirement", ""))
         ]
-        findings.append({
-            "category": "entra_cae_coverage",
-            "cae_enabled_signins": len(cae_signins),
-            "total_signins": len(sign_ins),
-            "cae_coverage_pct": len(cae_signins) / max(len(sign_ins), 1) * 100,
-            "recommendation": (
-                "Enable Continuous Access Evaluation for all apps to reduce "
-                "token theft window" if len(cae_signins) < len(sign_ins) * 0.8
-                else "CAE coverage appears good"
-            ),
-        })
+        findings.append(
+            {
+                "category": "entra_cae_coverage",
+                "cae_enabled_signins": len(cae_signins),
+                "total_signins": len(sign_ins),
+                "cae_coverage_pct": len(cae_signins) / max(len(sign_ins), 1) * 100,
+                "recommendation": (
+                    "Enable Continuous Access Evaluation for all apps to reduce token theft window"
+                    if len(cae_signins) < len(sign_ins) * 0.8
+                    else "CAE coverage appears good"
+                ),
+            }
+        )
 
         return findings
 
@@ -227,17 +246,17 @@ class TokenTheftTechnique(Technique):
         # Look for sessions from multiple IPs for the same user
         impossible = self._detect_okta_impossible_travel(events)
         if impossible:
-            findings.append({
-                "category": "okta_impossible_travel",
-                "count": len(impossible),
-                "events": impossible[:10],
-                "interpretation": "Potential session hijack or token replay",
-            })
+            findings.append(
+                {
+                    "category": "okta_impossible_travel",
+                    "count": len(impossible),
+                    "events": impossible[:10],
+                    "interpretation": "Potential session hijack or token replay",
+                }
+            )
 
         # Detect sign-ins that completed without an MFA authentication context
-        mfa_absent = [
-            e for e in events if "MFA" not in str(e.get("authenticationContext", ""))
-        ]
+        mfa_absent = [e for e in events if "MFA" not in str(e.get("authenticationContext", ""))]
         if mfa_absent:
             findings.append(
                 {
@@ -317,12 +336,14 @@ class TokenTheftTechnique(Technique):
 
     def _get_entra_token(self, cfg: Any) -> str:
         url = f"{cfg.entra_authority}/{cfg.entra_tenant_id}/oauth2/v2.0/token"
-        data = urllib.parse.urlencode({
-            "client_id": cfg.entra_client_id,
-            "client_secret": cfg.entra_client_secret,
-            "scope": "https://graph.microsoft.com/.default",
-            "grant_type": "client_credentials",
-        }).encode()
+        data = urllib.parse.urlencode(
+            {
+                "client_id": cfg.entra_client_id,
+                "client_secret": cfg.entra_client_secret,
+                "scope": "https://graph.microsoft.com/.default",
+                "grant_type": "client_credentials",
+            }
+        ).encode()
         req = urllib.request.Request(url, data=data, method="POST")
         with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
             return json.loads(resp.read())["access_token"]

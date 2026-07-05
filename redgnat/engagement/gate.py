@@ -14,6 +14,7 @@ All three factors must be satisfied simultaneously for Phase 2 to proceed:
 
 Failing any single gate blocks Phase 2 regardless of the other two.
 """
+
 from __future__ import annotations
 
 import logging
@@ -111,7 +112,7 @@ class EngagementGate:
             f"({remaining_min} min remaining, operator: {token.operator})"
         )
 
-    def authorize(self, operator: str, duration_hours: float) -> "Any":
+    def authorize(self, operator: str, duration_hours: float) -> Any:
         """
         Generate and store a new engagement token (gate 1 + 2 must already pass).
 
@@ -121,9 +122,7 @@ class EngagementGate:
         from redgnat.engagement.token import EngagementToken
 
         if not self.config.phase2_enabled:
-            raise RuntimeError(
-                "Cannot authorize: phase2_enabled is not set in config."
-            )
+            raise RuntimeError("Cannot authorize: phase2_enabled is not set in config.")
 
         ok, reason = self._check_unlock_env()
         if not ok:

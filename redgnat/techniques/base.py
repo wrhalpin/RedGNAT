@@ -9,6 +9,7 @@ Every technique module MUST:
 3. Call self._check_scope(ctx.scope, target) before ANY network activity
 4. Return DRY_RUN result when ctx.scope.dry_run is True
 """
+
 from __future__ import annotations
 
 import abc
@@ -17,7 +18,10 @@ import logging
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from redgnat.orm.models import ResultStatus, TechniqueResult
 
 logger = logging.getLogger(__name__)
 
@@ -64,23 +68,15 @@ class Scope:
             addr = ipaddress.ip_address(ip)
         except ValueError:
             return False
-        in_scope = any(
-            addr in ipaddress.ip_network(r, strict=False) for r in self.target_ranges
-        )
-        excluded = any(
-            addr in ipaddress.ip_network(r, strict=False) for r in self.excluded_ranges
-        )
+        in_scope = any(addr in ipaddress.ip_network(r, strict=False) for r in self.target_ranges)
+        excluded = any(addr in ipaddress.ip_network(r, strict=False) for r in self.excluded_ranges)
         return in_scope and not excluded
 
     def allows_domain(self, domain: str) -> bool:
         """Return True if domain is in scope."""
         domain = domain.lower().strip().rstrip(".")
-        in_scope = any(
-            domain == d or domain.endswith(f".{d}") for d in self.target_domains
-        )
-        excluded = any(
-            domain == d or domain.endswith(f".{d}") for d in self.excluded_domains
-        )
+        in_scope = any(domain == d or domain.endswith(f".{d}") for d in self.target_domains)
+        excluded = any(domain == d or domain.endswith(f".{d}") for d in self.excluded_domains)
         return in_scope and not excluded
 
     def allows_account(self, upn: str) -> bool:
@@ -104,9 +100,9 @@ class Scope:
 
         def _contained(target: str) -> bool:
             try:
-                return net.subnet_of(ipaddress.ip_network(target, strict=False))
+                # subnet_of raises TypeError on mismatched IP versions; guarded.
+                return net.subnet_of(ipaddress.ip_network(target, strict=False))  # type: ignore[arg-type]
             except (ValueError, TypeError):
-                # TypeError: mismatched IP versions -> not contained.
                 return False
 
         def _overlaps(target: str) -> bool:
@@ -166,12 +162,12 @@ class Technique(abc.ABC):
     """
 
     technique_id: str  # ATT&CK ID, e.g. "T1046"
-    tactic: str        # ATT&CK tactic, e.g. "discovery"
-    name: str          # Human-readable name
+    tactic: str  # ATT&CK tactic, e.g. "discovery"
+    name: str  # Human-readable name
     emulation_only: bool = True  # MUST remain True — no exploitation
 
     @abc.abstractmethod
-    def execute(self, ctx: TechniqueContext) -> "TechniqueResult":
+    def execute(self, ctx: TechniqueContext) -> TechniqueResult:
         """Execute the technique within the given context."""
         ...
 
@@ -186,9 +182,7 @@ class Technique(abc.ABC):
     def _check_scope_domain(self, scope: Scope, domain: str) -> None:
         """Raise OutOfScopeError if domain is not in scope."""
         if not scope.allows_domain(domain):
-            raise OutOfScopeError(
-                f"{domain} is not in scope for technique {self.technique_id}"
-            )
+            raise OutOfScopeError(f"{domain} is not in scope for technique {self.technique_id}")
 
     def _check_scope_account(self, scope: Scope, upn: str) -> None:
         """Raise OutOfScopeError if account is not an authorised test account."""
@@ -204,11 +198,11 @@ class Technique(abc.ABC):
     def _make_result(
         self,
         ctx: TechniqueContext,
-        status: "ResultStatus",
+        status: ResultStatus,
         findings: list[dict[str, Any]],
         evidence: list[dict[str, Any]] | None = None,
         error: str | None = None,
-    ) -> "TechniqueResult":
+    ) -> TechniqueResult:
         from redgnat.orm.models import TechniqueResult
 
         return TechniqueResult(
@@ -223,7 +217,7 @@ class Technique(abc.ABC):
             error=error,
         )
 
-    def _dry_run_result(self, ctx: TechniqueContext, description: str) -> "TechniqueResult":
+    def _dry_run_result(self, ctx: TechniqueContext, description: str) -> TechniqueResult:
         from redgnat.orm.models import ResultStatus
 
         logger.info(
@@ -238,9 +232,7 @@ class Technique(abc.ABC):
             findings=[{"dry_run": True, "would_have_done": description}],
         )
 
-    def _blocked_result(
-        self, ctx: TechniqueContext, reason: str
-    ) -> "TechniqueResult":
+    def _blocked_result(self, ctx: TechniqueContext, reason: str) -> TechniqueResult:
         from redgnat.orm.models import ResultStatus
 
         logger.warning(

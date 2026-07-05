@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """RedGNATClient — top-level facade for all RedGNAT operations."""
+
 from __future__ import annotations
 
 import logging
@@ -31,7 +32,7 @@ class RedGNATClient:
 
     def __init__(self, config_path: str | None = None) -> None:
         self.config = RedGNATConfig(config_path)
-        self._store: Any = None       # lazy: scenarios.store.ScenarioStore
+        self._store: Any = None  # lazy: scenarios.store.ScenarioStore
         self._normalizer_inst: Any = None  # lazy: intake.normalizer.IntelNormalizer
 
     # ------------------------------------------------------------------

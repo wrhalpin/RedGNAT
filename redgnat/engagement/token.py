@@ -8,6 +8,7 @@ explicitly by an operator via `redgnat engage` or POST /engage/authorize.
 Once created it lives in Redis with a TTL; when it expires Phase 2 stops
 at the next inter-technique checkpoint.
 """
+
 from __future__ import annotations
 
 import json
@@ -41,7 +42,7 @@ class EngagementToken:
     expires_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @classmethod
-    def create(cls, operator: str, duration_hours: float) -> "EngagementToken":
+    def create(cls, operator: str, duration_hours: float) -> EngagementToken:
         """Create a new token valid for *duration_hours* from now."""
         now = datetime.now(UTC)
         return cls(
@@ -70,7 +71,7 @@ class EngagementToken:
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "EngagementToken":
+    def from_dict(cls, d: dict[str, Any]) -> EngagementToken:
         """Reconstruct a token from a serialized dict."""
         return cls(
             token_id=d["token_id"],
@@ -89,7 +90,7 @@ class EngagementToken:
         redis_client.setex(_REDIS_KEY, ttl, json.dumps(self.to_dict()))
 
     @classmethod
-    def load(cls, redis_client: Any) -> "EngagementToken | None":
+    def load(cls, redis_client: Any) -> EngagementToken | None:
         """Load from Redis, or return None if no token exists."""
         raw = redis_client.get(_REDIS_KEY)
         if not raw:

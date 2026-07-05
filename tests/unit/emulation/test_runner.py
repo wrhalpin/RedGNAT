@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """EmulationRunner tests with a mocked store and in-memory techniques."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -43,8 +44,11 @@ def _plan(*technique_classes):
         for t in technique_classes
     ]
     return EmulationPlan(
-        run_id="r1", scenario_id="s1", feed_id="f1",
-        scope=Scope(max_rate_per_minute=0), steps=steps,
+        run_id="r1",
+        scenario_id="s1",
+        feed_id="f1",
+        scope=Scope(max_rate_per_minute=0),
+        steps=steps,
     )
 
 
@@ -65,9 +69,11 @@ def _run_with_plan(runner, store, plan, kill_active=False):
     builder.build_plan.return_value = plan
     ks = MagicMock()
     ks.is_active.return_value = kill_active
-    with patch("redgnat.scenarios.store.ScenarioStore", return_value=store), \
-         patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder), \
-         patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks):
+    with (
+        patch("redgnat.scenarios.store.ScenarioStore", return_value=store),
+        patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder),
+        patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks),
+    ):
         results = runner.execute(run, object())
     return run, results
 
@@ -105,9 +111,11 @@ class TestEmulationRunner:
         builder.build_plan.return_value = plan
         ks = MagicMock()
         ks.is_active.side_effect = RuntimeError("redis down")
-        with patch("redgnat.scenarios.store.ScenarioStore", return_value=store), \
-             patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder), \
-             patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks):
+        with (
+            patch("redgnat.scenarios.store.ScenarioStore", return_value=store),
+            patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder),
+            patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks),
+        ):
             runner.execute(run, object())
         assert run.status == RunStatus.KILLED
 
@@ -124,10 +132,12 @@ class TestEngagementRunner:
         ks.is_active.return_value = False
         gate = MagicMock()
         gate.check.return_value = (False, "token expired")
-        with patch("redgnat.scenarios.store.ScenarioStore", return_value=store), \
-             patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder), \
-             patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks), \
-             patch("redgnat.engagement.gate.EngagementGate", return_value=gate):
+        with (
+            patch("redgnat.scenarios.store.ScenarioStore", return_value=store),
+            patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder),
+            patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks),
+            patch("redgnat.engagement.gate.EngagementGate", return_value=gate),
+        ):
             results = runner.execute(run, object())
         assert run.status == RunStatus.EXPIRED
         assert results[0].status == ResultStatus.EXPIRED
@@ -145,10 +155,12 @@ class TestEngagementRunner:
         ks.is_active.return_value = False
         gate = MagicMock()
         gate.check.side_effect = RuntimeError("redis down")
-        with patch("redgnat.scenarios.store.ScenarioStore", return_value=store), \
-             patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder), \
-             patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks), \
-             patch("redgnat.engagement.gate.EngagementGate", return_value=gate):
+        with (
+            patch("redgnat.scenarios.store.ScenarioStore", return_value=store),
+            patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder),
+            patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks),
+            patch("redgnat.engagement.gate.EngagementGate", return_value=gate),
+        ):
             results = runner.execute(run, object())
         assert run.status == RunStatus.EXPIRED
         assert results[0].status == ResultStatus.EXPIRED
@@ -165,8 +177,10 @@ class TestRunnerTopLevelError:
         builder.build_plan.return_value = _plan(_OkTechnique)
         ks = MagicMock()
         ks.is_active.return_value = False
-        with patch("redgnat.scenarios.store.ScenarioStore", return_value=store), \
-             patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder), \
-             patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks):
+        with (
+            patch("redgnat.scenarios.store.ScenarioStore", return_value=store),
+            patch("redgnat.scenarios.builder.ScenarioBuilder", return_value=builder),
+            patch("redgnat.engagement.kill_switch.KillSwitch", return_value=ks),
+        ):
             runner.execute(run, object())
         assert run.status == RunStatus.FAILED

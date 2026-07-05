@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """Scenario management routes — GET/POST /scenarios."""
+
 from __future__ import annotations
 
 import logging
@@ -14,6 +15,7 @@ router = APIRouter(tags=["scenarios"])
 
 def _get_client() -> Any:
     from redgnat.client import RedGNATClient
+
     return RedGNATClient()
 
 
@@ -64,9 +66,7 @@ async def trigger_run(scenario_id: str, body: dict = Body(default={})) -> dict:
         if base_url:
             from redgnat.feedback.investigation_context import validate_hypothesis
 
-            valid, message = validate_hypothesis(
-                base_url, api_key, investigation_id, hypothesis_id
-            )
+            valid, message = validate_hypothesis(base_url, api_key, investigation_id, hypothesis_id)
             if valid is False:
                 raise HTTPException(status_code=400, detail=message)
             if valid is None:

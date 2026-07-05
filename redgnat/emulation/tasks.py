@@ -9,6 +9,7 @@ Workers are started with:
 The beat scheduler (celery beat) drives periodic intel ingestion:
     celery -A redgnat.emulation.tasks beat --loglevel=info
 """
+
 from __future__ import annotations
 
 import logging
@@ -257,9 +258,7 @@ def run_engagement_task(self, run_id: str) -> dict:
     gate = EngagementGate(client.config)
     authorized, reason = gate.check()
     if not authorized:
-        logger.warning(
-            "run_engagement_task: gate denied run=%s reason=%s", run_id, reason
-        )
+        logger.warning("run_engagement_task: gate denied run=%s reason=%s", run_id, reason)
         run.status = RunStatus.FAILED
         store.upsert_run(run)
         store.close()

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Bill Halpin
 """STIX export routes — consumed by the GNAT RedGNATConnector plugin."""
+
 from __future__ import annotations
 
 from datetime import UTC
@@ -13,6 +14,7 @@ router = APIRouter(tags=["stix"])
 
 def _get_client() -> Any:
     from redgnat.client import RedGNATClient
+
     return RedGNATClient()
 
 
@@ -152,6 +154,7 @@ async def list_stix_groupings() -> list[dict]:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _stamp(stix_obj: dict[str, Any], run: Any) -> None:
     """Apply investigation context properties to a STIX object in-place."""

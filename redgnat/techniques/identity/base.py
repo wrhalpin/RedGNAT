@@ -14,8 +14,10 @@ All methods are emulation-safe:
 - Detect lockout responses and back off immediately
 - Log outcomes without recording plaintext credentials
 """
+
 from __future__ import annotations
 
+import contextlib
 import json
 import logging
 import random
@@ -31,6 +33,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AuthAttemptResult:
     """Outcome of a single authentication attempt."""
+
     provider: str
     account: str
     password_hint: str  # only first char + length, never full password
@@ -85,13 +88,15 @@ class EntraAuthClient:
         self._client_id = client_id
 
     def attempt(self, username: str, password: str) -> AuthAttemptResult:
-        data = urllib.parse.urlencode({
-            "grant_type": "password",
-            "client_id": self._client_id,
-            "username": username,
-            "password": password,
-            "scope": "openid profile",
-        }).encode()
+        data = urllib.parse.urlencode(
+            {
+                "grant_type": "password",
+                "client_id": self._client_id,
+                "username": username,
+                "password": password,
+                "scope": "openid profile",
+            }
+        ).encode()
 
         req = urllib.request.Request(self._token_url, data=data, method="POST")
         try:
@@ -111,10 +116,8 @@ class EntraAuthClient:
         except urllib.error.HTTPError as exc:
             body_text = exc.read().decode("utf-8", errors="replace")[:200]
             body = {}
-            try:
+            with contextlib.suppress(Exception):
                 body = json.loads(body_text)
-            except Exception:
-                pass
 
             error_code = body.get("error_codes", [None])[0]
             if isinstance(error_code, list):
@@ -186,10 +189,8 @@ class OktaAuthClient:
         except urllib.error.HTTPError as exc:
             body_text = exc.read().decode("utf-8", errors="replace")[:200]
             body = {}
-            try:
+            with contextlib.suppress(Exception):
                 body = json.loads(body_text)
-            except Exception:
-                pass
 
             error_code = body.get("errorCode", "")
             locked = error_code in {"E0000069", "E0000042"}
@@ -231,7 +232,7 @@ class LDAPAuthClient:
 
     def attempt(self, username: str, password: str) -> AuthAttemptResult:
         try:
-            import ldap3  # type: ignore[import]
+            import ldap3
         except ImportError:
             return AuthAttemptResult(
                 provider="ldap",
